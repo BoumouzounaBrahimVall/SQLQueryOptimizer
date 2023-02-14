@@ -104,4 +104,11 @@ import java.util.regex.Pattern;
 			return selectionsJointure;
 		}
 
-	}
+
+	/**
+	 * 
+	 */
+	public String queryScrpt;
+
+}
+

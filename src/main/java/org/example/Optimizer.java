@@ -1,14 +1,16 @@
 package org.example;
 
+import java.util.*;
+
 /**
  * 
  */
-public class InIqual extends Selection {
+public class Optimizer {
 
 	/**
 	 * Default constructor
 	 */
-	public InIqual() {
+	public Optimizer() {
 	}
 
 }

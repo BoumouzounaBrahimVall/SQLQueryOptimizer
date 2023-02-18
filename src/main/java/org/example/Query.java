@@ -62,43 +62,7 @@ import java.util.regex.Pattern;
 			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
 			List<String> selCondition = new ArrayList<>();
 			List<String> selJointure = new ArrayList<>();
-			/*Pattern pattern = Pattern.compile("(?i)(AND|OR)\\s+(\\w+)\\s*([=|>|<])\\s*'([^']*)'");
-			Matcher matcher = pattern.matcher(selections);
-			while (matcher.find()) {
-				String operator = matcher.group(1);
-				String column = matcher.group(2);
-				String operation=matcher.group(3);
-				String value = matcher.group(4);
-				if (operator.equalsIgnoreCase("AND")) {
-					AndSelections.add(column + ""+operation + value );
-				} else if (operator.equalsIgnoreCase("OR")) {
-					OrSelections.add(column + ""+operation + value );
-				}
-			}*/
-			String[] andSplit = selections.split("(?i)AND");
-			for (String andCondition : andSplit) {
-				String[] orSplit = andCondition.split("(?i)OR");
-				if (orSplit.length == 1) {
-					AndSelections.add(andCondition.trim());
-				} else {
-					for (String orCondition : orSplit) {
-						OrSelections.add(orCondition.trim());
-					}
-				}
-			}
 
-			if(tablesAndConditions.length > 1)
-			{
-				String[] arrsel=selections.split("AND|OR");
-				for(String s:arrsel) {
-					Pattern patternJ = Pattern.compile("\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b",Pattern.CASE_INSENSITIVE);
-					Matcher matcherJ = patternJ.matcher(s);
-					if(matcherJ.find())
-						selJointure.add(s);
-					else
-						selCondition.add(s);
-				}
-			}
 
 
 

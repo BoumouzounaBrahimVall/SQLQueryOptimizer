@@ -10,13 +10,15 @@ import java.util.regex.Pattern;
 
 
 	public class Query {
-
+		private Node Tree;
 		//s:nimporte quel espace
 		private static final String SELECT_REGEX = "^SELECT\\s+(.*)\\s+FROM\\s+(.*)$";
 		/*commancer par nimporte quel caractere sauf retour a la ligne
 		 */
 		private static final String PROJECTION_REGEX = "^(.*),(.*)$";
-		//liste des projections
+		private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
+
+	//liste des projections
 		private final List<String> projections;
 		//liste des selections
 		private final List<String> whereTokens;
@@ -25,15 +27,18 @@ import java.util.regex.Pattern;
 	public List<String> getWhereTokens() {
 		return whereTokens;
 	}
-
+	public List<String> getProjections() {return projections;}
+	public List<String> getTables() {return tables;}
 	public Query(List<String> projections, List<String> tables, List<String> tokens) {
 			this.projections = projections;
 			this.tables = tables;
 			this.whereTokens=tokens;
+			 Tree=null;
+			for (String token : tokens) {
+				Tree=inserer_exp_arbre(Tree,token,tables);
+			}
 		}
-		public List<String> getProjections() {return projections;}
-		public List<String> getTables() {return tables;}
-		public static Query parseQuery(String query) {
+	public static Query parseQuery(String query) {
 			Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
 			if (!selectMatcher.find()) {
 				throw new IllegalArgumentException("Invalid query: " + query);
@@ -62,9 +67,13 @@ import java.util.regex.Pattern;
 
 			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
 			//todo:: create the tree
-
-
-			return new Query(projectionList, tab,null);
+			Matcher matcher = CONDITIONS_PATTERN.matcher(selections);// "w.b=k.g AND k.a='1' AND k.b='1' OR w.c='1' AND w.d='1' AND k.e='1' OR k.f='1' AND k.g='1'"
+			List<String> tokens = new ArrayList<>();
+			while (matcher.find()) {
+				String token = matcher.group();
+				tokens.add(token);
+			}
+			return new Query(projectionList, tab,tokens);
 
 		}
 
@@ -133,13 +142,14 @@ import java.util.regex.Pattern;
 	public static void main(String[] args) {
 
 
-			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND region = 'case-settat' AND a='b' OR z='z' AND s>s";
+			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND Ville.region = 'case-settat' AND Personne.a='b' OR Personne.z='z' AND Ville.s='s'";
 			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = Paris AND clients.age<50 OR personnes.ville=Cabablanca AND clients.age> 20 ";
 			String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
 			Query parsedQuery = parseQuery(query);
-			System.out.println("Projections: " + parsedQuery.getProjections());
-			System.out.println("Tables: " + parsedQuery.getTables());
-			System.out.println("Where Tokens: " + parsedQuery.getWhereTokens());
+			//System.out.println("Projections: " + parsedQuery.getProjections());
+			//System.out.println("Tables: " + parsedQuery.getTables());
+			//System.out.println("Where Tokens: " + parsedQuery.getWhereTokens());
+		Node.affch(parsedQuery.Tree,0);
 
 
 

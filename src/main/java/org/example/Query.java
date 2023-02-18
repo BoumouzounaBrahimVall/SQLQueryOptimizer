@@ -19,19 +19,19 @@ import java.util.regex.Pattern;
 		//liste des projections
 		private final List<String> projections;
 		//liste des selections
-		private final List<String> selectionsCondition;
-		private final List<String> selectionsJointure;
+		private final List<String> whereTokens;
 		private final List<String> tables;
-		private static List<String> AndSelections=new ArrayList<>();
-	 	private static List<String> OrSelections=new ArrayList<>();
-		public Query(List<String> projections, List<String> selectionsCondition, List<String> tables,List<String> selectionsJointure) {
+
+	public List<String> getWhereTokens() {
+		return whereTokens;
+	}
+
+	public Query(List<String> projections, List<String> tables, List<String> tokens) {
 			this.projections = projections;
-			this.selectionsCondition = selectionsCondition;
 			this.tables = tables;
-			this.selectionsJointure=selectionsJointure;
+			this.whereTokens=tokens;
 		}
 		public List<String> getProjections() {return projections;}
-		public List<String> getSelections() {return selectionsCondition;}
 		public List<String> getTables() {return tables;}
 		public static Query parseQuery(String query) {
 			Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
@@ -55,18 +55,16 @@ import java.util.regex.Pattern;
 			}
 			String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
 			String tables = tablesAndConditions[0];
+
 			List<String> tab = new ArrayList<>();
-			String[] arrtables=tables.split(" ");
+			String[] arrtables=tables.split(",");
 			Collections.addAll(tab, arrtables);
 
 			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
-			List<String> selCondition = new ArrayList<>();
-			List<String> selJointure = new ArrayList<>();
+			//todo:: create the tree
 
 
-
-
-			return new Query(projectionList, selCondition, tab,selJointure);
+			return new Query(projectionList, tab,null);
 
 		}
 
@@ -78,22 +76,17 @@ import java.util.regex.Pattern;
 			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = Paris AND clients.age<50 OR personnes.ville=Cabablanca AND clients.age> 20 ";
 			String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
 			Query parsedQuery = parseQuery(query);
-
 			System.out.println("Projections: " + parsedQuery.getProjections());
-			System.out.println("Selections Condition: " + parsedQuery.getSelections());
-
-			System.out.println("Selections Jointure: " + parsedQuery.getSelectionsJointure());
 			System.out.println("Tables: " + parsedQuery.getTables());
-			System.out.println("AND SELECTIONS :"+AndSelections);
-			System.out.println("OR SELECTIONS :"+OrSelections);
+			System.out.println("Where Tokens: " + parsedQuery.getWhereTokens());
+
+
 
 
 		}
 
 
-		public List<String> getSelectionsJointure() {
-			return selectionsJointure;
-		}
+
 
 
 	/**

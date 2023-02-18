@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 				}
 				projectionList.add(projections);
 			}
-			String[] tablesAndConditions = tablesAndSelections.split("\\s+ \\s+");
+			String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
 			String tables = tablesAndConditions[0];
 
 			List<String> tab = new ArrayList<>();

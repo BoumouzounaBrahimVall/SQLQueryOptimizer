@@ -5,30 +5,34 @@ import java.util.*;
 /**
  * 
  */
-public abstract class Node {
+public  class Node {
 
-	/**
-	 * Default constructor
-	 */
-	public Node() {
+	private String data;
+	private Node left ;
+	private Node right;
+
+	public String getData() {
+		return data;
 	}
-	private Content Cont;
-	private Node fils_gauche;
-	private Node fils_droit;
-	private boolean is_feuille;
-
-	public Node(Content C, Node fils_gauche, Node fils_droit) {
-		this.Cont = C;
-		this.fils_gauche = fils_gauche;
-		this.fils_droit = fils_droit;
-		this.is_feuille=false;
+	public void setData(String data) {
+		this.data = data;
 	}
+	public Node(String S) {
+		this.data=S;
+		left=right=null;}
 
-	public Node(Content C) {
-		this.Cont = C;
-		this.fils_droit=null;
-		this.fils_droit=null;
-		this.is_feuille=true;
+
+
+	public Node getLeft() {
+		return left;
 	}
-
+	public void setLeft(Node left) {
+		this.left = left;
+	}
+	public Node getRight() {
+		return right;
+	}
+	public void setRight(Node right) {
+		this.right = right;
+	}
 }

@@ -42,7 +42,7 @@ public  class Node {
 
 		//print the right child
 		affch(node.getRight(), Niv + 1);
-		System.out.println("");
+		System.out.println();
 		for (esp = 0; esp < Niv; esp++) System.out.print("\t");
 
 		System.out.print(node.getData());

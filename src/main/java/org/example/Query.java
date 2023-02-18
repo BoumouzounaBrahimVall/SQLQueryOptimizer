@@ -92,7 +92,7 @@ import java.util.regex.Pattern;
 	}
 	public static Node inserer_exp_arbre(Node arb,String elem,List<String> tab)
 	{
-		Node nv; Node tmp=null;
+		Node nv, tmp;
 		nv= new Node(elem);
 
 		if(elem.matches("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'")) { // selection condition

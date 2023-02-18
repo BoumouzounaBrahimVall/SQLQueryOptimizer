@@ -35,4 +35,21 @@ public  class Node {
 	public void setRight(Node right) {
 		this.right = right;
 	}
+	public static void affch(Node node, int Niv)
+	{
+		int esp; //for printing spaces
+		if (node==null)return;
+
+		//print the right child
+		affch(node.getRight(), Niv + 1);
+		System.out.println("");
+		for (esp = 0; esp < Niv; esp++) System.out.print("\t");
+
+		System.out.print(node.getData());
+
+		//print the left child
+		affch(node.getLeft(),Niv + 1);
+
+
+	}
 }

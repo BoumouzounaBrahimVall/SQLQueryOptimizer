@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 		//liste des projections
 		private final List<String> projections;
 		//liste des selections
-
 		private final List<String> selectionsCondition;
 		private final List<String> selectionsJointure;
 		private final List<String> tables;
@@ -31,18 +30,9 @@ import java.util.regex.Pattern;
 			this.tables = tables;
 			this.selectionsJointure=selectionsJointure;
 		}
-		public List<String> getProjections() {
-			return projections;
-		}
-
-		public List<String> getSelections() {
-			return selectionsCondition;
-		}
-
-		public List<String> getTables() {
-			return tables;
-		}
-
+		public List<String> getProjections() {return projections;}
+		public List<String> getSelections() {return selectionsCondition;}
+		public List<String> getTables() {return tables;}
 		public static Query parseQuery(String query) {
 			Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
 			if (!selectMatcher.find()) {
@@ -55,8 +45,6 @@ import java.util.regex.Pattern;
 			List<String> projectionList = new ArrayList<>();
 
 			if(!(projections.equals("*"))){
-
-
 				Matcher projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
 				while (projectionMatcher.find()) {
 					projectionList.add(projectionMatcher.group(1));
@@ -120,10 +108,12 @@ import java.util.regex.Pattern;
 
 
 		public static void main(String[] args) {
+
 			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND region = 'case-settat' AND a='b' OR z='z' AND s>s";
 			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = Paris AND clients.age<50 OR personnes.ville=Cabablanca AND clients.age> 20 ";
 			String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
 			Query parsedQuery = parseQuery(query);
+
 			System.out.println("Projections: " + parsedQuery.getProjections());
 			System.out.println("Selections Condition: " + parsedQuery.getSelections());
 			System.out.println("Selections Jointure: " + parsedQuery.getSelectionsJointure());

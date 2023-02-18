@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
 			List<String> tab = new ArrayList<>();
 			String[] arrtables=tables.split(" ");
 			Collections.addAll(tab, arrtables);
+
 			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
 
 			List<String> selCondition = new ArrayList<>();
@@ -85,7 +86,6 @@ import java.util.regex.Pattern;
 						selJointure.add(s);
 					else
 						selCondition.add(s);
-
 				}
 			}
 
@@ -98,10 +98,10 @@ import java.util.regex.Pattern;
 
 		public static void main(String[] args) {
 			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND region = 'case-settat' OR a='b'";
-			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = 'Paris' AND clients.age<50 OR personnes.ville='Cabablanca' AND clients.age> 20 ";
+			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = 'Paris' AND clients.age<'50' OR personnes.ville='Cabablanca' AND clients.age> '20' ";
 			Query parsedQuery = parseQuery(query2);
-			System.out.println("Projections: " + parsedQuery.getProjections());
-			System.out.println("Selections Condition: " + parsedQuery.getSelections());
+			System.out.println("π: " + parsedQuery.getProjections());
+			System.out.println("σ: " + parsedQuery.getSelections());
 			System.out.println("Selections Jointure: " + parsedQuery.getSelectionsJointure());
 			System.out.println("Tables: " + parsedQuery.getTables());
 			System.out.println("AND SELECTIONS :"+AndSelections);

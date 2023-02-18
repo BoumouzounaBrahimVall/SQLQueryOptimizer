@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 				}
 				projectionList.add(projections);
 			}
-			String[] tablesAndConditions = tablesAndSelections.split("\\s+ \\s+");
+			String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
 			String tables = tablesAndConditions[0];
 
 			List<String> tab = new ArrayList<>();
@@ -92,7 +92,7 @@ import java.util.regex.Pattern;
 	}
 	public static Node inserer_exp_arbre(Node arb,String elem,List<String> tab)
 	{
-		Node nv; Node tmp=null;
+		Node nv, tmp;
 		nv= new Node(elem);
 
 		if(elem.matches("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'")) { // selection condition

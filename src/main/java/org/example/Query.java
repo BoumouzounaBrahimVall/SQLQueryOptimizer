@@ -59,19 +59,30 @@ import java.util.regex.Pattern;
 			String[] arrtables=tables.split(" ");
 			Collections.addAll(tab, arrtables);
 			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
-
 			List<String> selCondition = new ArrayList<>();
 			List<String> selJointure = new ArrayList<>();
-			Pattern pattern = Pattern.compile("(?i)(AND|OR)\\s+(\\w+)\\s*=\\s*'([^']*)'");
+			/*Pattern pattern = Pattern.compile("(?i)(AND|OR)\\s+(\\w+)\\s*([=|>|<])\\s*'([^']*)'");
 			Matcher matcher = pattern.matcher(selections);
 			while (matcher.find()) {
 				String operator = matcher.group(1);
 				String column = matcher.group(2);
-				String value = matcher.group(3);
+				String operation=matcher.group(3);
+				String value = matcher.group(4);
 				if (operator.equalsIgnoreCase("AND")) {
-					AndSelections.add(column + " = '" + value + "'");
+					AndSelections.add(column + ""+operation + value );
 				} else if (operator.equalsIgnoreCase("OR")) {
-					OrSelections.add(column + " = '" + value + "'");
+					OrSelections.add(column + ""+operation + value );
+				}
+			}*/
+			String[] andSplit = selections.split("(?i)AND");
+			for (String andCondition : andSplit) {
+				String[] orSplit = andCondition.split("(?i)OR");
+				if (orSplit.length == 1) {
+					AndSelections.add(andCondition.trim());
+				} else {
+					for (String orCondition : orSplit) {
+						OrSelections.add(orCondition.trim());
+					}
 				}
 			}
 
@@ -97,16 +108,22 @@ import java.util.regex.Pattern;
 
 
 		public static void main(String[] args) {
-			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND region = 'case-settat' OR a='b'";
-			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = 'Paris' AND clients.age<50 OR personnes.ville='Cabablanca' AND clients.age> 20 ";
-			Query parsedQuery = parseQuery(query2);
+
+			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND region = 'case-settat' AND a='b' OR z='z' AND s>s";
+			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = Paris AND clients.age<50 OR personnes.ville=Cabablanca AND clients.age> 20 ";
+			String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
+			Query parsedQuery = parseQuery(query);
+
 			System.out.println("Projections: " + parsedQuery.getProjections());
 			System.out.println("Selections Condition: " + parsedQuery.getSelections());
 			System.out.println("Selections Jointure: " + parsedQuery.getSelectionsJointure());
 			System.out.println("Tables: " + parsedQuery.getTables());
 			System.out.println("AND SELECTIONS :"+AndSelections);
 			System.out.println("OR SELECTIONS :"+OrSelections);
+
+
 		}
+
 
 		public List<String> getSelectionsJointure() {
 			return selectionsJointure;
@@ -119,4 +136,3 @@ import java.util.regex.Pattern;
 	public String queryScrpt;
 
 }
-

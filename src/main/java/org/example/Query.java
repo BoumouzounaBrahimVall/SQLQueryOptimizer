@@ -33,10 +33,14 @@ import java.util.regex.Pattern;
 			this.projections = projections;
 			this.tables = tables;
 			this.whereTokens=tokens;
-			 Tree=null;
+			 Tree= null;
 			for (String token : tokens) {
 				Tree=inserer_exp_arbre(Tree,token,tables);
 			}
+			Node head= new Node("π");
+			head.setLeft(Tree);
+			Tree=head;
+
 		}
 	public static Query parseQuery(String query) {
 			Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);

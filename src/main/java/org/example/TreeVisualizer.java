@@ -10,7 +10,7 @@ public class TreeVisualizer extends JPanel {
 
     public TreeVisualizer(Node racine) {
         this.racine = racine;
-        setPreferredSize(new Dimension(800, 500));
+        setPreferredSize(new Dimension(1500, 500));
     }
 
     @Override

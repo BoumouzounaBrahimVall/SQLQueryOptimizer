@@ -149,6 +149,8 @@ import java.util.regex.Pattern;
 		frame.getContentPane().add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
+		JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		frame.add(scrollPane);
 		frame.setVisible(true);
 	}
 	public static void main(String[] args) {

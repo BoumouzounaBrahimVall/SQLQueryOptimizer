@@ -1,5 +1,6 @@
 package org.example;
 
+import javax.swing.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,7 +141,16 @@ import java.util.regex.Pattern;
 		return arb;
 	}
 
-
+	public void DessinerArbre()
+	{
+		JFrame frame = new JFrame("Arbre binaire");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		TreeVisualizer panel = new TreeVisualizer(this.Tree);
+		frame.getContentPane().add(panel);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
 	public static void main(String[] args) {
 
 

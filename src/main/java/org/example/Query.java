@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 		private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
 
 	//liste des projections
-		private final List<String> projections;
+		private List<String> projections;
 		//liste des selections
 		private final List<String> whereTokens;
 		private final List<String> tables;
@@ -29,55 +29,53 @@ import java.util.regex.Pattern;
 	}
 	public List<String> getProjections() {return projections;}
 	public List<String> getTables() {return tables;}
-	public Query(List<String> projections, List<String> tables, List<String> tokens) {
-			this.projections = projections;
-			this.tables = tables;
-			this.whereTokens=tokens;
-			 Tree= null;
-			for (String token : tokens) {
-				Tree=inserer_exp_arbre(Tree,token,tables);
-			}
-			Node head= new Node("π");
-			head.setLeft(Tree);
-			Tree=head;
-
+	public Query(String query) {
+		Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
+		if (!selectMatcher.find()) {
+			throw new IllegalArgumentException("Invalid query: " + query);
 		}
-	public static Query parseQuery(String query) {
-			Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
-			if (!selectMatcher.find()) {
-				throw new IllegalArgumentException("Invalid query: " + query);
+
+
+		String projections = selectMatcher.group(1);
+		String tablesAndSelections = selectMatcher.group(2);
+		List<String> projectionList = new ArrayList<>();
+
+		if(!(projections.equals("*"))){
+			Matcher projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
+			while (projectionMatcher.find()) {
+				projectionList.add(projectionMatcher.group(1));
+				projections = projectionMatcher.group(2);
+				projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
 			}
+			projectionList.add(projections);
+		}
+		String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
+		String tables = tablesAndConditions[0];
 
+		List<String> tab = new ArrayList<>();
+		String[] arrtables=tables.split(",");
+		Collections.addAll(tab, arrtables);
 
-			String projections = selectMatcher.group(1);
-			String tablesAndSelections = selectMatcher.group(2);
-			List<String> projectionList = new ArrayList<>();
-
-			if(!(projections.equals("*"))){
-				Matcher projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
-				while (projectionMatcher.find()) {
-					projectionList.add(projectionMatcher.group(1));
-					projections = projectionMatcher.group(2);
-					projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
-				}
-				projectionList.add(projections);
-			}
-			String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
-			String tables = tablesAndConditions[0];
-
-			List<String> tab = new ArrayList<>();
-			String[] arrtables=tables.split(",");
-			Collections.addAll(tab, arrtables);
-
-			String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
-			//todo:: create the tree
-			Matcher matcher = CONDITIONS_PATTERN.matcher(selections);// "w.b=k.g AND k.a='1' AND k.b='1' OR w.c='1' AND w.d='1' AND k.e='1' OR k.f='1' AND k.g='1'"
-			List<String> tokens = new ArrayList<>();
-			while (matcher.find()) {
-				String token = matcher.group();
-				tokens.add(token);
-			}
-			return new Query(projectionList, tab,tokens);
+		String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
+		//todo:: create the tree
+		Matcher matcher = CONDITIONS_PATTERN.matcher(selections);// "w.b=k.g AND k.a='1' AND k.b='1' OR w.c='1' AND w.d='1' AND k.e='1' OR k.f='1' AND k.g='1'"
+		List<String> tokens = new ArrayList<>();
+		while (matcher.find()) {
+			String token = matcher.group();
+			tokens.add(token);
+		}
+		this.projections=projectionList;
+		this.tables=tab;
+		this.whereTokens=tokens;
+	}
+	public  void parseQuery( ) {
+		Tree= null;
+		for (String token : this.whereTokens) {
+			Tree=inserer_exp_arbre(Tree,token,tables);
+		}
+		Node head= new Node("π");
+		head.setLeft(Tree);
+		Tree=head;
 
 		}
 
@@ -149,7 +147,8 @@ import java.util.regex.Pattern;
 			String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND Ville.region = 'case-settat' AND Personne.a='b' OR Personne.z='z' AND Ville.s='s'";
 			String query2="SELECT nom, age FROM personnes, clients WHERE personnes.id=clients.id AND personnes.ville = Paris AND clients.age<50 OR personnes.ville=Cabablanca AND clients.age> 20 ";
 			String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
-			Query parsedQuery = parseQuery(query);
+			Query parsedQuery = new Query(query);
+			parsedQuery.parseQuery();
 			//System.out.println("Projections: " + parsedQuery.getProjections());
 			//System.out.println("Tables: " + parsedQuery.getTables());
 			//System.out.println("Where Tokens: " + parsedQuery.getWhereTokens());

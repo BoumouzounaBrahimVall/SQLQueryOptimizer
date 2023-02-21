@@ -18,8 +18,8 @@ public class Optimizer {
 		String query = "SELECT nom,villename FROM Personne,Ville WHERE Personne.idville = Ville.idville AND Ville.region = 'case-settat' AND Personne.a='b' OR Personne.z='z' AND Ville.s='s'";
 		Query req=new Query(query);
 
-		req.remplirArbre();
-		req.DessinerArbre();
+		//req.remplirArbre();
+		//req.DessinerArbre();
 
 
 		//req.parseQuery();

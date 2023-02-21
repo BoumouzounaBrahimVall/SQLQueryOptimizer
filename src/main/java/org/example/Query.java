@@ -141,7 +141,7 @@ import java.util.regex.Pattern;
 		return arb;
 	}
 
-	public void DessinerArbre()
+	public void DrawTree()
 	{
 		JFrame frame = new JFrame("Arbre binaire");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -109,7 +109,7 @@ import java.util.regex.Pattern;
 		nv= new Node(elem);
 
 		if(elem.matches("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'")) { // selection condition
-			nv.setData("σ"+elem);
+			nv.setData("σ("+elem+")");
 			nv.setLeft(new Node(tab.get(tab.indexOf( elem.split("\\s*\\.")[0]))));
 		}
 

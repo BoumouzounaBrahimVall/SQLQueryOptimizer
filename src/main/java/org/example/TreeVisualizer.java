@@ -17,12 +17,16 @@ public class TreeVisualizer extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
-        dessinerNode(racine, getWidth()/2, 50, g);
+        int x=getWidth()/2,y=50;
+        g.drawString(racine.getData(), x- 12, y + 12);
+        g.drawLine(x+5, y+20, x+5, y+40);
+        dessinerNode(racine.getLeft(), x, y+40, g);
     }
 
     private void dessinerNode(Node Node, int x, int y, Graphics g) {
         //g.drawRect(x - 15, y - 15, 30, 30);
         g.drawString(Node.getData(), x - 12, y + 12);
+       // g.drawOval(x-30 ,y-5 ,120,30);
         if (Node.getLeft() != null) {
             int x1 = x - 15;
             int y1 = y + 15;

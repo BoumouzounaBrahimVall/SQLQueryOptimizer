@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 		/*commancer par nimporte quel caractere sauf retour a la ligne
 		 */
 		private static final String PROJECTION_REGEX = "^(.*),(.*)$";
-		private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
+		private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+\\s*=\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
 
 	//liste des projections
 		private List<String> projections;
@@ -80,12 +80,17 @@ import java.util.regex.Pattern;
 	}
 	public  void parseQuery( ) {
 		Tree= null;
+
 		for (String token : this.whereTokens) {
 			Tree=inserer_exp_arbre(Tree,token,tables);
 		}
-		Node head= new Node("π");
-		head.setLeft(Tree);
-		Tree=head;
+		if(!this.projections.isEmpty()){
+			String proj="π"+this.projections;
+			Node head= new Node(proj);
+			head.setLeft(Tree);
+			Tree=head;
+		}
+
 
 		}
 

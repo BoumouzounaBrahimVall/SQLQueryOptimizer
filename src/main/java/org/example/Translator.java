@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import javax.swing.text.TabableView;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -103,7 +104,7 @@ import java.util.regex.Pattern;
 		nv.setLeft(arb);//arb devient fils gauche de nv
 		return nv;//nv devient racine
 	}
-	public static Node inserer_exp_arbre(Node arb,String elem,List<String> tab)
+	public  Node inserer_exp_arbre(Node arb,String elem,List<String> tab)
 	{
 		Node nv, tmp;
 		nv= new Node(elem);
@@ -115,8 +116,6 @@ import java.util.regex.Pattern;
 
 		else if(elem.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
 		{
-
-
 			Pattern p=Pattern.compile("\\w+");
 			Matcher matcher = p.matcher(elem);
 			if (matcher.find()) nv.setLeft(new Node(tab.get(tab.indexOf(matcher.group()))));
@@ -124,19 +123,14 @@ import java.util.regex.Pattern;
 			if (matcher.find()) nv.setRight(new Node(tab.get(tab.indexOf(matcher.group()))));
 			nv.setData("⋈"); // jointure
 
-
 		}
 		if(arb==null) return nv;//arbre vide
 		//nv est une condition
 		if(!isOperator(elem))
 		{// si la racine n'as pas de fils froit
-
-
 			if(arb.getRight()==null) arb.setRight(nv); // nv devient fils dt
 			else //sinon il est inserer etant le fils le plus a droite
 			{
-
-
 				tmp=arb.getRight();
 				tmp.setRight(nv);
 			} //(ceci sera a gauche si un opperateur le suive)
@@ -154,7 +148,66 @@ import java.util.regex.Pattern;
 		}
 		return arb;
 	}
+	public static Node subTreeCreate(List<String> tabConditions,String tabName){
+		Node tabTree=null;
+		for(String str: tabConditions){
+			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
+		}
+		tabTree=addTable(tabTree,tabName);
+		return tabTree;
+	}
+	public static Node addTable(Node root,String tabName){
+		Node nv;
+		nv= new Node(tabName);
+		if(root==null) return root;//arbre vide
+		if(root.getRight()!=null) root.setRight( addTable(root.getRight(),tabName));
+		if (root.getLeft()!=null) root.setLeft(addTable(root.getLeft(),tabName));
+		else root.setLeft(nv);
+		return root;
 
+	}
+	public static void main(String[] args) {
+		List<String>L =new ArrayList<>();
+		L.add("AND");
+		L.add("a=2");
+		L.add("AND");
+		L.add("h=3");
+		L.add("AND");
+		L.add("z=7");
+		L.add("OR");
+		L.add("s=2");
+		L.add("OR");
+		L.add("ss=dd");
+		L.add("AND");
+		L.add("dfgf=45");
+		System.out.println(L);
+		Node.affch(subTreeCreate(L,"TAB"),0);
+	}
+	public static Node addSubTreeNode(Node root,String token){
+		Node nv,tmp;
+		nv= new Node(token);
+		if(root==null) return nv;//arbre vide
+		if(!isOperator(token))
+		{// si la racine n'as pas de fils froit
+			if(root.getData().equals("OR")){
+				if(root.getRight()==null) root.setRight(nv); // nv devient fils dt
+				else //sinon il est inserer etant le fils le plus a droite
+				{
+					root.setRight(addSubTreeNode(root.getRight(),token));
+				} //(ceci sera a gauche si un opperateur le suive)
+			}
+			else{
+				nv.setLeft(root);
+					root=nv;
+
+					//root.setLeft(addSubTreeNode(root.getLeft(),token));
+			}
+		}else// si nv est un opperateur
+		{   // si la racine est OR
+			 root=rootBeLeft(root,nv);
+		}
+		return root;
+	}
 	public void DrawTree()
 	{
 		JFrame frame = new JFrame("Arbre binaire");

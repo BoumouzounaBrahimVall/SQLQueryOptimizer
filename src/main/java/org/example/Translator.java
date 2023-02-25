@@ -111,50 +111,7 @@ import java.util.regex.Pattern;
 		nv.setLeft(arb);//arb devient fils gauche de nv
 		return nv;//nv devient racine
 	}
-	public  Node inserer_exp_arbre(Node arb,String elem,List<String> tab)
-	{
-		Node nv, tmp;
-		nv= new Node(elem);
 
-		if(elem.matches("\\w+\\s*\\.\\s*\\w+\\s*=\\s*'[^']*'")) { // selection condition
-			nv.setData("σ("+elem+")");
-			nv.setLeft(new Node(tab.get(tab.indexOf( elem.split("\\s*\\.")[0]))));
-		}
-
-		else if(elem.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
-		{
-			Pattern p=Pattern.compile("\\w+");
-			Matcher matcher = p.matcher(elem);
-			if (matcher.find()) nv.setLeft(new Node(tab.get(tab.indexOf(matcher.group()))));
-			matcher.find();
-			if (matcher.find()) nv.setRight(new Node(tab.get(tab.indexOf(matcher.group()))));
-			nv.setData("⋈"); // jointure
-
-		}
-		if(arb==null) return nv;//arbre vide
-		//nv est une condition
-		if(!isOperator(elem))
-		{// si la racine n'as pas de fils froit
-			if(arb.getRight()==null) arb.setRight(nv); // nv devient fils dt
-			else //sinon il est inserer etant le fils le plus a droite
-			{
-				tmp=arb.getRight();
-				tmp.setRight(nv);
-			} //(ceci sera a gauche si un opperateur le suive)
-		}
-		else// si nv est un opperateur
-		{   // si la racine est OR et nv AND
-			if ( arb.getData().equals("OR")&&nv.getData().equals("AND") )
-			{
-				tmp=arb.getRight(); // garder le fils droit de la racine
-				arb.setRight(nv); // le fils droit devient  nv
-				nv.setLeft(tmp); // le fils gauche de nv recoit tmp
-			}
-			//sinon il devient racine et l'arbre son fils gauche
-			else arb=rootBeLeft(arb,nv);
-		}
-		return arb;
-	}
 	public  Node createSubTree(List<String> tabConditions,String tabName){
 		Node tabTree=null;
 		for(String str: tabConditions){

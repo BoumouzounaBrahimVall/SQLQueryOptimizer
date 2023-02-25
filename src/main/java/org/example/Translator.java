@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 		private List<String> projections;
 		//liste des selections
 		private final List<String> whereTokens;
+		private final List<String> Joins;
 		private final List<String> tables;
 
 	public List<String> getWhereTokens() {
@@ -77,6 +78,16 @@ import java.util.regex.Pattern;
 		}
 		this.projections=projectionList;
 		this.tables=tab;
+		this.Joins=new ArrayList<>();
+		for(String str:tokens ){
+			if(str.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
+			{
+				this.Joins.add(str);
+				int ind=tokens.indexOf(str);
+				if(ind>0) tokens.remove(ind-1); // if the join is not the first token
+				tokens.remove(str);
+			}
+		}
 		this.whereTokens=tokens;
 	}
 	public  void parseQuery( ) {
@@ -148,13 +159,13 @@ import java.util.regex.Pattern;
 		}
 		return arb;
 	}
-	public static Node subTreeCreate(List<String> tabConditions,String tabName){
+	public static Node createSubTree(List<String> tabConditions,String tabName){
 		Node tabTree=null;
 		for(String str: tabConditions){
 			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
 		}
-		tabTree=addTable(tabTree,tabName);
-		return tabTree;
+
+		return addTable(tabTree,tabName);
 	}
 	public static Node addTable(Node root,String tabName){
 		Node nv;
@@ -164,6 +175,29 @@ import java.util.regex.Pattern;
 		if (root.getLeft()!=null) root.setLeft(addTable(root.getLeft(),tabName));
 		else root.setLeft(nv);
 		return root;
+
+	}
+	public static void createAllSubTrees(Translator thi){
+		Map<String,List<String>> tabConditions=new HashMap<String,List<String>>();
+		List<Node> subtrees=new ArrayList<>();
+		Node tree=null;
+		for(String tab:thi.tables) { // for each table
+			if (thi.whereTokens.get(0).contains(tab)) {// the first element doesn't have a previous operator
+				tabConditions.get(tab).add(thi.whereTokens.get(0));
+			}
+			for (int i = 1; i < thi.whereTokens.size(); i++) {//
+				String privOper=thi.whereTokens.get(i-1);
+				String token=thi.whereTokens.get(i);
+				if (token.contains(tab)) {
+					tabConditions.get(tab).add(privOper);
+					tabConditions.get(tab).add(token);
+				}
+			}
+			subtrees.add(createSubTree(tabConditions.get(tab),tab));
+		}
+		for(String join: thi.Joins){
+
+		}
 
 	}
 	public static void main(String[] args) {
@@ -181,7 +215,7 @@ import java.util.regex.Pattern;
 		L.add("AND");
 		L.add("dfgf=45");
 		System.out.println(L);
-		Node.affch(subTreeCreate(L,"TAB"),0);
+		Node.affch(createSubTree(L,"TAB"),0);
 	}
 	public static Node addSubTreeNode(Node root,String token){
 		Node nv,tmp;

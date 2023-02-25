@@ -88,7 +88,7 @@ import java.util.regex.Pattern;
 		this.whereTokens=tokens;
 	}
 	public  void parseQuery( ) {
-		Tree=createAllSubTrees();
+		mergSubTrees();
 /*
 		for (String token : this.whereTokens) {
 			Tree=inserer_exp_arbre(Tree,token,tables);
@@ -173,9 +173,8 @@ import java.util.regex.Pattern;
 		return root;
 
 	}
-	public  Node createAllSubTrees(){
+	public  Map<String,Node> createAllSubTrees(){
 		Map<String,Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a tables trees
-		Node tree=null;// the root of the main tree
 		for(String tab:this.tables) { // for each table
 			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
 			// the first element doesn't have a previous operator
@@ -199,6 +198,11 @@ import java.util.regex.Pattern;
 			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
 		}
 		subtrees.forEach((k,v)->{ Node.affch(v,0);System.out.println("\n-----------------");});//TODO:: trace subtrees
+
+		return subtrees; // return the fucking tree
+	}
+	private void mergSubTrees(){
+		Map<String,Node>subtrees=createAllSubTrees(); // use to store subTrees a.k.a tables trees
 		for(String join: this.Joins){
 			Node joinNode =new Node("⋈"); // create the join
 			Pattern p=Pattern.compile("\\w+");//pattern of tables extraction
@@ -215,7 +219,7 @@ import java.util.regex.Pattern;
 				subtrees.remove(tab2);//same here
 
 			}else { // means that one of the tables has already been used in a join and added
-				joinNode.setLeft(tree);
+				joinNode.setLeft(this.Tree);
 				if(subtrees.containsKey(tab1)){ // if tab 1 not added yet
 					joinNode.setRight(subtrees.get(tab1));
 					subtrees.remove(tab1);
@@ -224,12 +228,10 @@ import java.util.regex.Pattern;
 					subtrees.remove(tab2);
 				}
 			}
-			tree=joinNode; // always keep the join node as the root cause we're building from down to up
+			this.Tree=joinNode; // always keep the join node as the root cause we're building from down to up
 
 		}
-		return tree; // return the fucking tree
 	}
-
 	public static Node addSubTreeNode(Node root,String token){
 		Node nv,tmp;
 		nv= new Node(token);

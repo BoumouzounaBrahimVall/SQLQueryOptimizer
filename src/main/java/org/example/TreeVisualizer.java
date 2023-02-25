@@ -6,11 +6,11 @@ import javax.swing.JPanel;
 
 public class TreeVisualizer extends JPanel {
 
-    private Node racine;
+    private final Node racine;
 
     public TreeVisualizer(Node racine) {
         this.racine = racine;
-        setPreferredSize(new Dimension(1500, 500));
+        setPreferredSize(new Dimension(1000, 500));
     }
 
     @Override
@@ -18,9 +18,16 @@ public class TreeVisualizer extends JPanel {
         super.paintComponent(g);
         g.setColor(Color.BLACK);
         int x=getWidth()/2,y=50;
-        g.drawString(racine.getData(), x- 12, y + 12);
-        g.drawLine(x+5, y+20, x+5, y+40);
-        dessinerNode(racine.getLeft(), x, y+40, g);
+        if(racine.getData().contains("π")){
+            g.drawString(racine.getData(), x- 12, y + 12);
+
+            if(racine.getLeft()!=null) {
+                g.drawLine(x+5, y+20, x+5, y+40);
+                dessinerNode(racine.getLeft(), x, y+40, g);
+            }
+        } else dessinerNode(racine, x- 12, y + 12,g);
+
+
     }
 
     private void dessinerNode(Node Node, int x, int y, Graphics g) {

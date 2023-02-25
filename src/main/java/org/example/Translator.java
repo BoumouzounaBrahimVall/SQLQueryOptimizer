@@ -46,8 +46,6 @@ import java.util.regex.Pattern;
 		if (!selectMatcher.find()) {
 			throw new IllegalArgumentException("Invalid query: " + query);
 		}
-
-
 		String projections = selectMatcher.group(1);
 		String tablesAndSelections = selectMatcher.group(2);
 		List<String> projectionList = new ArrayList<>();
@@ -72,21 +70,20 @@ import java.util.regex.Pattern;
 		//todo:: create the tree
 		Matcher matcher = CONDITIONS_PATTERN.matcher(selections);// "w.b=k.g AND k.a='1' AND k.b='1' OR w.c='1' AND w.d='1' AND k.e='1' OR k.f='1' AND k.g='1'"
 		List<String> tokens = new ArrayList<>();
+		this.Joins=new ArrayList<>();
 		while (matcher.find()) {
 			String token = matcher.group();
-			tokens.add(token);
+			System.out.println("token:" +token);
+			if(token.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
+			{
+				this.Joins.add(token);
+			}else tokens.add(token);
 		}
 		this.projections=projectionList;
 		this.tables=tab;
-		this.Joins=new ArrayList<>();
+
 		for(String str:tokens ){
-			if(str.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
-			{
-				this.Joins.add(str);
-				int ind=tokens.indexOf(str);
-				if(ind>0) tokens.remove(ind-1); // if the join is not the first token
-				tokens.remove(str);
-			}
+
 		}
 		this.whereTokens=tokens;
 	}
@@ -164,7 +161,7 @@ import java.util.regex.Pattern;
 		for(String str: tabConditions){
 			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
 		}
-
+		if(tabTree==null) return new Node(tabName);
 		return addTable(tabTree,tabName);
 	}
 	public static Node addTable(Node root,String tabName){
@@ -177,45 +174,68 @@ import java.util.regex.Pattern;
 		return root;
 
 	}
-	public static void createAllSubTrees(Translator thi){
-		Map<String,List<String>> tabConditions=new HashMap<String,List<String>>();
-		List<Node> subtrees=new ArrayList<>();
-		Node tree=null;
+	public static Node createAllSubTrees(Translator thi){
+		Map<String,Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a tables trees
+		Node tree=null;// the root of the main tree
 		for(String tab:thi.tables) { // for each table
-			if (thi.whereTokens.get(0).contains(tab)) {// the first element doesn't have a previous operator
-				tabConditions.get(tab).add(thi.whereTokens.get(0));
-			}
-			for (int i = 1; i < thi.whereTokens.size(); i++) {//
+			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
+			// the first element doesn't have a previous operator
+			if (thi.whereTokens.get(0).contains(tab)) tmp.add(thi.whereTokens.get(0));// so we add it only without its prev operator
+
+			for (int i = 1; i < thi.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
 				String privOper=thi.whereTokens.get(i-1);
 				String token=thi.whereTokens.get(i);
-				if (token.contains(tab)) {
-					tabConditions.get(tab).add(privOper);
-					tabConditions.get(tab).add(token);
+				if (token.contains(tab)) { // if the token belongs to the table (ex: table.atr='sth')
+					tmp.add(privOper);
+					tmp.add(token);
 				}
 			}
-			subtrees.add(createSubTree(tabConditions.get(tab),tab));
+
+			/**
+			    Brahim vall please remember that even if there are somme tokens left from the join extraction
+				they won't affect the subtree creation because they will be ignored in the condition
+			 */
+
+			System.out.println(tmp);
+			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
 		}
+		subtrees.forEach((k,v)->{ Node.affch(v,0);System.out.println("\n-----------------");});//TODO:: trace subtrees
 		for(String join: thi.Joins){
+			Node joinNode =new Node("⋈"); // create the join
+			Pattern p=Pattern.compile("\\w+");//pattern of tables extraction
+			Matcher matcher = p.matcher(join);
+			String tab1="",tab2="";// to store the tables
+			if (matcher.find()) tab1=matcher.group(); // extract the first table of the join
+			matcher.find(); // ignore the first table attribute
+			if (matcher.find()) tab2=matcher.group();; //extract the second table of the join
+			System.out.println("table1: "+tab1+" table2: "+tab2); //TODO:: trace join tables
+			if(subtrees.containsKey(tab1) && subtrees.containsKey(tab2)){ // the first node the main tree
+				joinNode.setLeft(subtrees.get(tab1)); //
+				joinNode.setRight(subtrees.get(tab2));
+				subtrees.remove(tab1);// remove the table subtree to avoid redolence
+				subtrees.remove(tab2);//same here
+
+			}else { // means that one of the tables has already been used in a join and added
+				joinNode.setLeft(tree);
+				if(subtrees.containsKey(tab1)){ // if tab 1 not added yet
+					joinNode.setRight(subtrees.get(tab1));
+					subtrees.remove(tab1);
+				}else {  // if tab 2 not added yet
+					joinNode.setRight(subtrees.get(tab2));
+					subtrees.remove(tab2);
+				}
+			}
+			tree=joinNode; // always keep the join node as the root cause we're building from down to up
 
 		}
-
+		return tree; // return the fucking tree
 	}
 	public static void main(String[] args) {
 		List<String>L =new ArrayList<>();
-		L.add("AND");
-		L.add("a=2");
-		L.add("AND");
-		L.add("h=3");
-		L.add("AND");
-		L.add("z=7");
-		L.add("OR");
-		L.add("s=2");
-		L.add("OR");
-		L.add("ss=dd");
-		L.add("AND");
-		L.add("dfgf=45");
-		System.out.println(L);
-		Node.affch(createSubTree(L,"TAB"),0);
+
+		String query = "SELECT nom,Titre FROM Employee,Projet,Traveaux WHERE Employee.eid=Traveaux.eid AND Projet.pid=Traveaux.pid AND Projet.b = '2'";
+		Translator parsedTranslator = new Translator(query); //"SELECT CLIENT.ID FROM CLIENT WHERE CLIENT.ID='12'"
+		Node.affch(createAllSubTrees(parsedTranslator),0);
 	}
 	public static Node addSubTreeNode(Node root,String token){
 		Node nv,tmp;
@@ -254,13 +274,4 @@ import java.util.regex.Pattern;
 		frame.add(scrollPane);
 		frame.setVisible(true);
 	}
-
-
-
-
-	/**
-	 * 
-	 */
-	public String queryScrpt;
-
 }

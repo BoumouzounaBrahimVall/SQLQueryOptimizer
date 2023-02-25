@@ -88,11 +88,11 @@ import java.util.regex.Pattern;
 		this.whereTokens=tokens;
 	}
 	public  void parseQuery( ) {
-		Tree= null;
-
+		Tree=createAllSubTrees();
+/*
 		for (String token : this.whereTokens) {
 			Tree=inserer_exp_arbre(Tree,token,tables);
-		}
+		}*/
 		if(!this.projections.isEmpty()){
 			String proj="π"+this.projections;
 			Node head= new Node(proj);
@@ -104,8 +104,7 @@ import java.util.regex.Pattern;
 		}
 
 	private static boolean isOperator(String elem) {
-		if(elem.equals("OR")|| elem.equals("AND") ) return true;
-		return false;
+		return(elem.equals("OR")|| elem.equals("AND") ) ;
 	}
 	private static Node rootBeLeft(Node arb,Node nv)
 	{
@@ -156,7 +155,7 @@ import java.util.regex.Pattern;
 		}
 		return arb;
 	}
-	public static Node createSubTree(List<String> tabConditions,String tabName){
+	public  Node createSubTree(List<String> tabConditions,String tabName){
 		Node tabTree=null;
 		for(String str: tabConditions){
 			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
@@ -164,7 +163,7 @@ import java.util.regex.Pattern;
 		if(tabTree==null) return new Node(tabName);
 		return addTable(tabTree,tabName);
 	}
-	public static Node addTable(Node root,String tabName){
+	public  Node addTable(Node root,String tabName){
 		Node nv;
 		nv= new Node(tabName);
 		if(root==null) return root;//arbre vide
@@ -174,17 +173,17 @@ import java.util.regex.Pattern;
 		return root;
 
 	}
-	public static Node createAllSubTrees(Translator thi){
+	public  Node createAllSubTrees(){
 		Map<String,Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a tables trees
 		Node tree=null;// the root of the main tree
-		for(String tab:thi.tables) { // for each table
+		for(String tab:this.tables) { // for each table
 			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
 			// the first element doesn't have a previous operator
-			if (thi.whereTokens.get(0).contains(tab)) tmp.add(thi.whereTokens.get(0));// so we add it only without its prev operator
+			if (this.whereTokens.get(0).contains(tab)) tmp.add(this.whereTokens.get(0));// so we add it only without its prev operator
 
-			for (int i = 1; i < thi.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
-				String privOper=thi.whereTokens.get(i-1);
-				String token=thi.whereTokens.get(i);
+			for (int i = 1; i < this.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
+				String privOper=this.whereTokens.get(i-1);
+				String token=this.whereTokens.get(i);
 				if (token.contains(tab)) { // if the token belongs to the table (ex: table.atr='sth')
 					tmp.add(privOper);
 					tmp.add(token);
@@ -200,7 +199,7 @@ import java.util.regex.Pattern;
 			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
 		}
 		subtrees.forEach((k,v)->{ Node.affch(v,0);System.out.println("\n-----------------");});//TODO:: trace subtrees
-		for(String join: thi.Joins){
+		for(String join: this.Joins){
 			Node joinNode =new Node("⋈"); // create the join
 			Pattern p=Pattern.compile("\\w+");//pattern of tables extraction
 			Matcher matcher = p.matcher(join);
@@ -230,13 +229,7 @@ import java.util.regex.Pattern;
 		}
 		return tree; // return the fucking tree
 	}
-	public static void main(String[] args) {
-		List<String>L =new ArrayList<>();
 
-		String query = "SELECT nom,Titre FROM Employee,Projet,Traveaux WHERE Employee.eid=Traveaux.eid AND Projet.pid=Traveaux.pid AND Projet.b = '2'";
-		Translator parsedTranslator = new Translator(query); //"SELECT CLIENT.ID FROM CLIENT WHERE CLIENT.ID='12'"
-		Node.affch(createAllSubTrees(parsedTranslator),0);
-	}
 	public static Node addSubTreeNode(Node root,String token){
 		Node nv,tmp;
 		nv= new Node(token);

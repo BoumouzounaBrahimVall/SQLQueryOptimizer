@@ -79,10 +79,10 @@ public class Visualizer extends javax.swing.JFrame {
 
             String query= jTextArea1.getText();
             System.out.println(query.toUpperCase());
-            Query parsedQuery = new Query(query);
-            parsedQuery.parseQuery();
-            parsedQuery.DrawTree();
-            Node.affch(parsedQuery.getTree(),0);
+            Translator parsedTranslator = new Translator(query);
+            parsedTranslator.parseQuery();
+            parsedTranslator.DrawTree();
+            Node.affch(parsedTranslator.getTree(),0);
         }
 
         /**

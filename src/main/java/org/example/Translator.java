@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 
 
-	public class Query {
+	public class Translator {
 		private Node Tree;
 
 	public Node getTree() {
@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 	}
 	public List<String> getProjections() {return projections;}
 	public List<String> getTables() {return tables;}
-	public Query(String query) {
+	public Translator(String query) {
 		Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
 		if (!selectMatcher.find()) {
 			throw new IllegalArgumentException("Invalid query: " + query);
@@ -108,7 +108,7 @@ import java.util.regex.Pattern;
 		Node nv, tmp;
 		nv= new Node(elem);
 
-		if(elem.matches("\\w+\\s*\\.\\s*\\w+=\\s*'[^']*'")) { // selection condition
+		if(elem.matches("\\w+\\s*\\.\\s*\\w+\\s*=\\s*'[^']*'")) { // selection condition
 			nv.setData("σ("+elem+")");
 			nv.setLeft(new Node(tab.get(tab.indexOf( elem.split("\\s*\\.")[0]))));
 		}

@@ -81,7 +81,7 @@ public class Visualizer extends javax.swing.JFrame {
             System.out.println(query.toUpperCase());
             Translator parsedTranslator = new Translator(query);
             parsedTranslator.parseQuery();
-            parsedTranslator.DrawTree();
+            Translator.DrawTree(parsedTranslator.getTree());
             Node.affch(parsedTranslator.getTree(),0);
         }
 

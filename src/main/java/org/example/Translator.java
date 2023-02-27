@@ -110,24 +110,27 @@ public class Translator {
 	private   Map<String,Node> createAllSubTrees(){
 		Map<String,Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a tables trees
 		for(String tab:this.tables) { // for each table
-			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
-			// the first element doesn't have a previous operator
-			if (this.whereTokens.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'")&& this.whereTokens.get(0).split("\\.")[0].equals(tab)) {
-				System.out.println("table "+tab+" token: "+this.whereTokens.get(0));
-				tmp.add(this.whereTokens.get(0));// so we add it only without its prev operator
-			}
 
-			for (int i = 1; i < this.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
-				String privOper=this.whereTokens.get(i-1);
-				String token=this.whereTokens.get(i);
-				System.out.println("spleted : "+token.split("\\.")[0]);
-				if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab) ) { // if the token belongs to the table (ex: table.atr='sth')
-					System.out.println("table "+tab+" token: "+token+" prevOper: "+privOper);
-					tmp.add(privOper);
-					tmp.add(token);
+			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
+			if(!this.whereTokens.isEmpty()) {
+				// the first element doesn't have a previous operator
+				if (this.whereTokens.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && this.whereTokens.get(0).split("\\.")[0].equals(tab)) {
+					System.out.println("table " + tab + " token: " + this.whereTokens.get(0));
+					tmp.add(this.whereTokens.get(0));// so we add it only without its prev operator
 				}
+
+				for (int i = 1; i < this.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
+					String privOper = this.whereTokens.get(i - 1);
+					String token = this.whereTokens.get(i);
+					System.out.println("spleted : " + token.split("\\.")[0]);
+					if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab)) { // if the token belongs to the table (ex: table.atr='sth')
+						System.out.println("table " + tab + " token: " + token + " prevOper: " + privOper);
+						tmp.add(privOper);
+						tmp.add(token);
+					}
+				}
+				System.out.println(tmp);
 			}
-			System.out.println(tmp);
 			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
 		}
 		subtrees.forEach((k,v)->{ Node.affch(v,0);System.out.println("\n-----------------");});//TODO:: trace subtrees
@@ -135,7 +138,7 @@ public class Translator {
 		return subtrees; // return the fucking tree
 	}
 	private void mergSubTrees(){
-		if(this.whereTokens.isEmpty()){
+		if(this.whereTokens.isEmpty()&& this.Joins.isEmpty() ){
 			this.Tree=new Node(tables.get(0));
 			return;
 		}
@@ -198,11 +201,11 @@ public class Translator {
 		}
 		return root;
 	}
-	public void DrawTree()
+	public static void DrawTree(Node th)
 	{
 		JFrame frame = new JFrame("Arbre binaire");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		TreeVisualizer panel = new TreeVisualizer(this.Tree);
+		TreeVisualizer panel = new TreeVisualizer(th);
 		frame.getContentPane().add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

@@ -76,4 +76,22 @@ public  class Node {
 		if(n.getData().contains("⋈"))  return 1;
 		return 1+ joinCount(n.getLeft()) + joinCount(n.getRight());
 	}
+	public static Node cloneTree(Node root) {
+		if (root == null) {
+			return null;
+		}
+		Node newNode =new Node(root.getData());
+		newNode.setLeft( cloneTree(root.getLeft()) );
+		newNode.setRight( cloneTree(root.getRight()) );
+		return newNode;
+	}
+	public static int depth(Node node) {
+		if (node == null) {
+			return 0;
+		} else {
+			int hauteurGauche = depth(node.getLeft());
+			int hauteurDroit = depth(node.getRight());
+			return 1 + Math.max(hauteurGauche, hauteurDroit);
+		}
+	}
 }

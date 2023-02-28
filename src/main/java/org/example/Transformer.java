@@ -15,43 +15,23 @@ public class Transformer {
 	public static List<Node> onlyJoin1stVariant(Node mainRoot){
 		List<Node> join1stVariantList=new ArrayList<>();
 		join1stVariantList.add(mainRoot);
-		for(int i=0;i<2;i++)
-		{
-			for (int j=1;j<=2;j++){
-				Node tmp=joinSwitcher(cloneTree(mainRoot),i,0,j);
+		int count=Node.joinCount(mainRoot);
+		for(int i=0;i<count;i++)
+			for (int j=1;j<=count;j++){
+				Node tmp=joinSwitcher(Node.cloneTree(mainRoot),i,0,j);
 				if(notAlreadyAdded(join1stVariantList, tmp))join1stVariantList.add(tmp);
-
 			}
-		}
-
 		return join1stVariantList;
 	}
-public static Node cloneTree(Node root) {
-		if (root == null) {
-			return null;
-		}
-		Node newNode =new Node(root.getData());
-		newNode.setLeft( cloneTree(root.getLeft()) );
-		newNode.setRight( cloneTree(root.getRight()) );
-		return newNode;
-	}
 
-	public static int hauteurTree(Node node) {
-		if (node == null) {
-			return 0;
-		} else {
-			int hauteurGauche = hauteurTree(node.getLeft());
-			int hauteurDroit = hauteurTree(node.getRight());
-			return 1 + Math.max(hauteurGauche, hauteurDroit);
-		}
-	}
+
 	public static List<Node> onlySelectionConjonctivre(Node mainRoot){
 		List<Node> onlySelectionConjonctivreList=new ArrayList<>();
 		onlySelectionConjonctivreList.add(mainRoot);
 		for(int i=0;i<2;i++)
 		{
 			for (int j=1;j<=2;j++){
-				Node tmp=andUnionSelection(cloneTree(mainRoot),i,0,j);
+				Node tmp=andUnionSelection(Node.cloneTree(mainRoot),i,0,j);
 				if(notAlreadyAdded(onlySelectionConjonctivreList, tmp))onlySelectionConjonctivreList.add(tmp);
 			}
 		}
@@ -145,7 +125,7 @@ public static Node cloneTree(Node root) {
 		//System.out.println("Where Tokens: " + parsedQuery.getWhereTokens());
 		//Node.affch(parsedTranslator.getTree(),0);
 		//Translator.DrawTree(join1stVariant(parsedTranslator.getTree()));
-		onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+	//	onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(Translator::DrawTree);
 		onlyJoin1stVariant(parsedTranslator.getTree()).forEach(Translator::DrawTree);
 		//onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(n->{Node.affch(n,0 );System.out.println("-----------------------------");});
 		//Translator.DrawTree(orUnionSelection(parsedTranslator.getTree()));

@@ -116,7 +116,7 @@ public class Translator {
 				// the first element doesn't have a previous operator
 				if (this.whereTokens.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && this.whereTokens.get(0).split("\\.")[0].equals(tab)) {
 					System.out.println("table " + tab + " token: " + this.whereTokens.get(0));
-					tmp.add(this.whereTokens.get(0));// so we add it only without its prev operator
+					tmp.add("σ"+this.whereTokens.get(0));// so we add it only without its prev operator
 				}
 
 				for (int i = 1; i < this.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
@@ -126,7 +126,7 @@ public class Translator {
 					if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab)) { // if the token belongs to the table (ex: table.atr='sth')
 						System.out.println("table " + tab + " token: " + token + " prevOper: " + privOper);
 						tmp.add(privOper);
-						tmp.add(token);
+						tmp.add("σ"+token);
 					}
 				}
 				System.out.println(tmp);
@@ -201,7 +201,7 @@ public class Translator {
 		}
 		return root;
 	}
-	public static void DrawTree(Node th)
+	public static JPanel DrawTree(Node th)
 	{
 		JFrame frame = new JFrame("Arbre binaire");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -210,7 +210,15 @@ public class Translator {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		JPanel panGen=new JPanel();
+		panGen.add(scrollPane);
 		frame.add(scrollPane);
 		frame.setVisible(true);
+		return panGen;
+	}
+	public static void addDrawnTree(JPanel p,Node th){
+		TreeVisualizer panel = new TreeVisualizer(th);
+		JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		p.add(scrollPane);
 	}
 }

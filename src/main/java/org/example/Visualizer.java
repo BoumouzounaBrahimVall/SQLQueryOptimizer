@@ -30,12 +30,12 @@ public class Visualizer extends javax.swing.JFrame {
             jTextArea1.setRows(5);
             jScrollPane1.setViewportView(jTextArea1);
 
-            jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 36)); // NOI18N
+            jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
             jLabel1.setForeground(new java.awt.Color(0, 102, 102));
             jLabel1.setText("Query to Tree");
 
             jButton1.setBackground(new java.awt.Color(0, 102, 102));
-            jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+            jButton1.setFont(new java.awt.Font("Segoe UI", 0, 12)); // NOI18N
             jButton1.setForeground(new java.awt.Color(255, 255, 255));
             jButton1.setText("Create Tree");
             jButton1.addActionListener(new java.awt.event.ActionListener() {

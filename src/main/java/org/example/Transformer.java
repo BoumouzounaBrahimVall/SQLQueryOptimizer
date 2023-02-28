@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Transformer {
 
-	public static boolean alreadyAdded(List<Node> L,Node n){
+	public static boolean notAlreadyAdded(List<Node> L,Node n){
 		for (Node nd:L)
 			if(Node.sameTree(nd,n)==Node.nbrNodes(n)) return false;
 		return true;
@@ -14,14 +14,12 @@ public class Transformer {
 	}
 	public static List<Node> onlyJoin1stVariant(Node mainRoot){
 		List<Node> join1stVariantList=new ArrayList<>();
-		int[] channged = new int[1];
 		join1stVariantList.add(mainRoot);
 		for(int i=0;i<2;i++)
 		{
 			for (int j=1;j<=2;j++){
-				channged[0]=0;
-				Node tmp=joinSwitcher(cloneTree(mainRoot),i,0,j,channged);
-				if(alreadyAdded(join1stVariantList, tmp))join1stVariantList.add(tmp);
+				Node tmp=joinSwitcher(cloneTree(mainRoot),i,0,j);
+				if(notAlreadyAdded(join1stVariantList, tmp))join1stVariantList.add(tmp);
 
 			}
 		}
@@ -49,22 +47,18 @@ public static Node cloneTree(Node root) {
 	}
 	public static List<Node> onlySelectionConjonctivre(Node mainRoot){
 		List<Node> onlySelectionConjonctivreList=new ArrayList<>();
-		int[] channged = new int[1];
 		onlySelectionConjonctivreList.add(mainRoot);
 		for(int i=0;i<2;i++)
 		{
 			for (int j=1;j<=2;j++){
-				channged[0]=0;
-				Node tmp=andUnionSelection(cloneTree(mainRoot),i,0,j,channged);
-				if(alreadyAdded(onlySelectionConjonctivreList, tmp))onlySelectionConjonctivreList.add(tmp);
-				//
-
+				Node tmp=andUnionSelection(cloneTree(mainRoot),i,0,j);
+				if(notAlreadyAdded(onlySelectionConjonctivreList, tmp))onlySelectionConjonctivreList.add(tmp);
 			}
 		}
 
 		return onlySelectionConjonctivreList;
 	}
-	public static Node joinSwitcher(Node a,int initial,int counter,int maxCount,int[] hasChanged){
+	public static Node joinSwitcher(Node a,int initial,int counter,int maxCount){
 		if (a == null) {
 			return null;
 		}
@@ -73,17 +67,16 @@ public static Node cloneTree(Node root) {
 				Node tmp=a.getLeft();
 				a.setLeft(a.getRight());
 				a.setRight(tmp);
-				hasChanged[0]=1;
 			}
 			counter++;
 		}
 		if(counter==maxCount) return a;
-		if(a.getLeft()!=null) joinSwitcher(a.getLeft(),initial,counter, maxCount,hasChanged);
-		if (a.getRight()!=null) joinSwitcher(a.getRight(),initial,counter, maxCount,hasChanged);
+		if(a.getLeft()!=null) joinSwitcher(a.getLeft(),initial,counter, maxCount);
+		if (a.getRight()!=null) joinSwitcher(a.getRight(),initial,counter, maxCount);
 		return a;
 	}
 
-	public static Node andUnionSelection(Node a ,int initial,int counter,int maxCount,int[] hasChanged){
+	public static Node andUnionSelection(Node a ,int initial,int counter,int maxCount){
 		if (a == null) {
 			return null;
 		}
@@ -93,14 +86,13 @@ public static Node cloneTree(Node root) {
 				Node tmp = a.getLeft().getLeft();
 				a.setData(a.getData() + " && " + a.getLeft().getData());
 				a.setLeft(tmp);
-				hasChanged[0]=1;
 			}
 			counter++;
 
 		}
 		if(counter==maxCount) return a;
-		if(a.getLeft()!=null) a.setLeft(andUnionSelection(a.getLeft(),initial,counter, maxCount,hasChanged));
-		if (a.getRight()!=null) a.setRight(andUnionSelection(a.getRight(),initial,counter, maxCount,hasChanged));
+		if(a.getLeft()!=null) a.setLeft(andUnionSelection(a.getLeft(),initial,counter, maxCount));
+		if (a.getRight()!=null) a.setRight(andUnionSelection(a.getRight(),initial,counter, maxCount));
 		return a;
 
 	}
@@ -154,11 +146,10 @@ public static Node cloneTree(Node root) {
 		//Node.affch(parsedTranslator.getTree(),0);
 		//Translator.DrawTree(join1stVariant(parsedTranslator.getTree()));
 		onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(Translator::DrawTree);
-		onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(n->{
-			Node.affch(n,0 );
-			System.out.println("-----------------------------");
-		});
+		onlyJoin1stVariant(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+		//onlySelectionConjonctivre(parsedTranslator.getTree()).forEach(n->{Node.affch(n,0 );System.out.println("-----------------------------");});
 		//Translator.DrawTree(orUnionSelection(parsedTranslator.getTree()));
+		System.out.println("vini :"+Node.joinCount(parsedTranslator.getTree()));
 	}// AND A.a='2' and C.c='3' AND B.b>'1' OR A.a<'7' AND A.a>'89'
 
 

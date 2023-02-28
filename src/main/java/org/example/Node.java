@@ -54,7 +54,6 @@ public  class Node {
 	public static int nbrNodes(Node n){
 		if(n==null) return 0;
 		return 1+nbrNodes(n.getLeft()) + nbrNodes(n.getRight());
-
 	}
 	public static int sameTree(Node root1, Node root2) {
 		// If both trees are null, they are the same
@@ -72,5 +71,9 @@ public  class Node {
 		// Recursively compare the left and right subtrees
 		return 1+sameTree(root1.getLeft(), root2.getLeft()) + sameTree(root1.getRight(), root2.getRight());
 	}
-
+	public static int joinCount(Node n){
+		if(n==null) return 0;
+		if(n.getData().contains("⋈"))  return 1;
+		return 1+ joinCount(n.getLeft()) + joinCount(n.getRight());
+	}
 }

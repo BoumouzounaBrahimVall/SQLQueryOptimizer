@@ -101,12 +101,13 @@ public class Transformer {
 
 		//Node.affch(parsedTranslator.getTree(),0);
 		//Translator.DrawTree(join1stVariant(parsedTranslator.getTree()));
-		allVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+	//	allVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
 		// onlyOrSelectionVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
 		//onlyJoin1stVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
 		//onlySelectionVariants(parsedTranslator.getTree()).forEach(n->{Node.affch(n,0 );System.out.println("-----------------------------");});
 	//	Translator.DrawTree(orUnionSelection(parsedTranslator.getTree()));
 		//System.out.println("vini :"+Node.joinCount(parsedTranslator.getTree()));
+		new NodeGUI(allVariants(parsedTranslator.getTree()));
 	}// AND A.a='2' and C.c='3' AND B.b>'1' OR A.a<'7' AND A.a>'89'
 
 

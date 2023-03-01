@@ -97,16 +97,7 @@ public class Transformer {
 		String query3="SELECT Ename Titre FROM Employe,Projet,Traveaux WHERE Budget>250 AND Employe.Eid=Traveaux.Eid AND Projet.Pid=Traveaux.Pid";
 		Translator parsedTranslator = new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' AND B.b>'1' OR A.a<'7' AND A.a>'89' OR C.e='45' AND B.b=C.b"); //"SELECT CLIENT.ID FROM CLIENT WHERE CLIENT.ID='12'" select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' OR C.c='3' AND B.b>'1' OR A.a<'7' AND B.b=C.b
 		parsedTranslator.parseQuery();
-		//JPanel p=Translator.DrawTree(parsedTranslator.getTree());
 
-		//Node.affch(parsedTranslator.getTree(),0);
-		//Translator.DrawTree(join1stVariant(parsedTranslator.getTree()));
-	//	allVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
-		// onlyOrSelectionVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
-		//onlyJoin1stVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
-		//onlySelectionVariants(parsedTranslator.getTree()).forEach(n->{Node.affch(n,0 );System.out.println("-----------------------------");});
-	//	Translator.DrawTree(orUnionSelection(parsedTranslator.getTree()));
-		//System.out.println("vini :"+Node.joinCount(parsedTranslator.getTree()));
 		new NodeGUI(allVariants(parsedTranslator.getTree()));
 	}// AND A.a='2' and C.c='3' AND B.b>'1' OR A.a<'7' AND A.a>'89'
 
@@ -212,3 +203,20 @@ public class Transformer {
 	}
 
 }
+
+
+
+
+
+
+
+//JPanel p=Translator.DrawTree(parsedTranslator.getTree());
+
+//Node.affch(parsedTranslator.getTree(),0);
+//Translator.DrawTree(join1stVariant(parsedTranslator.getTree()));
+//	allVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+// onlyOrSelectionVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+//onlyJoin1stVariants(parsedTranslator.getTree()).forEach(Translator::DrawTree);
+//onlySelectionVariants(parsedTranslator.getTree()).forEach(n->{Node.affch(n,0 );System.out.println("-----------------------------");});
+//	Translator.DrawTree(orUnionSelection(parsedTranslator.getTree()));
+//System.out.println("vini :"+Node.joinCount(parsedTranslator.getTree()));

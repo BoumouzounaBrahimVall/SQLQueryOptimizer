@@ -1,4 +1,4 @@
-package org.QueryOptimizer;
+package org.QueryOptimizer.dictionnary;
 
 
 import java.util.List;

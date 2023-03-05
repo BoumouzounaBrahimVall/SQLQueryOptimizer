@@ -10,7 +10,7 @@
       "tableName":"tab1",
       "columns":[
         {
-          "columnName":"name",
+          "columnName":"name1",
           "Pk":"1",
           "index":"1",
           "unique":"1",

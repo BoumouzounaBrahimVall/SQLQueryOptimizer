@@ -9,46 +9,24 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class DictionaryReader {
-    private static String DIC_PATH="src/main/java/org/QueryOptimizer/dictionnary/dictionary.json";
+    private static final String DIC_PATH="src/main/java/org/QueryOptimizer/dictionnary/dictionary.json";
+    private final JSONParser parser;
     public DictionaryReader(){
         parser= new JSONParser();
     }
-    private final JSONParser parser;
-    public double getTransTime()  {
-        double transTime;
+
+    private double getDBProperty(String property){
+        double prop=0;
         try {
             JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
-            transTime=Double.parseDouble(jsonData.get("transTime").toString());
+            prop=Double.parseDouble(jsonData.get(property).toString());
         }catch(Exception e){
-            System.out.println("error reading ");
-            return 0;
+            System.out.println("error reading database property: "+property);
         }
-        return transTime;
+        return prop;
     }
-    public double getTpd()  { // tempsPosDebut
-        double tpd;
-        try {
-            JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
-            tpd=Double.parseDouble(jsonData.get("tpd").toString());
-        }catch(Exception e){
-            System.out.println("error reading ");
-            return 0;
-        }
-        return tpd;
-    }
-    public int getNbrPos()  {
-        int nbrPos;
-        try {
-            JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
-            nbrPos=Integer.parseInt(jsonData.get("nbrPos").toString());
-        }catch(Exception e){
-            System.out.println("error reading ");
-            return 0;
-        }
-        return nbrPos;
-    }
-    public int getLineSize(String tableName)  {
-        int lineSize = 0;
+    private double getTableProperty(String tableName,String property) {
+        double value=0;
         try {
             JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
             JSONArray tables = (JSONArray) jsonData.get("tables");
@@ -57,68 +35,77 @@ public class DictionaryReader {
                 String tableNm = (String) table.get("tableName");
                 if(tableNm.equals(tableName))
                 {
-                    lineSize=Integer.parseInt(table.get("lineSize").toString());
+                    value=Double.parseDouble(table.get(property).toString());
+                    break;
                 }
             }
         }catch(Exception e){
-            System.out.println("error reading ");
+            System.out.println("error reading property: "+property +" for table:"+tableName);
         }
-        return lineSize;
+        return value;
     }
-
-    public int getLineCount(String tableName)  {
-        int lineCount = 0;
+    private double getColumnProperty(String tableName,String columnName,String property){
+        double value=0;
         try {
             JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
+
             JSONArray tables = (JSONArray) jsonData.get("tables");
-            for (Object object : tables) {
-                JSONObject table = (JSONObject) object;
+            for (Object tab : tables) {
+                JSONObject table = (JSONObject) tab;
                 String tableNm = (String) table.get("tableName");
                 if(tableNm.equals(tableName))
                 {
-                    lineCount=Integer.parseInt(table.get("lineCount").toString());
-                    return lineCount;
+                    JSONArray columns = (JSONArray) table.get("columns");
+                    for (Object col : columns) {
+                        JSONObject column = (JSONObject) col;
+                        String columnNm = (String) column.get("columnName");
+                        if(columnNm.equals(columnName)) {
+                              value=Double.parseDouble(column.get(property).toString());
+                              return value;
+                        }
+
+                    }
                 }
             }
         }catch(Exception e){
-            System.out.println("error reading LineCount ");
+            System.out.println("error reading property: "+property+" for column:"+columnName);
         }
-        return lineCount;
+        return value;
     }
+    public double getTransTime()  {return getDBProperty("transTime");}
+    // tempsPosDebut
+    public double getTpd()  {return getDBProperty("tpd");}
+    public double getNbrPos()  {return getDBProperty("nbrPos");}
+    public double getLineSize(String tableName)  {return getTableProperty(tableName,"lineSize");}
 
-    public int getFB(String tableName)  {
-        int FB = 0;
-        try {
-            JSONObject jsonData = (JSONObject) this.parser.parse(new FileReader(DIC_PATH));
-            JSONArray tables = (JSONArray) jsonData.get("tables");
-            for (Object object : tables) {
-                JSONObject table = (JSONObject) object;
-                String tableNm = (String) table.get("tableName");
-                if(tableNm.equals(tableName))
-                {
-                    FB=Integer.parseInt(table.get("FB").toString());
-                    return FB;
-                }
-            }
-        }catch(Exception e){
-            System.out.println("error reading LineCount ");
-        }
-        return FB;
+    public double getLineCount(String tableName)  {return getTableProperty(tableName,"lineCount");}
+
+    public double getFB(String tableName)  {return getTableProperty(tableName,"FB");}
+
+    public boolean isPrimaryKey(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "Pk") == 1;
     }
-
+    public boolean isIndexed(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "index") == 1;
+    }
+    public boolean isUnique(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "unique") == 1;
+    }
+    public double getCardinality(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "cardinality") ;
+    }
+    public double getMinVal(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "minVal") ;
+    }
+    public double getMaxVal(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "maxVal") ;
+    }
+    public double getOrderMoy(String tableName,String columnName){
+        return getColumnProperty(tableName, columnName, "orderMoy") ;
+    }
     public static void main(String[] args) throws IOException, ParseException {
         DictionaryReader d=new DictionaryReader();
-        System.out.println(d.getFB("tab1"));
-       /* JSONParser parser = new JSONParser();
-        JSONObject jsonData = (JSONObject) parser.parse(new FileReader(DIC_PATH));
-        JSONArray jsonArray = (JSONArray) jsonData.get("tables");
-        for (Object object : jsonArray) {
-            JSONObject jsonObject = (JSONObject) object;
-            String value1 = (String) jsonObject.get("lineSize");
-            System.out.println(value1);
-           // int value2 = Integer.parseInt(jsonObject.get("propertyName2").toString());
-            // Do something with the values
-        }*/
+        System.out.println(d.getColumnProperty("tab1","name1","index"));
 
     }
 }

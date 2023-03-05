@@ -4,6 +4,9 @@ package org.QueryOptimizer;
 public class Node {
 
 	private String data;
+
+
+	private double cout;
 	private Node left;
 	private Node right;
 
@@ -18,14 +21,20 @@ public class Node {
 		this.left = left;
 		this.right = right;
 	}
+	public double getCout() {
+		return cout;
+	}
 
+	public void setCout(double cout) {
+		this.cout = cout;
+	}
 	public void setData(String data) {
 		this.data = data;
 	}
 
-
-
-
+	public boolean isLeaf(){
+		return this.left==null && this.right==null;
+	}
 
 
 

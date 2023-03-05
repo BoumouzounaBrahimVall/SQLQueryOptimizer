@@ -2,6 +2,9 @@
   "transTime":"0.1",
   "nbrPos":"500",
   "tpd":"1.0",
+  "M":"13" ,
+  "blocSize": "16",
+  "tailleDescripteurBloc": "50",
   "tables":[
     {
       "lineSize":"56",

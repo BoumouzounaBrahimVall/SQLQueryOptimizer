@@ -10,10 +10,10 @@
       "lineSize":"56",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"Voiture",
+      "tableName":"Client",
       "columns":[
         {
-          "columnName":"id_voiture",
+          "columnName":"idC",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -23,7 +23,7 @@
           "orderMoy":"44"
         },
         {
-          "columnName":"mk",
+          "columnName":"nom",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -31,6 +31,16 @@
           "minVal":"1",
           "maxVal":"20",
           "orderMoy":"66"
+        },
+        {
+          "columnName":"prenom",
+          "Pk":"0",
+          "index":"1",
+          "unique":"0",
+          "cardinality":"13",
+          "minVal":"1",
+          "maxVal":"40",
+          "orderMoy":"70"
         }
       ]
     },
@@ -38,27 +48,75 @@
       "lineSize":"76",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"tab1",
+      "tableName":"Produit",
       "columns":[
         {
-          "columnName":"ms",
+          "columnName":"idP",
           "Pk":"1",
           "index":"1",
           "unique":"1",
           "cardinality":"13",
           "minVal":"1",
           "maxVal":"20",
-          "orderMoy":"ttt"
+          "orderMoy":"50"
         },
         {
-          "columnName":"name",
+          "columnName":"titre",
           "Pk":"0",
           "index":"1",
           "unique":"0",
           "cardinality":"13",
           "minVal":"1",
+          "maxVal":"30",
+          "orderMoy":"50"
+        },
+        {
+          "columnName":"prix",
+          "Pk":"0",
+          "index":"0",
+          "unique":"0",
+          "cardinality":"19",
+          "minVal":"10",
+          "maxVal":"200",
+          "orderMoy":"50"
+        }
+      ]
+    },
+    {
+      "lineSize":"40",
+      "lineCount":"1000",
+      "FB":"45",
+      "tableName":"Achat",
+      "columns":[
+        {
+          "columnName":"idP",
+          "Pk":"1",
+          "index":"1",
+          "unique":"1",
+          "cardinality":"13",
+          "minVal":"1",
           "maxVal":"20",
-          "orderMoy":"ttt"
+          "orderMoy":"50"
+        },
+        {
+          "columnName":"idC",
+          "Pk":"1",
+          "index":"1",
+          "unique":"1",
+          "cardinality":"13",
+          "minVal":"1",
+          "maxVal":"20",
+          "orderMoy":"50"
+        },
+        {
+          "columnName":"dateA",
+          "Pk":"1",
+          "index":"1",
+          "unique":"1",
+          "cardinality":"13",
+          "minVal":"1",
+          "maxVal":"20",
+          "orderMoy":"50"
         }
       ]
     }

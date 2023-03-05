@@ -10,10 +10,10 @@
       "lineSize":"56",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"tab1",
+      "tableName":"Voiture",
       "columns":[
         {
-          "columnName":"name1",
+          "columnName":"id_voiture",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -23,7 +23,7 @@
           "orderMoy":"44"
         },
         {
-          "columnName":"name",
+          "columnName":"mk",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -41,7 +41,7 @@
       "tableName":"tab1",
       "columns":[
         {
-          "columnName":"name",
+          "columnName":"ms",
           "Pk":"1",
           "index":"1",
           "unique":"1",

@@ -12,14 +12,10 @@ public class Estimator {
 
     public Estimator()
     {
-       // parser=new StatistiquesParser("Statistiques.txt","Dictionnaire.txt");
         parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
     }
 
-    public DictionaryReader getParser()
-    {
-        return parser;
-    }
+    public DictionaryReader getParser() {return parser;}
 
 
     static Double fullTableScane(String table) throws IOException {
@@ -80,7 +76,6 @@ public class Estimator {
         return roundFlout(TRI(R)+TRI(S)+2*(parser.getNbrBloc(R)+parser.getNbrBloc(S))*tmps);
     }
 
-// todo getNbrBloc
     public static Double JF(String R, String S) throws IOException {
         //TempsES (BAL R) + TempsES (BALS) + 2 ×(BR + BS) ×TempsESBlo
         Double tmps=parser.getTransTime()+parser.getTpd();
@@ -261,7 +256,7 @@ public class Estimator {
     }
 
 
-    public static Double coutMinimalTree(Node root) throws IOException {
+    public static Double coutMinimalTree(Node root)  {
         Vector<Double> couts=new Vector<>();
         for (int i=1;i<=8;i++) {
             couts.add(calculterVarianteCouts(root, i));
@@ -269,7 +264,7 @@ public class Estimator {
         return Collections.min(couts);
     }
 
-    public static String afficherCouts(Node root) throws IOException
+    public static String afficherCouts(Node root)
     {
         String couts="";
         for (int i=1;i<=8;i++) {
@@ -278,7 +273,7 @@ public class Estimator {
         couts+="\n\nLE COUT MINIMAL :"+coutMinimalTree(root);
         return couts ;
     }
-    public static Double calculterVarianteCouts(Node root,int i) throws IOException {
+    public static Double calculterVarianteCouts(Node root,int i)  {
         calculerCout(root,i);
         return roundFlout(calculerCoutTree(root,i)/1000);
     }
@@ -311,7 +306,7 @@ public class Estimator {
             System.out.println("le temps de selection par balayage de la table client est : "+E.fullTableScane("Voiture")+" ms");
             //System.out.println("le temps de selection par balayage de la table Location est : "+E.fullTableScane("Location")/1000+" s");
             System.out.println("le temps de selection par indexage secondaire de la table Client est : "+E.indexScaneSec("Voiture","km")+" ms");
-            System.out.println("le temps de selection par indexage secondaire de la table Client est age 500 9000: "+E.indexScaneSec("Voiture","km",10.0,50.0)+" ms");
+            //System.out.println("le temps de selection par indexage secondaire de la table Client est age 500 9000: "+E.indexScaneSec("Voiture","km",10.0,50.0)+" ms");
 
             System.out.println("le temps de selection par indexage primaire de la table Client est : "+E.indexScanePri("Voiture","id_voiture")+" ms");
 

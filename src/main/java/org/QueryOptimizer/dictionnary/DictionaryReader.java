@@ -103,9 +103,9 @@ public class DictionaryReader {
     public double getOrderMoy(String tableName,String columnName){
         return getColumnProperty(tableName, columnName, "orderMoy") ;
     }
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args){
         DictionaryReader d=new DictionaryReader();
-        System.out.println(d.getColumnProperty("tab1","name1","index"));
+        System.out.println(d.getOrderMoy("tab1","name1"));
 
     }
 }

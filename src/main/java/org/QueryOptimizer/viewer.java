@@ -1,4 +1,4 @@
-package org.example;
+package org.QueryOptimizer;
 
 
 public class viewer extends javax.swing.JFrame {

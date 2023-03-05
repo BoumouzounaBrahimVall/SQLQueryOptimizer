@@ -1,5 +1,5 @@
 
-package org.example;
+package org.QueryOptimizer;
 
 public class Node {
 

@@ -1,4 +1,4 @@
-package org.example;
+package org.QueryOptimizer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;

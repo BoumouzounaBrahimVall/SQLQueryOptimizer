@@ -1,4 +1,4 @@
-package org.example;
+package org.QueryOptimizer;
 import java.awt.*;
 import javax.swing.*;
 

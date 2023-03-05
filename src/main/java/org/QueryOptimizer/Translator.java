@@ -1,5 +1,5 @@
 
-package org.example;
+package org.QueryOptimizer;
 
 import java.util.ArrayList;
 import java.util.Collections;

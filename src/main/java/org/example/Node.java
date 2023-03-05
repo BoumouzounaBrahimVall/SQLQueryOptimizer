@@ -1,10 +1,6 @@
 
 package org.example;
 
-/**
- *
- * @author HP
- */
 public class Node {
 
 	private String data;

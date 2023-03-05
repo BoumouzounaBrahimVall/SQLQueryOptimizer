@@ -5,11 +5,6 @@ import java.util.List;
 
 import javax.swing.*;
 
-/**
- *
- * @author HP
- */
-
 public class Visualizer extends JPanel {
     private final Tree tree;
 

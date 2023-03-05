@@ -1,168 +1,127 @@
+
 package org.example;
 
-import javax.swing.*;
-import javax.swing.text.TabableView;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-/**
- Brahim vall please remember that even if there are somme tokens left from the join extraction
- they won't affect the subtree creation because they will be ignored in the condition
- */
 
 
 
 public class Translator {
-	private Node Tree;
 
-	//s:nimporte quel espace
-	private static final String SELECT_REGEX = "^SELECT\\s+(.*)\\s+FROM\\s+(.*)$";
-	private static final String PROJECTION_REGEX = "^(.*),(.*)$";
-	private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
+	private final Tree firstTree;
+	private final String query;
+	private final List<String> listProjections;
+	private final List<String> listConditions; // condition selections only
+	private final List<String> listJoins; // join condition
+	private final List<String> listTables;
 
-	//listes
-	private final List<String> projections;
-	private final List<String> whereTokens; // without joins
-	private final List<String> Joins;
-	private final List<String> tables;
-	public Node getTree() {return Tree;}
-	public void setTree(Node tree) {Tree = tree;}
-	public List<String> getWhereTokens() {
-		return whereTokens;
+
+	public Translator(String txt) {
+
+		firstTree =new Tree();
+		this.listProjections=new ArrayList<>();
+		this.listTables= new ArrayList<>();
+		this.listJoins=new ArrayList<>();
+		this.listConditions =new ArrayList<>();
+		query =txt.toUpperCase();
+
+		this.parseQuery();
+		this.addProjections();
+		//this.firstTree.DrawTree();
+
 	}
-	public List<String> getProjections() {return projections;}
-	public List<String> getTables() {return tables;}
-	public Translator(String query) {
-		query=query.toUpperCase();
-		Matcher selectMatcher = Pattern.compile(SELECT_REGEX).matcher(query);
+
+	public  void parseQuery() {
+
+		Matcher selectMatcher = SELECT_Pattern.matcher(query);
 		if (!selectMatcher.find()) {
-			throw new IllegalArgumentException("Invalid query: " + query);
+			throw new IllegalArgumentException("Wrong Query : " + query);
 		}
 		String projections = selectMatcher.group(1);
 		String tablesAndSelections = selectMatcher.group(2);
-		List<String> projectionList = new ArrayList<>();
 
 		if(!(projections.equals("*"))){
-			Matcher projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
+			Matcher projectionMatcher =PROJECTION_Pattern.matcher(projections);
 			while (projectionMatcher.find()) {
-				projectionList.add(projectionMatcher.group(1));
+				this.listProjections.add(projectionMatcher.group(1));
 				projections = projectionMatcher.group(2);
-				projectionMatcher = Pattern.compile(PROJECTION_REGEX).matcher(projections);
+				projectionMatcher = PROJECTION_Pattern.matcher(projections);
 			}
-			projectionList.add(projections);
+			this.listProjections.add(projections);
 		}
+
 		String[] tablesAndConditions = tablesAndSelections.split("\\s+WHERE\\s+");
-		String tables = tablesAndConditions[0];
 
-		List<String> tab = new ArrayList<>();
-		String[] arrtables=tables.split(",");
-		Collections.addAll(tab, arrtables);
+		/// Tables
+		String tablesTmp = tablesAndConditions[0];
+		String[] arrTables=tablesTmp.split(",");
+		Collections.addAll(this.listTables, arrTables);
 
+		/// Tables
 		String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
-		//todo:: create the tree
-		Matcher matcher = CONDITIONS_PATTERN.matcher(selections);// "w.b=k.g AND k.a='1' AND k.b='1' OR w.c='1' AND w.d='1' AND k.e='1' OR k.f='1' AND k.g='1'"
-		List<String> tokens = new ArrayList<>();
-		this.Joins=new ArrayList<>();
+
+		Matcher matcher = CONDITIONS_PATTERN.matcher(selections);
+
+
 		while (matcher.find()) {
 			String token = matcher.group();
-			//System.out.println("token:" +token);
-			if(token.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // jointure
+			if(token.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // join
 			{
-				this.Joins.add(token);
-			}else tokens.add(token);
+				this.listJoins.add(token);
+			}else this.listConditions.add(token);
 		}
-		this.projections=projectionList;
-		this.tables=tab;
-		this.whereTokens=tokens;
-	}
-	public  void parseQuery( ) {
-			mergSubTrees();
-			if(!this.projections.isEmpty()){
-				String proj="π"+this.projections;
-				Node head= new Node(proj);
-				head.setLeft(Tree);
-				Tree=head;
-			}
+
 	}
 
-	private static boolean isOperator(String elem) {
-		return(elem.equals("OR")|| elem.equals("AND") ) ;
-	}
 
-	private   Node createSubTree(List<String> tabConditions,String tabName){
-		Node tabTree=null;
-		for(String str: tabConditions){
-			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
+	public  void addProjections() {
+		mergSubTrees();
+
+		if(!this.listProjections.isEmpty()){
+			String proj="π"+this.listProjections;
+			Node head= new Node(proj);
+			head.setLeft(this.firstTree.getRoot());
+			this.firstTree.setRoot(head);
 		}
-		if(tabTree==null) return new Node(tabName);
-		return addTable(tabTree,tabName);
 	}
-	private   Node addTable(Node root,String tabName){
-		Node nv;
-		nv= new Node(tabName);
-		if(root==null) return root;//arbre vide
-		if(root.getRight()!=null) root.setRight( addTable(root.getRight(),tabName));
-		if (root.getLeft()!=null) root.setLeft(addTable(root.getLeft(),tabName));
-		else root.setLeft(nv);
-		return root;
 
-	}
-	private   Map<String,Node> createAllSubTrees(){
-		Map<String,Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a tables trees
-		for(String tab:this.tables) { // for each table
 
-			List<String> tmp=new ArrayList<>();// used for collecting  conditions for one table
-			if(!this.whereTokens.isEmpty()) {
-				// the first element doesn't have a previous operator
-				if (this.whereTokens.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && this.whereTokens.get(0).split("\\.")[0].equals(tab)) {
-					System.out.println("table " + tab + " token: " + this.whereTokens.get(0));
-					tmp.add("σ"+this.whereTokens.get(0));// so we add it only without its prev operator
-				}
 
-				for (int i = 1; i < this.whereTokens.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
-					String privOper = this.whereTokens.get(i - 1);
-					String token = this.whereTokens.get(i);
-					System.out.println("spleted : " + token.split("\\.")[0]);
-					if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab)) { // if the token belongs to the table (ex: table.atr='sth')
-						System.out.println("table " + tab + " token: " + token + " prevOper: " + privOper);
-						tmp.add(privOper);
-						tmp.add("σ"+token);
-					}
-				}
-				System.out.println(tmp);
-			}
-			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
-		}
-		subtrees.forEach((k,v)->{ Node.affch(v,0);System.out.println("\n-----------------");});//TODO:: trace subtrees
 
-		return subtrees; // return the fucking tree
-	}
 	private void mergSubTrees(){
-		if(this.whereTokens.isEmpty()&& this.Joins.isEmpty() ){
-			this.Tree=new Node(tables.get(0));
+
+		if(this.listConditions.isEmpty()&& this.listJoins.isEmpty() ){
+			this.firstTree.setRoot(new Node(listTables.get(0)));
 			return;
 		}
-		Map<String,Node>subtrees=createAllSubTrees(); // use to store subTrees a.k.a tables trees
-		if (Joins.isEmpty()){ // one table
-			this.Tree=subtrees.get(tables.get(0));
+
+		Map<String, Node>subtrees=createAllSubTrees(); // use to store subTrees a.k.a listTables trees
+		if (listJoins.isEmpty()){ // one table
+			this.firstTree.setRoot(subtrees.get(listTables.get(0)));
 		}
-		for(String join: this.Joins){
-			Node joinNode =new Node("⋈"); // create the join
-			Pattern p=Pattern.compile("\\w+");//pattern of tables extraction
+
+		for(String join: this.listJoins){
+			Node joinNode =new Node("⋈");
+			Pattern p=Pattern.compile("\\w+");
 			Matcher matcher = p.matcher(join);
-			String tab1="",tab2="";// to store the tables
+			String tab1="",tab2="";
 			if (matcher.find()) tab1=matcher.group(); // extract the first table of the join
-			matcher.find(); // ignore the first table attribute
-			if (matcher.find()) tab2=matcher.group();; //extract the second table of the join
-			System.out.println("table1: "+tab1+" table2: "+tab2); //TODO:: trace join tables
+
+			if (matcher.find() &&matcher.find()) tab2=matcher.group(); //extract the second table of the join
+
 			if(subtrees.containsKey(tab1) && subtrees.containsKey(tab2)){ // the first node the main tree
 				joinNode.setLeft(subtrees.get(tab1)); //
 				joinNode.setRight(subtrees.get(tab2));
 				subtrees.remove(tab1);// remove the table subtree to avoid redolence
 				subtrees.remove(tab2);//same here
 
-			}else { // means that one of the tables has already been used in a join and added
-				joinNode.setLeft(this.Tree);
+			}else { // means that one of the listTables has already been used in a join and added
+				joinNode.setLeft(this.firstTree.getRoot());
 				if(subtrees.containsKey(tab1)){ // if tab 1 not added yet
 					joinNode.setRight(subtrees.get(tab1));
 					subtrees.remove(tab1);
@@ -171,54 +130,97 @@ public class Translator {
 					subtrees.remove(tab2);
 				}
 			}
-			this.Tree=joinNode; // always keep the join node as the root cause we're building from down to up
+			this.firstTree.setRoot(joinNode); // always keep the join node as the root cause we're building from down to up
 
 		}
 	}
-	private   Node addSubTreeNode(Node root,String token){
-		Node nv,tmp;
+
+	private   Map<String, Node> createAllSubTrees(){
+
+		Map<String, Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a listTables trees
+		for(String tab:this.listTables) { // for each table
+			List<String> tmp=new ArrayList<>();// used for collecting  listConditions for one table
+			if(!this.listConditions.isEmpty()) {
+				// the first element doesn't have a previous operator
+				if (this.listConditions.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && this.listConditions.get(0).split("\\.")[0].equals(tab)) {
+					tmp.add("σ"+this.listConditions.get(0));// so we add it only without its prev operator
+				}
+				for (int i = 1; i < this.listConditions.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
+					String privOper = this.listConditions.get(i - 1);
+					String token = this.listConditions.get(i);
+					if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab)) { // if the token belongs to the table (ex: table.atr='sth')
+						tmp.add(privOper);
+						tmp.add("σ"+token);
+					}
+				}
+			}
+			subtrees.put(tab,createSubTree(tmp,tab)); // create the subtree of the table
+		}
+
+
+		return subtrees;
+	}
+
+
+
+	private Node createSubTree(List<String> tabConditions, String tabName){
+		Node tabTree=null;
+		for(String str: tabConditions){
+			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
+		}
+		if(tabTree==null) return new Node(tabName);
+		return addTables(tabTree,tabName);
+	}
+
+	private Node addSubTreeNode(Node root, String token){
+		Node nv;
 		nv= new Node(token);
-		if(root==null) return nv;//arbre vide
+		if(root==null) return nv;
 		if(!isOperator(token))
-		{// si la racine n'as pas de fils froit
+		{// si la racine n'as pas de fils droit
 			if(root.getData().equals("OR")){
 				if(root.getRight()==null) root.setRight(nv); // nv devient fils dt
 				else //sinon il est inserer etant le fils le plus a droite
 				{
 					root.setRight(addSubTreeNode(root.getRight(),token));
-				} //(ceci sera a gauche si un opperateur le suive)
+				}
 			}
 			else{
 				nv.setLeft(root);
-					root=nv;
+				root=nv;
 
-					//root.setLeft(addSubTreeNode(root.getLeft(),token));
 			}
-		}else// si nv est un opperateur
-		{   // si la racine est OR
+		}else
+		{   // if root is OR
 			nv.setLeft(root);
 			root=nv;
 		}
 		return root;
 	}
-	public static JPanel DrawTree(Node th)
-	{
-		JFrame frame = new JFrame("Arbre binaire");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		TreeVisualizer panel = new TreeVisualizer(th);
-		frame.getContentPane().add(panel);
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		JPanel panGen=new JPanel();
-		panGen.add(scrollPane);
-		frame.add(scrollPane);
-		frame.setVisible(true);
-		return panGen;
+
+	private boolean isOperator(String elem) {
+		return elem.equals("OR")|| elem.equals("AND");
 	}
-	public static void addDrawnTree(JPanel p,Node th){
-		TreeVisualizer panel = new TreeVisualizer(th);
-		JScrollPane scrollPane = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		p.add(scrollPane);
+
+	private Node addTables(Node root, String tabName){
+		Node nv;
+		nv= new Node(tabName);
+		if(root==null) return null;//arbre vide
+		if(root.getRight()!=null) root.setRight(addTables(root.getRight(),tabName));
+		if (root.getLeft()!=null) root.setLeft(addTables(root.getLeft(),tabName));
+		else root.setLeft(nv);
+		return root;
+
 	}
+
+	public Tree getFirstTree() {
+		return firstTree;
+	}
+
+
+
+	private static final Pattern SELECT_Pattern = Pattern.compile( "^SELECT\\s+(.*)\\s+FROM\\s+(.*)$");
+	private static final Pattern PROJECTION_Pattern = Pattern.compile("^(.*),(.*)$");
+	private static final Pattern CONDITIONS_PATTERN = Pattern.compile("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'|AND|OR|\\b\\w+\\.\\w+\\b\\s*=\\s*\\b\\w+\\.\\w+\\b");
+
 }

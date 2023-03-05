@@ -17,7 +17,7 @@
           "cardinality":"13",
           "minVal":"1",
           "maxVal":"20",
-          "orderMoy":"ttt"
+          "orderMoy":"44"
         },
         {
           "columnName":"name",
@@ -27,7 +27,7 @@
           "cardinality":"13",
           "minVal":"1",
           "maxVal":"20",
-          "orderMoy":"ttt"
+          "orderMoy":"66"
         }
       ]
     },

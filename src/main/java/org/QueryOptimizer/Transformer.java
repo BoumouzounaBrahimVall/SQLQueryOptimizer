@@ -128,9 +128,13 @@ public final class Transformer {
 		return join1stVariantList;
 	}
 
-	public  boolean notAlreadyAdded(List<Tree> L, Tree n){
-		for (Tree nd:L)
-			if(Tree.sameTree(nd.getRoot(),n.getRoot())== Tree.nbrNodes(n.getRoot())) return false;
+
+	public boolean notAlreadyAdded(List<Tree> L, Tree n){
+		for (Tree t : L) {
+			if (Tree.sameTree(t.getRoot(), n.getRoot())) {
+				return false;
+			}
+		}
 		return true;
 	}
 

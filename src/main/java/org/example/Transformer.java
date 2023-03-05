@@ -369,7 +369,7 @@ public final class Transformer {
 		if (a == null) {
 			return null;
 		}
-		if(a.getData().contains("⋈") && a.getLeft().getData().contains("⋈")){
+		if(a.getData().contains("⋈") && a.getLeft()!=null && a.getLeft().getData().contains("⋈")){
 			if(counter>=initial) {
 				Node tmp=a.getLeft();
 				Node tmp1=a.getRight();

@@ -11,7 +11,7 @@ public class Optimizer {
         JTextField script =new JTextField(100);
         JButton execute=new JButton("Execute");
         execute.addActionListener(evt -> {
-            Translator t=new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' AND B.e='45' OR C.j='35' AND B.b=C.b");
+            Translator t=new Translator(script.getText());
             Transformer tr=new  Transformer(t.getFirstTree());
             int h=Visualizer.drawListOfTrees(tr.getAllVariants(),frame);
             frame.setSize(new Dimension(frame.getWidth(),h));

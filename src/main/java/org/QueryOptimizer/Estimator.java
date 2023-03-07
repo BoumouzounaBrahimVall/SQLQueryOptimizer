@@ -1,9 +1,9 @@
 package org.QueryOptimizer;
 import org.QueryOptimizer.dictionnary.DictionaryReader;
-import java.io.IOException;
-        import java.util.Collections;
-        import java.util.Vector;
-
+import java.util.Collections;
+import java.util.Vector;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Estimator {
 
@@ -18,14 +18,14 @@ public class Estimator {
     public DictionaryReader getParser() {return parser;}
 
 
-    static Double fullTableScane(String table)  {
+    public Double fullTableScane(String table)  {
         if(parser.getFbm(table)>=1)
             return roundFlout(parser.getNbrBloc(table)*parser.getTransTime());
         else
             return roundFlout(parser.getNbrBloc(table)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public static Double indexScaneSec(String table, String index){
+    public  Double indexScaneSec(String table, String index){
         Double blocInterne = parser.getHauteur(table,index);
         int sel=parser.getNbrLignesSelected(table,index);
         double feuilleIndex=sel/ parser.getOrderMoy(table,index);
@@ -40,18 +40,18 @@ public class Estimator {
         return roundFlout(res);
     }
 
-    public static Double indexScanePri(String table, String index) {
+    public  Double indexScanePri(String table, String index) {
         return roundFlout(parser.getHauteur(table,index)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public static Double hachageScane(String table)  {
+    public  Double hachageScane(String table)  {
         Double v1=parser.getTH(table)*parser.getFB(table);
         Double tes=parser.getTransTime()+parser.getTpd();
         return  roundFlout((parser.getLineCount(table)/v1)*tes);
     }
 
 
-    public static double roundFlout(Double num)
+    public  double roundFlout(Double num)
     {
         return  Math.round(num * 1000.0) / 1000.0;
     }
@@ -59,31 +59,31 @@ public class Estimator {
 
     // joins  4
 
-    public static Double BIB(String R, String S) throws IOException {
+    public  Double BIB(String R, String S)  {
         Double tmps=parser.getTransTime()+parser.getTpd();
         return roundFlout(parser.getNbrBloc(R)*( tmps + parser.getNbrBloc(S)*tmps));
     }
 
 
-    public static Double TRI(String table) throws IOException {
+    public  Double TRI(String table){
         Double b=parser.getNbrBloc(table);
         Double btm=b/parser.getM();
         return roundFlout(2*(btm*parser.getTpd()+b*parser.getTransTime()) );
     }
 
-    public static Double JTF(String R, String S) throws IOException {
+    public  Double JTF(String R, String S)  {
         Double tmps=parser.getTransTime()+parser.getTpd();
         return roundFlout(TRI(R)+TRI(S)+2*(parser.getNbrBloc(R)+parser.getNbrBloc(S))*tmps);
     }
 
-    public static Double JF(String R, String S) throws IOException {
+    public  Double JF(String R, String S) {
         //TempsES (BAL R) + TempsES (BALS) + 2 ×(BR + BS) ×TempsESBlo
         Double tmps=parser.getTransTime()+parser.getTpd();
         return roundFlout(fullTableScane(R)+fullTableScane(S)+2*(parser.getNbrBloc(R)+parser.getNbrBloc(S)*tmps));
     }
 
 
-    public static Double PJ(String R, String S) throws IOException {
+    public  Double PJ(String R, String S) {
         return roundFlout(fullTableScane(R)+fullTableScane(S));
     }
 
@@ -256,7 +256,7 @@ public class Estimator {
     }
 
 
-    public static Double coutMinimalTree(Node root)  {
+    public  Double coutMinimalTree(Node root)  {
         Vector<Double> couts=new Vector<>();
         for (int i=1;i<=8;i++) {
             couts.add(calculterVarianteCouts(root, i));
@@ -264,7 +264,7 @@ public class Estimator {
         return Collections.min(couts);
     }
 
-    public static String afficherCouts(Node root)
+    public  String afficherCouts(Node root)
     {
         String couts="";
         for (int i=1;i<=8;i++) {
@@ -273,18 +273,18 @@ public class Estimator {
         couts+="\n\nLE COUT MINIMAL :"+coutMinimalTree(root);
         return couts ;
     }
-    public static Double calculterVarianteCouts(Node root,int i)  {
+    public  Double calculterVarianteCouts(Node root,int i)  {
         calculerCout(root,i);
         return roundFlout(calculerCoutTree(root,i)/1000);
     }
 
-    public static Double calculerCoutTree(Node root,int i)
+    public  Double calculerCoutTree(Node root,int i)
     {
         if(root==null)return 0.0;
         return root.getCout()+calculerCoutTree(root.getLeft(),i)+calculerCoutTree(root.getRight(),i);
     }
 
-    public static void calculerCout(Node root,int i) {
+    public  void calculerCout(Node root,int i) {
         if(root!=null)
         {
             calculerCout(root.getLeft(),i);
@@ -292,6 +292,30 @@ public class Estimator {
             calculerCout(root.getRight(),i);
         }
     }
+
+
+    //todo this will be used to make a generation of all possible combinations of inputers sums
+    public static HashSet<Double> generateSumArray(ArrayList<Double>[] arrays) {
+        HashSet<Double> sums = new HashSet<>();
+        int n = arrays.length;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i+1; j < n; j++) {
+                ArrayList<Double> arr1 = arrays[i];
+                ArrayList<Double> arr2 = arrays[j];
+
+                for (double num1 : arr1) {
+                    for (double num2 : arr2) {
+                        double sum = num1 + num2;
+                        sums.add(sum);
+                    }
+                }
+            }
+        }
+
+        return sums;
+    }
+
 
 
     public static  void main(String [] args)

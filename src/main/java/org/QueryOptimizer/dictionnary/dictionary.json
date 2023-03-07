@@ -10,10 +10,10 @@
       "lineSize":"56",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"Client",
+      "tableName":"CLIENT",
       "columns":[
         {
-          "columnName":"idC",
+          "columnName":"IDC",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -23,7 +23,7 @@
           "orderMoy":"44"
         },
         {
-          "columnName":"nom",
+          "columnName":"NOM",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -33,7 +33,7 @@
           "orderMoy":"66"
         },
         {
-          "columnName":"prenom",
+          "columnName":"PRENOM",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -48,10 +48,10 @@
       "lineSize":"76",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"Produit",
+      "tableName":"PRODUIT",
       "columns":[
         {
-          "columnName":"idP",
+          "columnName":"IDP",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -61,7 +61,7 @@
           "orderMoy":"50"
         },
         {
-          "columnName":"titre",
+          "columnName":"TITRE",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -71,7 +71,7 @@
           "orderMoy":"50"
         },
         {
-          "columnName":"prix",
+          "columnName":"PRIX",
           "Pk":"0",
           "index":"0",
           "unique":"0",
@@ -86,10 +86,10 @@
       "lineSize":"40",
       "lineCount":"1000",
       "FB":"45",
-      "tableName":"Achat",
+      "tableName":"ACHAT",
       "columns":[
         {
-          "columnName":"idP",
+          "columnName":"IDP",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -99,7 +99,7 @@
           "orderMoy":"50"
         },
         {
-          "columnName":"idC",
+          "columnName":"IDC",
           "Pk":"1",
           "index":"1",
           "unique":"1",
@@ -109,7 +109,7 @@
           "orderMoy":"50"
         },
         {
-          "columnName":"dateA",
+          "columnName":"DATEA",
           "Pk":"1",
           "index":"1",
           "unique":"1",

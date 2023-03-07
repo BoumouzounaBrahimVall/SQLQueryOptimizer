@@ -99,7 +99,9 @@ public class DictionaryReader {
 
    // calculated table properties
     public Double getFbm(String tableName)   {return (getTailleBloc()-getTailleDescripteurBloc())/getLineSize(tableName);}
-    public Double getNbrBloc(String tableName)  {return (getLineCount(tableName)/getFB(tableName));}
+    public Double getNbrBloc(String tableName)  {
+        System.out.println("lines"+tableName+": "+getLineCount(tableName)+" FB "+getFB(tableName));
+        return (getLineCount(tableName)/getFB(tableName));}
 
     // calculated column properties
     public  int getNbrLignesSelected(String tableName,String col)  {return (int) (getLineCount(tableName)/getCardinality(tableName,col));}

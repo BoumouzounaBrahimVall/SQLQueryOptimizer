@@ -60,25 +60,25 @@ public class Estimator {
     // joins  4
 
     public  Double BIB(String R, String S)  {
-        Double tmps=parser.getTransTime()+parser.getTpd();
-        return roundFlout(parser.getNbrBloc(R)*( tmps + parser.getNbrBloc(S)*tmps));
+        double tmps=parser.getTransTime()+parser.getTpd();
+        return roundFlout(parser.getNbrBloc(R)*( tmps + parser.getNbrBloc(S)*parser.getTransTime()+ parser.getTpd()));
     }
 
 
     public  Double TRI(String table){
-        Double b=parser.getNbrBloc(table);
-        Double btm=b/parser.getM();
+        double b=parser.getNbrBloc(table);
+        double btm=b/parser.getM();
         return roundFlout(2*(btm*parser.getTpd()+b*parser.getTransTime()) );
     }
 
     public  Double JTF(String R, String S)  {
-        Double tmps=parser.getTransTime()+parser.getTpd();
+        double tmps=parser.getTransTime()+parser.getTpd();
         return roundFlout(TRI(R)+TRI(S)+2*(parser.getNbrBloc(R)+parser.getNbrBloc(S))*tmps);
     }
 
-    public  Double JF(String R, String S) {
+    public  Double JH(String R, String S) {
         //TempsES (BAL R) + TempsES (BALS) + 2 ×(BR + BS) ×TempsESBlo
-        Double tmps=parser.getTransTime()+parser.getTpd();
+        double tmps=parser.getTransTime()+parser.getTpd();
         return roundFlout(fullTableScane(R)+fullTableScane(S)+2*(parser.getNbrBloc(R)+parser.getNbrBloc(S)*tmps));
     }
 
@@ -115,7 +115,7 @@ public class Estimator {
                     if (node.getType().equals("SELECTION")) {
                         node.setCout(fullTableScane(node.getTablesFromCondition().get(0)));
                     } else if (node.getType().equals("JOIN")) {
-                        node.setCout(JF(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
+                        node.setCout(JH(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
                     }
                     break;
                 case 4:
@@ -143,7 +143,7 @@ public class Estimator {
                     if (node.getType().equals("SELECTION")) {
                         node.setCout(hachageScane(node.getTablesFromCondition().get(0)));
                     } else if (node.getType().equals("JOIN")) {
-                        node.setCout(JF(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
+                        node.setCout(JH(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
                     }
                     break;
                 case 8:
@@ -186,7 +186,7 @@ public class Estimator {
                         else node.setCout(hachageScane(node.getTablesFromCondition().get(0)));
 
                     } else if (node.getType().equals("JOIN")) {
-                        node.setCout(JF(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
+                        node.setCout(JH(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
                     }
                     break;
                 case 12:
@@ -235,7 +235,7 @@ public class Estimator {
                         else node.setCout(hachageScane(node.getTablesFromCondition().get(0)));
 
                     } else if (node.getType().equals("JOIN")) {
-                        node.setCout(JF(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
+                        node.setCout(JH(node.getTablesFromCondition().get(0), node.getTablesFromCondition().get(1)));
                     }
                     break;
                 case 16:
@@ -293,10 +293,10 @@ public class Estimator {
         }
     }
 
-    public void inputConsumers(Node root, List<String>joinInputs, List<String>selInputs){
+    private void inputConsumers(Node root, List<String>joinInputs, List<String>selInputs){
         if(root==null) return ;
         if(root.getData().contains("σ")&& root.getLeft().getLeft()==null){ // left is the table and table left is null
-            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'";
+            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(root.getData());
             System.out.println("sel added");
@@ -322,20 +322,68 @@ public class Estimator {
         if(root.getLeft()!=null) inputConsumers(root.getLeft(),joinInputs,selInputs);
         if(root.getRight()!=null) inputConsumers(root.getRight(),joinInputs,selInputs);
     }
+    public  ArrayList<Double> joinCostVariants(String join){
+            List<String> attrs=new ArrayList<>();
+            ArrayList<Double> costs=new ArrayList<>();
+            Pattern p=Pattern.compile("\\w+");
+            Matcher matcher = p.matcher(join);
+            while (matcher.find()) attrs.add(matcher.group());
+            costs.add(BIB(attrs.get(0),attrs.get(2)));
+            costs.add(JTF(attrs.get(0),attrs.get(2)));
+            costs.add(PJ(attrs.get(0),attrs.get(2)));
+            costs.add(JH(attrs.get(0),attrs.get(2)));
+        return costs;
+    }
+    public ArrayList<Double> selectionCostVariants(String sel){
+        ArrayList<Double> costs=new ArrayList<>();
+        String table=sel.split("\\.")[0].trim();
+        String col=sel.split("\\.")[1].trim();
+
+        costs.add(fullTableScane(table));
+        if(parser.isUnique(table,col)){
+            costs.add(hachageScane(table));
+        }
+        if(parser.isPrimaryKey(table,col)){
+            costs.add(indexScanePri(table,col));
+
+        }else if(parser.isIndexed(table,col)){
+            costs.add(indexScaneSec(table,col));
+        }
+        return costs;
+    }
+
     //todo this will be used to make a generation of all possible combinations of inputers sums
-    public static HashSet<Double> generateSumArray(ArrayList<Double>[] arrays) {
+    public HashSet<Double> calculateCosts(Node root){
+        List<String> joins=new ArrayList<>();
+        List<String> sels=new ArrayList<>();
+        inputConsumers(root,joins,sels);
+        List<List<Double>> cals=new ArrayList<>(joins.size()+sels.size());
+
+        for(String join:joins){
+            ArrayList<Double> costList = joinCostVariants(join);
+           cals.add(costList);
+
+        }
+        for (String sel:sels){
+            ArrayList<Double> costList = selectionCostVariants(sel);
+            cals.add(costList);
+
+        }
+        return generateSumArray(cals);
+    }
+    public  HashSet<Double> generateSumArray(List<List<Double>> arrays) {
         HashSet<Double> sums = new HashSet<>();
-        int n = arrays.length;
+        int n = arrays.size();
 
         for (int i = 0; i < n; i++) {
             for (int j = i+1; j < n; j++) {
-                ArrayList<Double> arr1 = arrays[i];
-                ArrayList<Double> arr2 = arrays[j];
+                List<Double> arr1 = arrays.get(i);
+                List<Double> arr2 = arrays.get(j);
 
                 for (double num1 : arr1) {
                     for (double num2 : arr2) {
                         double sum = num1 + num2;
-                        sums.add(sum);
+                        sums.add(roundFlout(sum));
                     }
                 }
             }
@@ -350,7 +398,7 @@ public class Estimator {
     {
 
         Estimator E = new Estimator();
-         Translator t=  new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b");
+         Translator t=  new Translator("select * from client,achat where client.idc=achat.idc and client.nom='ahmed'");
         //Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
         //  Transformer tr=new  Transformer(t.getFirstTree());
         Node.show(t.getFirstTree().getRoot(),0);
@@ -361,6 +409,11 @@ public class Estimator {
         joins.forEach(System.out::println);
         System.out.println("sels terminals");
         sels.forEach(System.out::println);
+        //System.err.println("estimation");
+       // (E.joinCostVariants("CLIENT.IDC=ACHAT.IDC") ).forEach(System.out::println);
+       /// joinCostVariants(joins.get(0));
+        System.err.println("estimations: ");
+        (E.calculateCosts(t.getFirstTree().getRoot())).forEach(System.out::println);
 
 /*
        // try{
@@ -384,7 +437,7 @@ public class Estimator {
             System.out.println("le temps de jointure enre client et loction JTF est: "+E.JTF("Client","Location")+" ms");
             System.out.println("le temps de jointure enre location et client JTF est: "+E.JTF("Location","Client")+" ms");
 
-            System.out.println("le temps de jointure enre location et client JF est: "+E.JF("Location","Client")+" ms");
+            System.out.println("le temps de jointure enre location et client JH est: "+E.JH("Location","Client")+" ms");
             System.out.println("le temps de jointure enre location et client PJ est: "+E.PJ("Client","Location")+" ms");
 
 

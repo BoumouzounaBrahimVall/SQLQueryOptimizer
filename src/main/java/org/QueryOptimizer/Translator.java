@@ -12,7 +12,8 @@ import java.util.regex.Pattern;
 
 
 public class Translator {
-
+	private static final String CONDITION_PATTERN="\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'";
+	private static final String JOIN_PATTERN="\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
 	private final Tree firstTree;
 	private final String query;
 	private final List<String> listProjections;
@@ -60,7 +61,7 @@ public class Translator {
 		/// Tables
 		String tablesTmp = tablesAndConditions[0];
 		String[] arrTables=tablesTmp.split(",");
-		Collections.addAll(this.listTables, arrTables);
+		for (String table : arrTables) {this.listTables.add(table.trim());}
 
 		/// Tables
 		String selections = tablesAndConditions.length > 1 ? tablesAndConditions[1] : "";
@@ -70,10 +71,13 @@ public class Translator {
 
 		while (matcher.find()) {
 			String token = matcher.group();
-			if(token.matches("\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+"))	 // join
+			if(token.matches(JOIN_PATTERN))	 // join
 			{
 				this.listJoins.add(token);
-			}else this.listConditions.add(token);
+			}else {
+				System.err.println(token);
+				this.listConditions.add(token);
+			}
 		}
 
 	}
@@ -142,13 +146,13 @@ public class Translator {
 			List<String> tmp=new ArrayList<>();// used for collecting  listConditions for one table
 			if(!this.listConditions.isEmpty()) {
 				// the first element doesn't have a previous operator
-				if (this.listConditions.get(0).matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && this.listConditions.get(0).split("\\.")[0].equals(tab)) {
+				if (this.listConditions.get(0).matches(CONDITION_PATTERN) && this.listConditions.get(0).split("\\.")[0].equals(tab)) {
 					tmp.add("σ"+this.listConditions.get(0));// so we add it only without its prev operator
 				}
 				for (int i = 1; i < this.listConditions.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
 					String privOper = this.listConditions.get(i - 1);
 					String token = this.listConditions.get(i);
-					if (token.matches("\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'") && token.split("\\.")[0].equals(tab)) { // if the token belongs to the table (ex: table.atr='sth')
+					if (token.matches(CONDITION_PATTERN) && token.split("\\.")[0].matches(tab)) { // if the token belongs to the table (ex: table.atr='sth')
 						tmp.add(privOper);
 						tmp.add("σ"+token);
 					}

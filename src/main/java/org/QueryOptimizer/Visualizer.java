@@ -61,23 +61,35 @@ public class Visualizer extends JPanel {
         return Math.max(getHeight(Node.getLeft()), getHeight(Node.getRight())) + 1;
     }
 
-    static int drawListOfTrees(List<Tree> trees, JFrame frame){
+    static int drawListOfTrees(List<Tree> trees, Estimator estimator, JFrame frame){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(trees.size(), 1));
         int i=0;
-        for (Tree a : trees) {
+        for (Tree tree : trees) {
 
             i++;
-            Visualizer subPanel = new Visualizer(a);
+            Visualizer subPanel = new Visualizer(tree);
             JPanel p=new JPanel(new BorderLayout());
-            JLabel l=new JLabel("-----------------  Tree "+ i +" -----------------"  );
+            double minCost = estimator.calculateCosts(tree.getRoot()).stream().min(Double::compare).orElse(Double.NaN);
+            StringBuilder s= new StringBuilder("minCost :"+minCost+"costs: [");
+            for(Double cost: estimator.calculateCosts(tree.getRoot())){
+                s.append("").append(cost).append("ms, ");
+            };
+
+            String costs=String.valueOf(s).substring(0,s.length()-2)+"]";
+            JLabel l=new JLabel("Tree "+ i );
             l.setFont(new Font("Serif", Font.BOLD, 24));
             l.setHorizontalAlignment(JLabel.CENTER);
             l.setVerticalAlignment(JLabel.CENTER);
             l.setForeground(Color.BLUE);
             l.setOpaque(true);
             l.setBackground(Color.lightGray);
-            p.add(l,BorderLayout.NORTH);
+
+            JLabel cos=new JLabel(costs);
+            cos.setFont(new Font("Serif", Font.BOLD, 14));
+            JPanel pan=new JPanel();
+            pan.add(l);pan.add(cos);
+            p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);
             // Add components to subPanel
             panel.add(p);

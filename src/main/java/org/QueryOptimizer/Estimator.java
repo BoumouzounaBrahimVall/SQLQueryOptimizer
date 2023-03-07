@@ -1,9 +1,9 @@
 package org.QueryOptimizer;
 import org.QueryOptimizer.dictionnary.DictionaryReader;
-import java.util.Collections;
-import java.util.Vector;
-import java.util.ArrayList;
-import java.util.HashSet;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Estimator {
 
@@ -293,7 +293,35 @@ public class Estimator {
         }
     }
 
+    public void inputConsumers(Node root, List<String>joinInputs, List<String>selInputs){
+        if(root==null) return ;
+        if(root.getData().contains("σ")&& root.getLeft().getLeft()==null){ // left is the table and table left is null
+            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(root.getData());
+            System.out.println("sel added");
+            if (m.find()) {
+                String match = m.group(); // Extract the matched substring
+                selInputs.add(match);
 
+            }
+
+        }
+        if(root.getData().contains("⋈")&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
+            String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(root.getData());
+            System.out.println("join added");
+            if (m.find()) {
+                String match = m.group(); // Extract the matched substring
+                joinInputs.add(match);
+
+
+            }
+        }
+        if(root.getLeft()!=null) inputConsumers(root.getLeft(),joinInputs,selInputs);
+        if(root.getRight()!=null) inputConsumers(root.getRight(),joinInputs,selInputs);
+    }
     //todo this will be used to make a generation of all possible combinations of inputers sums
     public static HashSet<Double> generateSumArray(ArrayList<Double>[] arrays) {
         HashSet<Double> sums = new HashSet<>();
@@ -322,9 +350,19 @@ public class Estimator {
     {
 
         Estimator E = new Estimator();
+         Translator t=  new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b");
+        //Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
+        //  Transformer tr=new  Transformer(t.getFirstTree());
+        Node.show(t.getFirstTree().getRoot(),0);
+        List<String> joins=new ArrayList<>();
+        List<String> sels=new ArrayList<>();
+        E.inputConsumers(t.getFirstTree().getRoot(),joins,sels);
+        System.out.println("\njoin terminals");
+        joins.forEach(System.out::println);
+        System.out.println("sels terminals");
+        sels.forEach(System.out::println);
 
-
-
+/*
        // try{
             //System.out.println("le temps de selection par balayage de la table voiture est : "+E.fullTableScane("Voiture")+" ms");
             System.out.println("le temps de selection par balayage de la table client est : "+E.fullTableScane("Client")+" ms");
@@ -333,7 +371,7 @@ public class Estimator {
             //System.out.println("le temps de selection par indexage secondaire de la table Client est age 500 9000: "+E.indexScaneSec("Voiture","km",10.0,50.0)+" ms");
 
             System.out.println("le temps de selection par indexage primaire de la table Client est : "+E.indexScanePri("Client","idC")+" ms");
-/*
+
 
             System.out.println("le temps de selection par hachage  de la table Client est : "+E.hachageScane("Voiture")+" ms");
 

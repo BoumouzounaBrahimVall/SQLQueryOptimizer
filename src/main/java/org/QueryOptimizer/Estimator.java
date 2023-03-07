@@ -18,21 +18,21 @@ public class Estimator {
     public DictionaryReader getParser() {return parser;}
 
 
-    static Double fullTableScane(String table) throws IOException {
+    static Double fullTableScane(String table)  {
         if(parser.getFbm(table)>=1)
             return roundFlout(parser.getNbrBloc(table)*parser.getTransTime());
         else
             return roundFlout(parser.getNbrBloc(table)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public static Double indexScaneSec(String table, String index) throws IOException {
+    public static Double indexScaneSec(String table, String index){
         Double blocInterne = parser.getHauteur(table,index);
         int sel=parser.getNbrLignesSelected(table,index);
         double feuilleIndex=sel/ parser.getOrderMoy(table,index);
         return roundFlout((blocInterne+sel+feuilleIndex)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public Double indexScaneSec(String table,String index,Double v1, Double v2) throws IOException {
+    public Double indexScaneSec(String table,String index,Double v1, Double v2) {
         Double blocInterne = parser.getHauteur(table,index);
         int sel=parser.getNbrLignesSelected(table,index,v1,v2);
         double feuilleIndex=sel/ parser.getOrderMoy(table,index);
@@ -40,11 +40,11 @@ public class Estimator {
         return roundFlout(res);
     }
 
-    public static Double indexScanePri(String table, String index) throws IOException {
+    public static Double indexScanePri(String table, String index) {
         return roundFlout(parser.getHauteur(table,index)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public static Double hachageScane(String table) throws IOException {
+    public static Double hachageScane(String table)  {
         Double v1=parser.getTH(table)*parser.getFB(table);
         Double tes=parser.getTransTime()+parser.getTpd();
         return  roundFlout((parser.getLineCount(table)/v1)*tes);
@@ -301,15 +301,15 @@ public class Estimator {
 
 
 
-        try{
+       // try{
             //System.out.println("le temps de selection par balayage de la table voiture est : "+E.fullTableScane("Voiture")+" ms");
-            System.out.println("le temps de selection par balayage de la table client est : "+E.fullTableScane("Voiture")+" ms");
+            System.out.println("le temps de selection par balayage de la table client est : "+E.fullTableScane("Client")+" ms");
             //System.out.println("le temps de selection par balayage de la table Location est : "+E.fullTableScane("Location")/1000+" s");
-            System.out.println("le temps de selection par indexage secondaire de la table Client est : "+E.indexScaneSec("Voiture","km")+" ms");
+            System.out.println("le temps de selection par indexage secondaire de la table Client est : "+E.indexScaneSec("Client","idC")+" ms");
             //System.out.println("le temps de selection par indexage secondaire de la table Client est age 500 9000: "+E.indexScaneSec("Voiture","km",10.0,50.0)+" ms");
 
-            System.out.println("le temps de selection par indexage primaire de la table Client est : "+E.indexScanePri("Voiture","id_voiture")+" ms");
-
+            System.out.println("le temps de selection par indexage primaire de la table Client est : "+E.indexScanePri("Client","idC")+" ms");
+/*
 
             System.out.println("le temps de selection par hachage  de la table Client est : "+E.hachageScane("Voiture")+" ms");
 
@@ -329,7 +329,10 @@ public class Estimator {
         }catch(IOException e)
         {
             e.printStackTrace();
-        }
+
+
+ }
+ */
 
     }
 

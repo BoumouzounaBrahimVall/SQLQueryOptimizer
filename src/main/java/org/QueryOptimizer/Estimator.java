@@ -12,7 +12,7 @@ public class Estimator {
 
     public Estimator()
     {
-        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
+        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary2.json");
     }
 
     public DictionaryReader getParser() {return parser;}
@@ -176,7 +176,7 @@ public class Estimator {
                 for (double num1 : arr1) {
                     for (double num2 : arr2) {
                         double sum = num1 + num2;
-                        sums.add(roundFlout(sum));
+                        if(sum>0) sums.add(roundFlout(sum));
                     }
                 }
             }
@@ -184,7 +184,7 @@ public class Estimator {
 
         return sums;
     }
-
+// select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.k>'89' OR C.e='45' OR C.j='35' AND B.b=C.b
 
 
     public static  void main(String [] args)

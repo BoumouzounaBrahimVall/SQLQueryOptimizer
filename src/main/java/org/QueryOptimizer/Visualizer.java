@@ -1,6 +1,7 @@
 package org.QueryOptimizer;
 
 import java.awt.*;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.*;
@@ -70,15 +71,19 @@ public class Visualizer extends JPanel {
             i++;
             Visualizer subPanel = new Visualizer(tree);
             JPanel p=new JPanel(new BorderLayout());
-            double minCost = estimator.calculateCosts(tree.getRoot()).stream().min(Double::compare).orElse(Double.NaN);
-            StringBuilder s= new StringBuilder("minCost :"+minCost+"costs: [");
-            for(Double cost: estimator.calculateCosts(tree.getRoot())){
+            HashSet<Double> ls = estimator.calculateCosts(tree.getRoot());
+
+            double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
+            double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
+            StringBuilder s= new StringBuilder("minCost :"+minCost+"ms MaxCost: "+maxCost+"ms costs: [");
+            for(Double cost: ls){
                 s.append("").append(cost).append("ms, ");
             };
 
+
             String costs=String.valueOf(s).substring(0,s.length()-2)+"]";
             JLabel l=new JLabel("Tree "+ i );
-            l.setFont(new Font("Serif", Font.BOLD, 24));
+            l.setFont(new Font("Serif", Font.BOLD, 14));
             l.setHorizontalAlignment(JLabel.CENTER);
             l.setVerticalAlignment(JLabel.CENTER);
             l.setForeground(Color.BLUE);
@@ -86,9 +91,10 @@ public class Visualizer extends JPanel {
             l.setBackground(Color.lightGray);
 
             JLabel cos=new JLabel(costs);
-            cos.setFont(new Font("Serif", Font.BOLD, 14));
-            JPanel pan=new JPanel();
+            cos.setFont(new Font("Serif", Font.ITALIC, 9));
+            JPanel pan=new JPanel(new FlowLayout(FlowLayout.LEFT));
             pan.add(l);pan.add(cos);
+            pan.setPreferredSize(new Dimension(800,50));
             p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);
             // Add components to subPanel

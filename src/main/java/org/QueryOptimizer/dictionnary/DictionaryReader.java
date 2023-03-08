@@ -100,7 +100,7 @@ public class DictionaryReader {
    // calculated table properties
     public Double getFbm(String tableName)   {return (getTailleBloc()-getTailleDescripteurBloc())/getLineSize(tableName);}
     public Double getNbrBloc(String tableName)  {
-        System.out.println("lines"+tableName+": "+getLineCount(tableName)+" FB "+getFB(tableName));
+    //    System.out.println("lines"+tableName+": "+getLineCount(tableName)+" FB "+getFB(tableName));
         return (getLineCount(tableName)/getFB(tableName));}
 
     // calculated column properties
@@ -111,10 +111,10 @@ public class DictionaryReader {
     public Double getHauteur(String table, String index) {return (Math.log(getLineCount(table)) / Math.log(getOrderMoy(table,index)));}
     public Double getTH(String table)  {Double fb=0.8*getFbm(table) ;return getLineCount(table)/fb;}
 
-
+/*
     public static void main(String[] args){
         DictionaryReader d=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
         System.out.println(d.getOrderMoy("tab1","name1"));
 
-    }
+    }*/
 }

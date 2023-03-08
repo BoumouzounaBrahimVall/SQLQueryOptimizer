@@ -1,5 +1,7 @@
 package org.QueryOptimizer;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,7 @@ public final class Transformer {
 	public List<Tree> assocJoinRule; //association jointure
 	private final Tree firstTree;
 	private List<Tree> allVariants;
-
+	private List<Tree> switchJoinSelection;
 
 
 	public Transformer(Tree tree)
@@ -397,6 +399,53 @@ public final class Transformer {
 		A.setRight(aux);
 		return A;
 	}
+	public static Node switchjoinselection(Node a){
+		if (a == null) {
+			return null;
+		}
 
+
+
+
+		if(a.getLeft()!=null) switchjoinselection(a.getLeft());
+		if (a.getRight()!=null) switchjoinselection(a.getRight());
+		return a;
+	}
+
+	public static void main(String[] args) {
+
+	/*JFrame frame = new JFrame();frame.setLayout(new BorderLayout());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		JTextField script =new JTextField(100);
+		JButton execute=new JButton("Execute");
+		execute.addActionListener(evt -> {
+			Translator t=new Translator(script.getText());
+			Transformer tr=new  Transformer(t.getFirstTree());
+			int h=Visualizer.drawListOfTrees(tr.getAllVariants(),frame);
+			frame.setSize(new Dimension(frame.getWidth(),h));
+			frame.pack();
+			frame.setVisible(true);
+		});
+		JPanel p=new JPanel();
+		p.add(script);
+		p.add(execute);
+		frame.add(p,BorderLayout.NORTH);
+		// Translator t=  new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b");
+		//Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
+		//  Transformer tr=new  Transformer(t.getFirstTree());
+		//SELECT nom,age,prenom FROM Client,Voiture,Location WHERE Client.id_client=Location.id_client AND Voiture.id_voiture=Location.id_voiture AND Client.age='40' AND Voiture.km='1000' AND Voiture.marque='Mercedes'
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);*/
+		//Node a=Transformer.switchjoinselection();
+		Translator tr=new Translator("SELECT CLIENT.ID,CLIENT.NOM,PROJET.TITRE FROM CLIENT,PROJET WHERE CLIENT.ID=PROJET.ID AND PROJET.TITRE='VAL'");
+		tr.getFirstTree().showTree();
+		System.out.println("\n\n________________________==================__________________");
+		Tree tmp=new Tree();
+		tmp.setRoot(Transformer.switchjoinselection(tr.getFirstTree().getRoot()));
+		tmp.showTree();
+
+	}
 }
 

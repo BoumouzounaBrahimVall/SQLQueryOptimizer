@@ -1,4 +1,6 @@
-package org.QueryOptimizer;
+package org.QueryOptimizer.a;
+import org.QueryOptimizer.Node;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;

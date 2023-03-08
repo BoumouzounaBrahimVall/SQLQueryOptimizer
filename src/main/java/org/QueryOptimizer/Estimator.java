@@ -176,7 +176,7 @@ public class Estimator {
                 for (double num1 : arr1) {
                     for (double num2 : arr2) {
                         double sum = num1 + num2;
-                        if(sum>0) sums.add(roundFlout(sum));
+                        if(sum>0&&sum<10000) sums.add(roundFlout(sum));
                     }
                 }
             }

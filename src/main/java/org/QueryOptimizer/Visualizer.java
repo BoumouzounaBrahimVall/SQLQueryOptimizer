@@ -75,25 +75,32 @@ public class Visualizer extends JPanel {
 
             double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
             double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
-            StringBuilder s= new StringBuilder("minCost :"+minCost+"ms MaxCost: "+maxCost+"ms costs: [");
+            String phisi="Physical costs: minCost : ("+minCost+"ms) MaxCost: ("+maxCost+"ms) "+ "count physical tree: "+ls.size();
+            StringBuilder s= new StringBuilder(" costs: [");
             for(Double cost: ls){
                 s.append("").append(cost).append("ms, ");
             };
 
 
             String costs=String.valueOf(s).substring(0,s.length()-2)+"]";
-            JLabel l=new JLabel("Tree "+ i );
+            JLabel l;
+            if(i==1){
+                l=new JLabel("                                                                     Main Tree: logical tree count: "+trees.size()+"   " );
+            }else  l=new JLabel("                                                                               Tree "+ i );
             l.setFont(new Font("Serif", Font.BOLD, 14));
             l.setHorizontalAlignment(JLabel.CENTER);
             l.setVerticalAlignment(JLabel.CENTER);
-            l.setForeground(Color.BLUE);
+            l.setForeground(Color.RED);
             l.setOpaque(true);
-            l.setBackground(Color.lightGray);
+         //   l.setBackground(Color.lightGray);
 
             JLabel cos=new JLabel(costs);
             cos.setFont(new Font("Serif", Font.ITALIC, 9));
             JPanel pan=new JPanel(new FlowLayout(FlowLayout.LEFT));
-            pan.add(l);pan.add(cos);
+            JLabel minmax=new JLabel(phisi);
+            minmax.setFont(new Font("Serif", Font.ITALIC, 14));
+            minmax.setForeground(Color.RED);
+            pan.add(l);pan.add(minmax);pan.add(cos);
             pan.setPreferredSize(new Dimension(800,50));
             p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);

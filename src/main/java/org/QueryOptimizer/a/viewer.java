@@ -1,5 +1,7 @@
-package org.QueryOptimizer;
+package org.QueryOptimizer.a;
 
+
+import org.QueryOptimizer.Translator;
 
 public class viewer extends javax.swing.JFrame {
 

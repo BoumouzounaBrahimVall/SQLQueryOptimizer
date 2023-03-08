@@ -1,6 +1,7 @@
 package org.QueryOptimizer;
 
 import java.awt.*;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.*;
@@ -61,23 +62,40 @@ public class Visualizer extends JPanel {
         return Math.max(getHeight(Node.getLeft()), getHeight(Node.getRight())) + 1;
     }
 
-    static int drawListOfTrees(List<Tree> trees, JFrame frame){
+    static int drawListOfTrees(List<Tree> trees, Estimator estimator, JFrame frame){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(trees.size(), 1));
         int i=0;
-        for (Tree a : trees) {
+        for (Tree tree : trees) {
 
             i++;
-            Visualizer subPanel = new Visualizer(a);
+            Visualizer subPanel = new Visualizer(tree);
             JPanel p=new JPanel(new BorderLayout());
-            JLabel l=new JLabel("-----------------  Tree "+ i +" -----------------"  );
-            l.setFont(new Font("Serif", Font.BOLD, 24));
+            HashSet<Double> ls = estimator.calculateCosts(tree.getRoot());
+
+            double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
+            double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
+            StringBuilder s= new StringBuilder("minCost :"+minCost+"ms MaxCost: "+maxCost+"ms costs: [");
+            for(Double cost: ls){
+                s.append("").append(cost).append("ms, ");
+            };
+
+
+            String costs=String.valueOf(s).substring(0,s.length()-2)+"]";
+            JLabel l=new JLabel("Tree "+ i );
+            l.setFont(new Font("Serif", Font.BOLD, 14));
             l.setHorizontalAlignment(JLabel.CENTER);
             l.setVerticalAlignment(JLabel.CENTER);
             l.setForeground(Color.BLUE);
             l.setOpaque(true);
             l.setBackground(Color.lightGray);
-            p.add(l,BorderLayout.NORTH);
+
+            JLabel cos=new JLabel(costs);
+            cos.setFont(new Font("Serif", Font.ITALIC, 9));
+            JPanel pan=new JPanel(new FlowLayout(FlowLayout.LEFT));
+            pan.add(l);pan.add(cos);
+            pan.setPreferredSize(new Dimension(800,50));
+            p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);
             // Add components to subPanel
             panel.add(p);

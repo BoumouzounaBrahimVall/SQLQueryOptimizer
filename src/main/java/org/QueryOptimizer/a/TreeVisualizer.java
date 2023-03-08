@@ -1,4 +1,6 @@
-package org.QueryOptimizer;
+package org.QueryOptimizer.a;
+import org.QueryOptimizer.Node;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;

@@ -110,7 +110,7 @@ public class Translator {
 		}
 
 		for(String join: this.listJoins){
-			Node joinNode =new Node("⋈");
+			Node joinNode =new Node("⋈"+join);
 			Pattern p=Pattern.compile("\\w+");
 			Matcher matcher = p.matcher(join);
 			String tab1="",tab2="";

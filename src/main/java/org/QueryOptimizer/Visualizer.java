@@ -77,19 +77,24 @@ public class Visualizer extends JPanel {
 
             double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
             double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
-            StringBuilder s= new StringBuilder("minCost :"+minCost+"ms MaxCost: "+maxCost+"ms costs: [");
+            String phisi="Physical costs: minCost : ("+minCost+"ms) MaxCost: ("+maxCost+"ms) "+ "count physical tree: "+ls.size();
+            StringBuilder s= new StringBuilder(" costs: [");
             for(Double cost: ls){
                 s.append("").append(cost).append("ms, ");
             };
 
 
             String costs=String.valueOf(s).substring(0,s.length()-2)+"]";
-            JLabel l=new JLabel("Tree "+ i );
+            JLabel l;
+            if(i==1){
+                l=new JLabel("                                                                     Main Tree: logical tree count: "+trees.size()+"   " );
+            }else  l=new JLabel("                                                                               Tree "+ i );
             l.setFont(new Font("Serif", Font.BOLD, 14));
             l.setHorizontalAlignment(JLabel.CENTER);
             l.setVerticalAlignment(JLabel.CENTER);
-            l.setForeground(Color.BLUE);
+            l.setForeground(Color.RED);
             l.setOpaque(true);
+
             l.setBackground(Color.lightGray);
             String key=tree.getKey();
              key = key.substring(0, key.length()-2);
@@ -101,14 +106,23 @@ public class Visualizer extends JPanel {
             ll.setOpaque(true);
             ll.setBackground(Color.lightGray);
 
+
             JLabel cos=new JLabel(costs);
             JTextArea cos2=new JTextArea(costs);
             cos2.setSize(new Dimension(1200,200));
             cos2.setLineWrap(true);
             cos2.setFont(new Font("Serif", Font.ITALIC, 16));
             JPanel pan=new JPanel(new FlowLayout(FlowLayout.LEFT));
+
             pan.add(l);pan.add(ll);pan.add(cos2);
             pan.setPreferredSize(new Dimension(1200,200));
+
+            JLabel minmax=new JLabel(phisi);
+            minmax.setFont(new Font("Serif", Font.ITALIC, 14));
+            minmax.setForeground(Color.RED);
+            pan.add(l);pan.add(minmax);pan.add(cos);
+            pan.setPreferredSize(new Dimension(800,50));
+
             p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);
             // Add components to subPanel

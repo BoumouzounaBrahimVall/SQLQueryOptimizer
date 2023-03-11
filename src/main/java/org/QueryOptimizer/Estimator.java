@@ -101,7 +101,7 @@ public class Estimator {
             }
 
         }
-        if(root.getData().contains("⋈")&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
+         if(root.getData().contains("⋈")&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
             String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(root.getData());
@@ -176,7 +176,7 @@ public class Estimator {
                 for (double num1 : arr1) {
                     for (double num2 : arr2) {
                         double sum = num1 + num2;
-                        if(sum>0) sums.add(roundFlout(sum));
+                        if(sum>0&&sum<10000) sums.add(roundFlout(sum));
                     }
                 }
             }

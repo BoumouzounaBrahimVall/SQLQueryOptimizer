@@ -1,8 +1,10 @@
 package org.QueryOptimizer;
 
 import java.awt.*;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 
@@ -62,16 +64,16 @@ public class Visualizer extends JPanel {
         return Math.max(getHeight(Node.getLeft()), getHeight(Node.getRight())) + 1;
     }
 
-    static int drawListOfTrees(List<Tree> trees, Estimator estimator, JFrame frame){
+    static int drawListOfTrees(Map<String,Tree> trees, Estimator estimator, JFrame frame){
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(trees.size(), 1));
+        panel.setLayout(new GridLayout(trees.values().size(), 1));
         int i=0;
-        for (Tree tree : trees) {
+        for (Map.Entry<String, Tree> tree : trees.entrySet()) {
 
             i++;
-            Visualizer subPanel = new Visualizer(tree);
+            Visualizer subPanel = new Visualizer(tree.getValue());
             JPanel p=new JPanel(new BorderLayout());
-            HashSet<Double> ls = estimator.calculateCosts(tree.getRoot());
+            HashSet<Double> ls = estimator.calculateCosts(tree.getValue().getRoot());
 
             double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
             double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
@@ -89,12 +91,24 @@ public class Visualizer extends JPanel {
             l.setForeground(Color.BLUE);
             l.setOpaque(true);
             l.setBackground(Color.lightGray);
+            String key=tree.getKey();
+             key = key.substring(0, key.length()-2);
+            JLabel ll=new JLabel("Regle appliquee  : "+ key);
+            ll.setFont(new Font("Serif", Font.BOLD, 13));
+            ll.setHorizontalAlignment(JLabel.CENTER);
+            ll.setVerticalAlignment(JLabel.CENTER);
+            ll.setForeground(Color.RED);
+            ll.setOpaque(true);
+            ll.setBackground(Color.lightGray);
 
             JLabel cos=new JLabel(costs);
-            cos.setFont(new Font("Serif", Font.ITALIC, 9));
+            JTextArea cos2=new JTextArea(costs);
+            cos2.setSize(new Dimension(1200,200));
+            cos2.setLineWrap(true);
+            cos2.setFont(new Font("Serif", Font.ITALIC, 16));
             JPanel pan=new JPanel(new FlowLayout(FlowLayout.LEFT));
-            pan.add(l);pan.add(cos);
-            pan.setPreferredSize(new Dimension(800,50));
+            pan.add(l);pan.add(ll);pan.add(cos2);
+            pan.setPreferredSize(new Dimension(1200,200));
             p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);
             // Add components to subPanel

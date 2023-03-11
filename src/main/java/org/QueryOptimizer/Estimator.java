@@ -101,7 +101,7 @@ public class Estimator {
             }
 
         }
-        if(root.getData().contains("⋈")&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
+         if(root.getData().contains("⋈")&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
             String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(root.getData());

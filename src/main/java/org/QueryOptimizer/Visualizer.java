@@ -107,7 +107,7 @@ public class Visualizer extends JPanel {
             ll.setBackground(Color.lightGray);
 
 
-            JLabel cos=new JLabel(costs);
+
             JTextArea cos2=new JTextArea(costs);
             cos2.setSize(new Dimension(1200,200));
             cos2.setLineWrap(true);
@@ -120,8 +120,7 @@ public class Visualizer extends JPanel {
             JLabel minmax=new JLabel(phisi);
             minmax.setFont(new Font("Serif", Font.ITALIC, 14));
             minmax.setForeground(Color.RED);
-            pan.add(l);pan.add(minmax);pan.add(cos);
-            pan.setPreferredSize(new Dimension(800,50));
+
 
             p.add(pan,BorderLayout.NORTH);
             p.add(subPanel,BorderLayout.CENTER);

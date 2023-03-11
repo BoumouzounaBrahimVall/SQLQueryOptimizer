@@ -1,6 +1,8 @@
 package org.QueryOptimizer;
 
-import java.util.ArrayList;
+import javax.swing.*;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
 
 
@@ -12,10 +14,10 @@ public final class Transformer {
 	public List<Tree> regleCommutSelection;//commutativiteSelection
 	public List<Tree> assocJoinRule; //association jointure
 	private final Tree firstTree;
-	private List<Tree> allVariants;
+	private Map<String,Tree> allVariants;
+	private List<Tree> switchJoinSelection;
 
-
-
+	int i=0;
 	public Transformer(Tree tree)
 	{
 		this.firstTree=tree;
@@ -26,88 +28,90 @@ public final class Transformer {
 		assocJoinRule =joinAssociativite(firstTree);
 		buildAllVariants();
 
+
 	}
 
-	public List<Tree> getAllVariants() {
+	public Map<String,Tree> getAllVariants() {
 		return allVariants;
 	}
 
 	private void buildAllVariants(){
 
-		List<Tree> tousTrees =new ArrayList<>();
+		Map<String,Tree> tousTrees =new HashMap<String,Tree>();
 		joinRule.remove(0);// delete main
 		selectionRule.remove(0);
 		orSelectionRule.remove(0);
 		regleCommutSelection.remove(0);
-		tousTrees.add(firstTree);
+		tousTrees.put("MainTree",firstTree);
 
 		for(Tree n1: joinRule){
 			for(Tree n: selectionConjonctive(n1)){ //  selection of join variants
-				if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put("jointureCommutativite  +  selectionConjonctive  "+i++,n);
 			}
 			for(Tree n: onlyOrSelectionVariants(n1)){ //  OR selection of joins
-				if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put("jointureCommutativite  +  orUnionSelection  "+i++,n);
 			}
 			for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-				if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put("jointureCommutativite  +  commutativiteSelection  "+i++,n);
 
 			for(Tree n:joinAssociativite(n1)) //association jointure
-				if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put("jointureCommutativite  +   joinAssociativite  "+i++,n);
 		}
 
 		for(Tree n1: selectionRule){
 			for(Tree n: onlyOrSelectionVariants(n1)){ //  OR selection variant of sel variants
-				if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put("selectionConjonctive  +  orUnionSelection  "+i++,n);
 			}
-			joinCumitVars(tousTrees, n1);
+			joinCumitVars(tousTrees, n1,"selectionConjonctive  "+i++);
 		}
 
 		for(Tree n1: orSelectionRule){
 			for(Tree n: selectionConjonctive(n1)){ //   selection variant
-				if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put("orUnionSelection  +  selectionConjonctive  "+i++,n);
 			}
-			joinCumitVars(tousTrees, n1);
+			joinCumitVars(tousTrees, n1,"orUnionSelection  "+i++);
 		}
 
 
 		for(Tree n1: regleCommutSelection){
-			assoSelVars(tousTrees, n1);
+			assoSelVars(tousTrees, n1,"commutativiteSelection  "+i++);
 
 			for(Tree n:joinAssociativite(n1)) //association jointure
-				if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put("commutativiteSelection  +  joinAssociativite  "+i++,n);
 		}
 
 		for(Tree n1: assocJoinRule){
-			assoSelVars(tousTrees, n1);
+			assoSelVars(tousTrees, n1,"joinAssociativite"+i++);
 
 			for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-				if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+				if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put("joinAssociativite  +  commutativiteSelection  "+i++,n);
 
 		}
 		this.allVariants= tousTrees;
 	}
 
-	private void joinCumitVars(List<Tree> tousTrees, Tree n1) {
+	private void joinCumitVars(Map<String,Tree> tousTrees, Tree n1,String request) {
 		for(Tree n: jointureCommutativite(n1)){ //  jointure
-			if(notAlreadyAdded(tousTrees,n))   tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n))   tousTrees.put(request+"jointureCommutativite  "+i++,n);
 		}
 		for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-			if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put(request+"commutativiteSelection  "+i++,n);
 
 
 		for(Tree n:joinAssociativite(n1)) //association jointure
-			if(notAlreadyAdded(tousTrees,n)) tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n)) tousTrees.put(request+"joinAssociativite  "+i++,n);
 	}
 
-	private void assoSelVars(List<Tree> tousTrees, Tree n1) {
+	private void assoSelVars(Map<String,Tree> tousTrees, Tree n1,String request) {
 		for(Tree n: selectionConjonctive(n1)){ //  selection variant
-			if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put(request+"+selectionConjonctive  "+i++,n);
 		}
 		for(Tree n: jointureCommutativite(n1)){ //  jointure
-			if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put(request+"+jointureCommutativite  "+i++,n);
 		}
 		for(Tree n:onlyOrSelectionVariants(n1))//Or selection
-			if(notAlreadyAdded(tousTrees,n))  tousTrees.add(n);
+			if(notAlreadyAdded( tousTrees.values(),n))  tousTrees.put(request+"+orUnionSelection  "+i++,n);
+
 	}
 
 
@@ -129,7 +133,7 @@ public final class Transformer {
 	}
 
 
-	public boolean notAlreadyAdded(List<Tree> L, Tree n){
+	public boolean notAlreadyAdded(Collection<Tree> L, Tree n){
 		for (Tree t : L) {
 			if (Tree.sameTree(t.getRoot(), n.getRoot())) {
 				return false;
@@ -397,6 +401,53 @@ public final class Transformer {
 		A.setRight(aux);
 		return A;
 	}
+	public static Node switchjoinselection(Node a){
+		if (a == null) {
+			return null;
+		}
 
+
+
+
+		if(a.getLeft()!=null) switchjoinselection(a.getLeft());
+		if (a.getRight()!=null) switchjoinselection(a.getRight());
+		return a;
+	}
+
+	public static void main(String[] args) {
+
+	/*JFrame frame = new JFrame();frame.setLayout(new BorderLayout());
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		JTextField script =new JTextField(100);
+		JButton execute=new JButton("Execute");
+		execute.addActionListener(evt -> {
+			Translator t=new Translator(script.getText());
+			Transformer tr=new  Transformer(t.getFirstTree());
+			int h=Visualizer.drawListOfTrees(tr.getAllVariants(),frame);
+			frame.setSize(new Dimension(frame.getWidth(),h));
+			frame.pack();
+			frame.setVisible(true);
+		});
+		JPanel p=new JPanel();
+		p.add(script);
+		p.add(execute);
+		frame.add(p,BorderLayout.NORTH);
+		// Translator t=  new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b");
+		//Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
+		//  Transformer tr=new  Transformer(t.getFirstTree());
+		//SELECT nom,age,prenom FROM Client,Voiture,Location WHERE Client.id_client=Location.id_client AND Voiture.id_voiture=Location.id_voiture AND Client.age='40' AND Voiture.km='1000' AND Voiture.marque='Mercedes'
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);*/
+		//Node a=Transformer.switchjoinselection();
+		Translator tr=new Translator("SELECT CLIENT.ID,CLIENT.NOM,PROJET.TITRE FROM CLIENT,PROJET WHERE CLIENT.ID=PROJET.ID AND PROJET.TITRE='VAL'");
+		tr.getFirstTree().showTree();
+		System.out.println("\n\n________________________==================__________________");
+		Tree tmp=new Tree();
+		tmp.setRoot(Transformer.switchjoinselection(tr.getFirstTree().getRoot()));
+		tmp.showTree();
+
+	}
 }
 

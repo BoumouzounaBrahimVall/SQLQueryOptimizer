@@ -45,61 +45,28 @@ public class Optimizer {
 
     private Set<Node> change(Node arbre, String test, String nouveau) {
         Set<Node> treeSet = new HashSet<>();
-        //commutativiteSelection.add(arbre);
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j <= 2; j++) {
-                Node tmp = change1(Node.cloneTree(arbre), i, new int[]{0}, j, test, nouveau);
-              //  Node tmp2=change2(Node.cloneTree(arbre),i,new int[]{0},j,test,nouveau);
-                treeSet.add(tmp);
-                // treeSet.add(tmp2);
-            }
-        }
+        Node tmp = change1(Node.cloneTree(arbre),  test, nouveau);
+        treeSet.add(tmp);
         return treeSet;
     }
 
-    private Node change1(Node a, int initial, int[] counter, int maxCount, String test, String nouveau) {
+    private Node change1(Node a, String test, String nouveau) {
         if (a == null) {
             return null;
         }
         if (a.getData().contains(test)) {
-            if (counter[0] >= initial) {
-                String oldCnt = a.getData();
-                if (Existtables(a.getLeft().getData()) || !a.getData().contains("σ")) {
-                    String aff = oldCnt.replaceAll("\\([^)]*\\)", "") + " (" + nouveau + ")";
-                    System.out.println("aff: " + aff);
-                    a.setData(aff);
-                }
-            }
-            counter[0]++;
+            String oldCnt = a.getData();
+            String aff = oldCnt.replaceAll("\\([^)]*\\)", "") + " (" + nouveau + ")";
+            System.out.println("aff: " + aff);
+            a.setData("(" + nouveau + ")");
+
         }
-        if (counter[0] == maxCount) return a;
-        if (a.getRight() != null) change1(a.getRight(), initial, counter, maxCount, test, nouveau);
-        if (a.getLeft() != null) change1(a.getLeft(), initial, counter, maxCount, test, nouveau);
+        if (a.getRight() != null) change1(a.getRight(), test, nouveau);
+        if (a.getLeft() != null) change1(a.getLeft(), test, nouveau);
         return a;
 
     }
 
-    private Node change2(Node a, int initial, int[] counter, int maxCount, String test, String nouveau) {
-        if (a == null) {
-            return null;
-        }
-        if (a.getData().contains(test)) {
-            if (counter[0] >= initial) {
-                String oldCnt = a.getData();
-                if (Existtables(a.getLeft().getData()) || !a.getData().contains("σ")) {
-                    String aff = oldCnt.replaceAll("\\([^)]*\\)", "") + " (" + nouveau + ")";
-                    System.out.println("aff: " + aff);
-                    a.setData(aff);
-                }
-            }
-            counter[0]++;
-        }
-        if (counter[0] == maxCount) return a;
-        if (a.getLeft() != null) change1(a.getLeft(), initial, counter, maxCount, test, nouveau);
-        if (a.getRight() != null) change1(a.getRight(), initial, counter, maxCount, test, nouveau);
-        return a;
-
-    }
 
     boolean Existtables(String a) {
         ///   for(String e:tables)

@@ -185,6 +185,7 @@ public class Visualizer extends JPanel {
         }
 
         JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(40);
         frame.add(scrollPane, BorderLayout.CENTER);
 
         return panel.getPreferredSize().height;

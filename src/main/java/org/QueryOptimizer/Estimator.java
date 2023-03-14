@@ -93,7 +93,7 @@ public class Estimator {
             String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(root.getData());
-            System.out.println("sel added");
+           // System.out.println("sel added");
             if (m.find()) {
                 String match = m.group(); // Extract the matched substring
                 selInputs.add(match);
@@ -105,7 +105,7 @@ public class Estimator {
             String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(root.getData());
-            System.out.println("join added");
+    //        System.out.println("join added");
             if (m.find()) {
                 String match = m.group(); // Extract the matched substring
                 joinInputs.add(match);
@@ -123,12 +123,12 @@ public class Estimator {
             Matcher matcher = p.matcher(join);
             while (matcher.find()) attrs.add(matcher.group());
             costs.add(BIB(attrs.get(0),attrs.get(2)));
-        System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
+      //  System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
             costs.add(JTF(attrs.get(0),attrs.get(2)));
-        System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
+       // System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
         costs.add(PJ(attrs.get(0),attrs.get(2)));
-        System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
-        System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
+       // System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
+      //  System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
             costs.add(JH(attrs.get(0),attrs.get(2)));
         return costs;
     }
@@ -165,8 +165,6 @@ public class Estimator {
             ArrayList<Double> costList = selectionCostVariants(sel);
             cals.add(costList);
             }
-      //  HashSet<Double> sums = new HashSet<>();
-      //  cals.forEach(sums::addAll);
         return  generateSumArray(cals);
     }
     public  HashSet<Double> generateSumArray(List<List<Double>> arrays) {
@@ -203,16 +201,16 @@ public class Estimator {
          Translator t=  new Translator("select * from client,achat where client.idc=achat.idc and client.nom='ahmed'");
         //Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
         //  Transformer tr=new  Transformer(t.getFirstTree());
-        Node.show(t.getFirstTree().getRoot(),0);
+        Node.show(t.getFirstTree(),0);
         List<String> joins=new ArrayList<>();
         List<String> sels=new ArrayList<>();
-        E.inputConsumers(t.getFirstTree().getRoot(),joins,sels);
+        E.inputConsumers(t.getFirstTree(),joins,sels);
         System.out.println("\njoin terminals");
         joins.forEach(System.out::println);
         System.out.println("sels terminals");
         sels.forEach(System.out::println);
         System.err.println("estimations: ");
-        (E.calculateCosts(t.getFirstTree().getRoot())).forEach(System.out::println);
+        (E.calculateCosts(t.getFirstTree())).forEach(System.out::println);
 
 /*
        // try{

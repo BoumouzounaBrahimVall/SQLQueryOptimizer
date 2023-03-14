@@ -30,27 +30,7 @@ public class Tree {
 		this.root = root;
 	}
 
-	public static int joinCount( Node racine){
-		if(racine==null) return 0;
-		if(racine.getData().contains("⋈"))  return 1;
-		return 1+ joinCount(racine.getLeft()) + joinCount(racine.getRight());
-	}
 
-
-	public static Node cloneTree(Node root) {
-		if (root == null) {
-			return null;
-		}
-		Node newNode =new Node(root.getData());
-		newNode.setLeft(cloneTree(root.getLeft()) );
-		newNode.setRight(cloneTree(root.getRight()) );
-		return newNode;
-	}
-
-	public static int nbrNodes(Node n){
-		if(n==null) return 0;
-		return 1+nbrNodes(n.getLeft()) + nbrNodes(n.getRight());
-	}
 	/*
 	public static int sameTree(Node root1, Node root2) {
 		// If both trees are null, they are the same
@@ -78,18 +58,6 @@ public class Tree {
 
 
 
-	public static boolean sameTree(Node root1, Node root2) {
-		if (root1 == null && root2 == null) {
-			return true;
-		}
-		if (root1 == null || root2 == null) {
-			return false;
-		}
-		if (!root1.getData().equals(root2.getData())) {
-			return false;
-		}
-		return sameTree(root1.getLeft(), root2.getLeft()) && sameTree(root1.getRight(), root2.getRight());
-	}
 }
 
 

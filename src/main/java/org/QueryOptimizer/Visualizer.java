@@ -1,17 +1,15 @@
 package org.QueryOptimizer;
 
 import java.awt.*;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.*;
 
 public class Visualizer extends JPanel {
-    private final Tree tree;
+    private final Node tree;
 
-    public Visualizer(Tree tr) {
+    public Visualizer(Node tr) {
         this.tree = tr;
         setPreferredSize(new Dimension(800, 400));
         this.setBackground(Color.DARK_GRAY);
@@ -24,13 +22,13 @@ public class Visualizer extends JPanel {
         g.setColor(Color.WHITE);
         g.setFont(new Font("Serif", Font.ITALIC, 10));
         int x=getWidth()/2,y=50;
-        if(tree.getRoot().getData().contains("π")){
-            g.drawString(tree.getRoot().getData(), x- 12, y + 12);
-            if(tree.getRoot().getLeft()!=null) {
+        if(tree.getData().contains("π")){
+            g.drawString(tree.getData(), x- 12, y + 12);
+            if(tree.getLeft()!=null) {
                 g.drawLine(x+5, y+20, x+5, y+40);
-                drawNode(tree.getRoot().getLeft(), x, y+40, g);
+                drawNode(tree.getLeft(), x, y+40, g);
             }
-        } else drawNode(tree.getRoot(), x-10, y + 10,g);
+        } else drawNode(tree, x-10, y + 10,g);
 
 
     }
@@ -64,24 +62,23 @@ public class Visualizer extends JPanel {
         return Math.max(getHeight(Node.getLeft()), getHeight(Node.getRight())) + 1;
     }
 
-    static int drawListOfTrees(List<Tree> trees, Estimator estimator, JFrame frame){
+    static int drawListOfTrees(Set<Node> trees, Estimator estimator, JFrame frame){
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(trees.size(), 1));
         int i=0;
-        for (Tree tree : trees) {
+        for (Node tree : trees) {
 
             i++;
             Visualizer subPanel = new Visualizer(tree);
             JPanel p=new JPanel(new BorderLayout());
-            HashSet<Double> ls = estimator.calculateCosts(tree.getRoot());
+           // HashSet<Double> ls = estimator.calculateCosts(tree);
 
-            double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
-            double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
-            String phisi="Physical costs: minCost : ("+minCost+"ms) MaxCost: ("+maxCost+"ms) "+ "count physical tree: "+ls.size();
+          //  double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
+           // double maxCost=ls.stream().max(Double::compare).orElse(Double.NaN);
+           // String phisi="Physical costs: minCost : ("+minCost+"ms) MaxCost: ("+maxCost+"ms) "+ "count physical tree: "+ls.size();
+            String phisi="Physical costs: not yet";
             StringBuilder s= new StringBuilder(" costs: [");
-            for(Double cost: ls){
-                s.append("").append(cost).append("ms, ");
-            };
+           // for(Double cost: ls){s.append("").append(cost).append("ms, ");};
 
 
             String costs=String.valueOf(s).substring(0,s.length()-2)+"]";

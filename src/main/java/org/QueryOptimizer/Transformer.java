@@ -10,17 +10,17 @@ import java.util.regex.Pattern;
 
 public final class Transformer {
 
-	public List<Tree> joinRule; // Commutativity the joins (JC)
-	public List<Tree> selectionRule; // Eclatement d'une sélection conjonctive (SE)
-	public List<Tree> orSelectionRule; //
-	public List<Tree> regleCommutSelection;//commutativiteSelection
-	public List<Tree> assocJoinRule; //association jointure
-	private final Tree firstTree;
-	private List<Tree> allVariants;
-	private List<Tree> switchJoinSelection;
+	public Set<Node> joinRule; // Commutativity the joins (JC)
+	public Set<Node> selectionRule; // Eclatement d'une sélection conjonctive (SE)
+	public Set<Node> orSelectionRule; //
+	public Set<Node> regleCommutSelection;//commutativiteSelection
+	public Set<Node> assocJoinRule; //association jointure
+	private final Node firstTree;
+	private Set<Node> allVariants;
+	private List<Node> switchJoinSelection;
 
 	int i=0;
-	public Transformer(Tree tree)
+	public Transformer(Node tree)
 	{
 		this.firstTree=tree;
 		joinRule =jointureCommutativite(firstTree);
@@ -33,116 +33,104 @@ public final class Transformer {
 
 	}
 
-	public List<Tree> getAllVariants() {
+	public Set<Node> getAllVariants() {
 		return allVariants;
 	}
 
 	private void buildAllVariants(){
-
-		List<Tree> tousTrees =new ArrayList<>();
+		Set<Node> tousTrees = new HashSet<>();
 		joinRule.remove(0);// delete main
 		selectionRule.remove(0);
 		orSelectionRule.remove(0);
 		regleCommutSelection.remove(0);
 		tousTrees.add(firstTree);
 
-		for(Tree n1: joinRule){
-			for(Tree n: selectionConjonctive(n1)){ //  selection of join variants
-				if(notAlreadyAdded( tousTrees,n)) tousTrees.add(n);
-			}
-			for(Tree n: onlyOrSelectionVariants(n1)){ //  OR selection of joins
-				if(notAlreadyAdded( tousTrees,n))  tousTrees.add(n);
-			}
-			for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-				if(notAlreadyAdded( tousTrees,n)) tousTrees.add(n);
+		for(Node n1: joinRule){
+			//  selection of join variants
+			tousTrees.addAll(selectionConjonctive(n1));
+			//  OR selection of joins
+			tousTrees.addAll(onlyOrSelectionVariants(n1));
+			// commutativiteSelection
+			tousTrees.addAll(commutativiteSelection(n1));
 
-			for(Tree n:joinAssociativite(n1)) //association jointure
-				if(notAlreadyAdded( tousTrees,n)) tousTrees.add(n);
+			//association jointure
+			tousTrees.addAll(joinAssociativite(n1));
 		}
 
-		for(Tree n1: selectionRule){
-			for(Tree n: onlyOrSelectionVariants(n1)){ //  OR selection variant of sel variants
-				if(notAlreadyAdded( tousTrees,n))  tousTrees.add(n);
-			}
+		for(Node n1: selectionRule){
+			//  OR selection variant of sel variants
+			tousTrees.addAll(onlyOrSelectionVariants(n1));
 			joinCumitVars(tousTrees, n1);
 		}
 
-		for(Tree n1: orSelectionRule){
-			for(Tree n: selectionConjonctive(n1)){ //   selection variant
-				if(notAlreadyAdded( tousTrees,n))   tousTrees.add(n);
-			}
+		for(Node n1: orSelectionRule){
+			//   selection variant
+			tousTrees.addAll(selectionConjonctive(n1));
 			joinCumitVars(tousTrees, n1);
 		}
 
 
-		for(Tree n1: regleCommutSelection){
+		for(Node n1: regleCommutSelection){
 			assoSelVars(tousTrees, n1,"commutativiteSelection  "+i++);
-
-			for(Tree n:joinAssociativite(n1)) //association jointure
-				if(notAlreadyAdded( tousTrees,n)) tousTrees.add(n);
+			//association jointure
+			tousTrees.addAll(joinAssociativite(n1));
 		}
 
-		for(Tree n1: assocJoinRule){
+		for(Node n1: assocJoinRule){
 			assoSelVars(tousTrees, n1,"joinAssociativite"+i++);
-
-			for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-				if(notAlreadyAdded( tousTrees,n))  tousTrees.add(n);
+			// commutativiteSelection
+			tousTrees.addAll(commutativiteSelection(n1));
 
 		}
 		this.allVariants= tousTrees;
 	}
 
-	private void joinCumitVars(List<Tree> tousTrees, Tree n1) {
-		for(Tree n: jointureCommutativite(n1)){ //  jointure
-			if(notAlreadyAdded( tousTrees,n))   tousTrees.add(n);
-		}
-		for(Tree n: commutativiteSelection(n1))// commutativiteSelection
-			if(notAlreadyAdded( tousTrees,n))  tousTrees.add(n);
-
-		for(Tree n:joinAssociativite(n1)) //association jointure
-			if(notAlreadyAdded( tousTrees,n)) tousTrees.add(n);
+	private void joinCumitVars(Set<Node> tousTrees, Node n1) {
+		//  jointure
+		tousTrees.addAll(jointureCommutativite(n1));
+		// commutativiteSelection
+		tousTrees.addAll(commutativiteSelection(n1));
+		//association jointure
+		tousTrees.addAll(joinAssociativite(n1));
 	}
 
-	private void assoSelVars(List<Tree> tousTrees, Tree n1,String request) {
-		for(Tree n: selectionConjonctive(n1)){ //  selection variant
-			if(notAlreadyAdded( tousTrees,n))   tousTrees.add(n);
-		}
-		for(Tree n: jointureCommutativite(n1)){ //  jointure
-			if(notAlreadyAdded( tousTrees,n))   tousTrees.add(n);
-		}
-		for(Tree n:onlyOrSelectionVariants(n1))//Or selection
-			if(notAlreadyAdded( tousTrees,n))  tousTrees.add(n);
+	private void assoSelVars(Set<Node> tousTrees, Node n1,String request) {
+		//  selection variant
+		tousTrees.addAll(selectionConjonctive(n1));
+		//  jointure
+		tousTrees.addAll(jointureCommutativite(n1));
+		//Or selection
+		tousTrees.addAll(onlyOrSelectionVariants(n1));
 
 	}
 
 
 	//// -------------------------  Jointurr --------------------------------------------------
-	private  List<Tree> jointureCommutativite(Tree tree){
-		List<Tree> join1stVariantList=new ArrayList<>();
+	private  Set<Node> jointureCommutativite(Node tree){
+		Set<Node> join1stVariantList=new HashSet<>();
 		join1stVariantList.add(tree);
-		int count= Tree.joinCount(tree.getRoot());
+		int count= Node.joinCount(tree);
 		//System.out.println("nbr join ::::::::::::: "+count);
 		for(int i=0;i<count;i++)
 			for (int j=1;j<=count;j++){
-				Node tmp=joinCommutateur(Tree.cloneTree(tree.getRoot()),i,0,j);
-				Tree ar=new Tree();
-				ar.setRoot(tmp);
-				if(notAlreadyAdded(join1stVariantList, ar))join1stVariantList.add(ar);
+				Node tmp=joinCommutateur(Node.cloneTree(tree),i,0,j);
+				join1stVariantList.add(tmp);
 			}
 
 		return join1stVariantList;
 	}
 
 
-	public static boolean notAlreadyAdded(Collection<Tree> L, Tree n){
-		for (Tree t : L) {
-			if (Tree.sameTree(t.getRoot(), n.getRoot())) {
+/*
+	public static boolean notAlreadyAdded(Collection<Node> L, Node n){
+		for (Node t : L) {
+			if (Node.isEqual(t, n)) {
 				return false;
 			}
 		}
 		return true;
 	}
-
+*/
 
 	private Node joinCommutateur(Node a, int initial, int counter, int maxCount){
 		if (a == null) {
@@ -173,21 +161,18 @@ public final class Transformer {
 /// ------------------------------- Selection --------------------------------------------------
 
 
-	private List<Tree> selectionConjonctive(Tree tree){
-		List<Tree> onlySelectionVariantsList=new ArrayList<>();
+	private Set<Node> selectionConjonctive(Node tree){
+		Set<Node> onlySelectionVariantsList=new HashSet<>();
 		onlySelectionVariantsList.add(tree);
 		for(int i=0;i<2;i++){
 			for (int j=0;j<=2;j++){
-				Node tmp=andUnionSelection1(Tree.cloneTree(tree.getRoot()),i,new int[]{0},j);
-				Node tmp2=andUnionSelection2(Tree.cloneTree(tree.getRoot()),i,new int[]{0},j);
-				Tree ar1,ar2;
-				ar1=new Tree();
-				ar2=new Tree();
-
-				ar1.setRoot(tmp);
-				ar2.setRoot(tmp2);
-				if(notAlreadyAdded(onlySelectionVariantsList, ar1))onlySelectionVariantsList.add(ar1);
-				if(notAlreadyAdded(onlySelectionVariantsList, ar2))onlySelectionVariantsList.add(ar2);
+				Node tmp=andUnionSelection1(Node.cloneTree(tree),i,new int[]{0},j);
+				Node tmp2=andUnionSelection2(Node.cloneTree(tree),i,new int[]{0},j);
+				Node ar1,ar2;
+				ar1=tmp;
+				ar2=tmp2;
+				onlySelectionVariantsList.add(ar1);
+				onlySelectionVariantsList.add(ar2);
 
 			}
 		}
@@ -227,16 +212,13 @@ public final class Transformer {
 
 /// -------------------------------------- Or selection ------------------------------
 
-	private List<Tree> onlyOrSelectionVariants(Tree tree){
-		List<Tree> onlyOrSelectionVariantsList=new ArrayList<>();
+	private Set<Node> onlyOrSelectionVariants(Node tree){
+		Set<Node> onlyOrSelectionVariantsList=new HashSet<>();
 		onlyOrSelectionVariantsList.add(tree);
 		for(int i=0;i<2;i++){
 			for (int j=0;j<=2;j++){
-				Node tmp=orUnionSelection(Tree.cloneTree(tree.getRoot()),i,new int[]{0},j);
-				Tree ar=new Tree();
-				ar.setRoot(tmp);
-
-				if(notAlreadyAdded(onlyOrSelectionVariantsList, ar))onlyOrSelectionVariantsList.add(ar);
+				Node tmp=orUnionSelection(Node.cloneTree(tree),i,new int[]{0},j);
+				onlyOrSelectionVariantsList.add(tmp);
 			}
 		}
 
@@ -293,19 +275,15 @@ public final class Transformer {
 ///-------------------------------------- Commutativité de la sélection ----------------------------------------------------------
 
 
-	private List<Tree> commutativiteSelection(Tree tree){
-		List<Tree> commutativiteSelection=new ArrayList<>();
+	private Set<Node> commutativiteSelection(Node tree){
+		Set<Node> commutativiteSelection=new HashSet<>();
 		commutativiteSelection.add(tree);
 		for(int i=0;i<2;i++){
 			for (int j=0;j<=2;j++){
-				Node tmp=commuterSel1(Tree.cloneTree(tree.getRoot()),i,new int[]{0},j);
-				Node tmp2=commuterSel2(Tree.cloneTree(tree.getRoot()),i,new int[]{0},j);
-				Tree ar1=new Tree();
-				Tree ar2=new Tree();
-				ar1.setRoot(tmp);
-				ar2.setRoot(tmp2);
-				if(notAlreadyAdded(commutativiteSelection, ar1))commutativiteSelection.add(ar1);
-				if(notAlreadyAdded(commutativiteSelection, ar2))commutativiteSelection.add(ar2);
+				Node tmp=commuterSel1(Node.cloneTree(tree),i,new int[]{0},j);
+				Node tmp2=commuterSel2(Node.cloneTree(tree),i,new int[]{0},j);
+				commutativiteSelection.add(tmp);
+				commutativiteSelection.add(tmp2);
 
 			}
 		}
@@ -324,7 +302,7 @@ public final class Transformer {
 			if(counter[0]>=initial) {
 				Node tmp = a.getLeft().getLeft();
 				String aux=a.getData();
-				System.out.println("1111111111"+aux);
+				//System.out.println("1111111111"+aux);
 				a.setData(a.getLeft().getData());
 				a.getLeft().setData(aux);
 				a.getLeft().setLeft(tmp);
@@ -347,7 +325,7 @@ public final class Transformer {
 			if(counter[0]>=initial) {
 				Node tmp = a.getLeft().getLeft();
 				String aux=a.getData();
-				System.out.println("222222222"+aux);
+			///	System.out.println("222222222"+aux);
 				a.setData(a.getLeft().getData());
 				a.getLeft().setData(aux);
 				a.getLeft().setLeft(tmp);
@@ -363,17 +341,15 @@ public final class Transformer {
 
 ///------------------------------------------- Associativité de la jointure (JA)-----------------------------
 
-	private  List<Tree> joinAssociativite(Tree tree){
-		List<Tree> joinAssocitivite=new ArrayList<>();
+	private  Set<Node> joinAssociativite(Node tree){
+		Set<Node> joinAssocitivite=new HashSet<>();
 		joinAssocitivite.add(tree);
-		int count= Tree.joinCount(tree.getRoot());
+		int count= Node.joinCount(tree);
 		//System.out.println("nbr join ::::::::::::: "+count);
 		for(int i=0;i<count;i++)
 			for (int j=1;j<=count;j++){
-				Node tmp=joinAssoc(Tree.cloneTree(tree.getRoot()),i,0,j);
-				Tree ar=new Tree();
-				ar.setRoot(tmp);
-				if(notAlreadyAdded(joinAssocitivite, ar))joinAssocitivite.add(ar);
+				Node tmp=joinAssoc(Node.cloneTree(tree),i,0,j);
+				joinAssocitivite.add(tmp);
 			}
 
 		return joinAssocitivite;
@@ -448,11 +424,10 @@ public final class Transformer {
 		frame.setVisible(true);*/
 		//Node a=Transformer.switchjoinselection();
 		Translator tr=new Translator("SELECT CLIENT.ID,CLIENT.NOM,PROJET.TITRE FROM CLIENT,PROJET WHERE CLIENT.ID=PROJET.ID AND PROJET.TITRE='VAL'");
-		tr.getFirstTree().showTree();
+		//tr.getFirstTree().showTree();
 		System.out.println("\n\n________________________==================__________________");
-		Tree tmp=new Tree();
-		tmp.setRoot(Transformer.switchjoinselection(tr.getFirstTree().getRoot()));
-		tmp.showTree();
+		Node tmp=Transformer.switchjoinselection(tr.getFirstTree());
+	//todo tmp.showTree();
 
 	}
 }

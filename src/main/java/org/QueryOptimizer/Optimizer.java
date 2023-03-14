@@ -1,79 +1,52 @@
 package org.QueryOptimizer;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.*;
 public class Optimizer {
 
 
-    public java.util.List<Tree> physiquesArbre(Tree arbre){
-
-        java.util.List<Tree> result =new ArrayList<>();
-        result.add(arbre);
-        Tree Ar=new Tree();
-        Node Nd=Tree.cloneTree(arbre.getRoot());
-        Ar.setRoot(Nd);
-        result.add(Ar);
-        change0(Ar.getRoot());
+    public Set<Node> physiquesArbre(Node arbre){
+        Set<Node> treeSet = new HashSet<>();
+        treeSet.add(arbre);
+        Node Ar=Node.cloneTree(arbre);
+        treeSet.add(Ar);
+        change0(Ar);
         //jointure
-        for(Tree n1:change(Ar,"⋈","BII")){
-            for(Tree n: change(n1,"⋈","JH")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            for(Tree n: change(n1,"⋈","PJ")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            for(Tree n: change(n1,"⋈","JTF")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            ///--------------------
-            for(Tree n: change(n1,"σ","indexageNonUnique")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            for(Tree n: change(n1,"σ","indexageSecondaire")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            for(Tree n: change(n1,"σ","indexagePrimaire")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
-            ///--------------------
-            for(Tree n: change(n1,"σ","hachage")){
-                if(Transformer.notAlreadyAdded(result,n)) result.add(n);
-            }
+        for(Node n1:change(Ar,"⋈","BII")){
+            treeSet.addAll(change(n1, "⋈", "JH"));
+            treeSet.addAll(change(n1, "⋈", "PJ"));
+            treeSet.addAll(change(n1, "⋈", "JTF"));
+            treeSet.addAll(change(n1, "σ", "indexageNonUnique"));
+            treeSet.addAll(change(n1, "σ", "indexageSecondaire"));
+            treeSet.addAll(change(n1, "σ", "indexagePrimaire"));
+            treeSet.addAll(change(n1, "σ", "hachage"));
         }
-        return result;
+        return treeSet;
     }
     private void change0(Node arbre){
         if(arbre==null) return;
-        if(arbre.getData().contains("⋈"))
-            arbre.setData(arbre.getData()+"(BIB)");
-        if(arbre.getData().contains("σ"))
+        if(arbre.getData().contains(" ⋈"))
+            arbre.setData(arbre.getData()+" (BIB)");
+        if(arbre.getData().contains(" σ"))
             if(Existtables(arbre.getLeft().getData()))
-                arbre.setData(arbre.getData()+"(Balayage)");
+                arbre.setData(arbre.getData()+" (Balayage)");
+
         change0(arbre.getLeft());
         change0(arbre.getRight());
     }
-    private java.util.List<Tree> change(Tree arbre, String test, String nouveau){
-        List<Tree> result =new ArrayList<>();
+    private Set<Node> change(Node arbre, String test, String nouveau){
+        Set<Node> treeSet = new HashSet<>();
         //commutativiteSelection.add(arbre);
         for(int i=0;i<2;i++){
             for (int j=0;j<=2;j++){
-                Node tmp=change1(Tree.cloneTree(arbre.getRoot()),i,new int[]{0},j,test,nouveau);
-                Node tmp2=change2(Tree.cloneTree(arbre.getRoot()),i,new int[]{0},j,test,nouveau);
-                Tree ar1,ar2;
-                ar1=new Tree();
-                ar2=new Tree();
-                ar1.setRoot(tmp);
-                ar2.setRoot(tmp2);
-                if(Transformer.notAlreadyAdded(result, ar1)   ) result.add(ar1);
-                if(Transformer.notAlreadyAdded(result, ar2) ) result.add(ar2);
-
+                Node tmp=change1(Node.cloneTree(arbre),i,new int[]{0},j,test,nouveau);
+                Node tmp2=change2(Node.cloneTree(arbre),i,new int[]{0},j,test,nouveau);
+                treeSet.add(tmp);
+               treeSet.add(tmp2);
             }
         }
-
-
-        result.remove(0);
-        return result;
+        return treeSet;
     }
     private Node change1(Node a ,int initial,int[] counter,int maxCount,String test,String nouveau){
         if (a == null) {
@@ -85,6 +58,7 @@ public class Optimizer {
                 if(Existtables(a.getLeft().getData()) || !a.getData().contains("σ"))
                 {
                     String aff=oldCnt.replaceAll("\\([^)]*\\)", "")+" ("+nouveau+")";
+                    System.out.println("aff: "+aff);
                     a.setData(aff);
                 }
 
@@ -109,6 +83,7 @@ public class Optimizer {
                 String oldCnt=a.getData();
                 if(Existtables(a.getLeft().getData()) || !a.getData().contains("σ"))
                 {
+
                     String aff=oldCnt.replaceAll("\\([^)]*\\)", "")+"("+nouveau+")";
                     //a.setMethode(" ("+nouveau+")");
                     a.setData(aff);
@@ -141,8 +116,8 @@ public class Optimizer {
             Translator t=new Translator(script.getText());
             Transformer tr=new  Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
-            int h=Visualizer.drawListOfTrees(op.physiquesArbre(t.getFirstTree()),estimator,frame);//tr.getAllVariants()
-            frame.setSize(new Dimension(frame.getWidth(),h));
+            int h=Visualizer.drawListOfTrees(tr.getAllVariants(),estimator,frame);//op.physiquesArbre(t.getFirstTree())
+            frame.setSize(new Dimension(frame.getWidth(),3));//
             frame.pack();
             frame.setVisible(true);
         });

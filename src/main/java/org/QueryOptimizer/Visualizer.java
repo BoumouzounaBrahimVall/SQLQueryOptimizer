@@ -158,7 +158,7 @@ public class Visualizer extends JPanel {
                     costArea.setVisible(false);
                     showCosts.setText("Show costs");
                 } else {
-                    costArea.setVisible(true);
+                    createWindowWithPanels(trees);
                     showCosts.setText("Hide costs");
 
                 }
@@ -191,7 +191,80 @@ public class Visualizer extends JPanel {
     }
 
 
+    public static void createWindowWithPanels(Set<Node> trees) {
+        // Création de la fenêtre principale
+        JFrame frame = new JFrame("Ma fenêtre avec plusieurs panneaux");
 
+        // Définition de la taille et de la position de la fenêtre
+        frame.setSize(800, 600);
+        frame.setLocationRelativeTo(null);
+
+        // Création du panneau principal qui contiendra tous les autres panneaux
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridLayout(0, 1));
+        int i = 1;
+        for (Node tree :trees){
+        // Création des panneaux avec titre et champ de saisie
+        JPanel panel1 = createPanelWithTitleAndInput("Physical Tree " + i,tree,i);
+        i++;
+
+        // Ajout des panneaux au panneau principal
+        mainPanel.add(panel1);
+    }
+
+        // Ajout du panneau principal à une barre de défilement verticale
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        // Ajout de la barre de défilement à la fenêtre principale
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Affichage de la fenêtre principale
+        frame.setVisible(true);
+    }
+
+    /**
+     * Crée un panneau avec un titre et un champ de saisie.
+     * @param title Le titre du panneau.
+     * @return Le panneau créé.
+     */
+    private static JPanel createPanelWithTitleAndInput(String title,Node tree,int i) {
+        // Création du panneau avec un titre et un champ de saisie
+        Visualizer subPanel = new Visualizer(tree);
+
+        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1));
+        treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        treeLabel.setForeground(Color.WHITE);
+        treeLabel.setOpaque(true);
+        treeLabel.setBackground(Color.lightGray);
+        treeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(treeLabel, BorderLayout.NORTH);
+        topPanel.add(treeLabel, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JScrollPane scrollPane = new JScrollPane();
+        bottomPanel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel treePanel = new JPanel(new BorderLayout());
+        treePanel.setBorder(BorderFactory.createLineBorder(new Color(102, 102, 102), 1));
+        treePanel.add(topPanel, BorderLayout.NORTH);
+        treePanel.add(subPanel, BorderLayout.CENTER);
+        treePanel.add(bottomPanel, BorderLayout.SOUTH);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.add(treePanel);
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+
+
+
+        treePanel.add(topPanel, BorderLayout.NORTH);
+        treePanel.add(subPanel, BorderLayout.CENTER);
+        treePanel.add(bottomPanel, BorderLayout.SOUTH);
+        return panel;
+    }
 
 
 

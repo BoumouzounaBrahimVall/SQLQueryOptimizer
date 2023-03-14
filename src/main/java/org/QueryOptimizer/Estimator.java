@@ -150,38 +150,43 @@ public class Estimator {
         List<String> joins=new ArrayList<>();
         List<String> sels=new ArrayList<>();
         inputConsumers(root,joins,sels);
-        List<List<Double>> cals=new ArrayList<>(joins.size()+sels.size());
-
-        for(String join:joins){
+        List<List<Double>> cals=new ArrayList<>();
+        if(!joins.isEmpty())
+            for(String join:joins){
             ArrayList<Double> costList = joinCostVariants(join);
-           cals.add(costList);
-
-        }
-        for (String sel:sels){
+            cals.add(costList);
+            }
+        if(!sels.isEmpty())
+            for (String sel:sels){
             ArrayList<Double> costList = selectionCostVariants(sel);
             cals.add(costList);
-
-        }
-        return generateSumArray(cals);
+            }
+      //  HashSet<Double> sums = new HashSet<>();
+      //  cals.forEach(sums::addAll);
+        return  generateSumArray(cals);
     }
     public  HashSet<Double> generateSumArray(List<List<Double>> arrays) {
-        HashSet<Double> sums = new HashSet<>();
         int n = arrays.size();
+        HashSet<Double> sums = new HashSet<>();
+        if(arrays.size()>0) {
+            sums.addAll(arrays.get(0));
+            if(arrays.size()>1) sums.addAll(arrays.get(1));
 
-        for (int i = 0; i < n; i++) {
-            for (int j = i+1; j < n; j++) {
-                List<Double> arr1 = arrays.get(i);
-                List<Double> arr2 = arrays.get(j);
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    List<Double> arr1 = arrays.get(i);
+                    List<Double> arr2 = arrays.get(j);
 
-                for (double num1 : arr1) {
-                    for (double num2 : arr2) {
-                        double sum = num1 + num2;
-                        if(sum>0&&sum<10000) sums.add(roundFlout(sum));
+                    for (double num1 : arr1) {
+                        for (double num2 : arr2) {
+                            double sum = num1 + num2;
+                            //  if(sum>0&&sum<10000)
+                            sums.add(roundFlout(sum));
+                        }
                     }
                 }
             }
         }
-
         return sums;
     }
 // select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.k>'89' OR C.e='45' OR C.j='35' AND B.b=C.b

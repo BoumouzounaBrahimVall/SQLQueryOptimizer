@@ -168,11 +168,8 @@ public final class Transformer {
 			for (int j=0;j<=2;j++){
 				Node tmp=andUnionSelection1(Node.cloneTree(tree),i,new int[]{0},j);
 				Node tmp2=andUnionSelection2(Node.cloneTree(tree),i,new int[]{0},j);
-				Node ar1,ar2;
-				ar1=tmp;
-				ar2=tmp2;
-				onlySelectionVariantsList.add(ar1);
-				onlySelectionVariantsList.add(ar2);
+				onlySelectionVariantsList.add(tmp);
+				onlySelectionVariantsList.add(tmp2);
 
 			}
 		}
@@ -234,8 +231,8 @@ public final class Transformer {
 		if(a.getData().equals("OR") ){
 			if(counter[0]>=initial) {
 				Node left = a.getLeft();//concatSelection
-
-				String nodeContent = concatSelection(a.getLeft(), "") + " OR " + concatSelection(a.getRight(), "");
+				a.setType(Node.S);
+				String nodeContent = concatSelection(a.getLeft()) + " OR " + concatSelection(a.getRight());
 				a.setData(nodeContent);
 				a.setLeft(getTable(left));
 				a.setRight(null);
@@ -252,15 +249,19 @@ public final class Transformer {
 
 
 
-	private String concatSelection(Node a, String str){
-		if (a == null) {
+	public String concatSelection(Node node) {
+		if (node == null) {
 			return "";
 		}
-		if(a.getData().contains("σ") ){
-			return a.getData()+concatSelection(a.getLeft(),str);
+		String result = "";
+		if (node.getData().contains("σ")) {
+			result += node.getData();
 		}
-		return str;
+		result += concatSelection(node.getLeft());
+		result += concatSelection(node.getRight());
+		return result;
 	}
+
 	private Node getTable(Node a){
 		if (a == null) {
 			return null;

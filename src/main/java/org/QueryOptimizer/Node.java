@@ -4,10 +4,21 @@ package org.QueryOptimizer;
 import java.util.Objects;
 
 public class Node {
+	public static final String T="T";//table
+	public static final String J="J";//join
+	public static final String S="S";//selection
+	public static final String P="P";//projection
 
 	private String data;
+	private String type;// T, J, S, P
 
+	public String getType() {
+		return type;
+	}
 
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	private Node left;
 	private Node right;
@@ -18,10 +29,9 @@ public class Node {
 		right =null;
 	}
 
-	public Node(String data, Node left, Node right) {
+	public Node(String data, String type) {
 		this.data = data;
-		this.left = left;
-		this.right = right;
+		this.type = type;
 	}
 
 	public void setData(String data) {
@@ -94,6 +104,9 @@ public class Node {
 		if (node1 == null || node2 == null) {
 			return false;
 		}
+		if (!node1.getType().equals( node2.getType())) {
+			return false;
+		}
 		if (!node1.getData().equals( node2.getData())) {
 			return false;
 		}
@@ -115,7 +128,7 @@ public class Node {
 		if (root == null) {
 			return null;
 		}
-		Node newNode =new Node(root.getData());
+		Node newNode =new Node(root.getData(), root.getType());
 		newNode.setLeft(cloneTree(root.getLeft()) );
 		newNode.setRight(cloneTree(root.getRight()) );
 		return newNode;

@@ -86,7 +86,7 @@ public class Translator {
 
 		if(!this.listProjections.isEmpty()){
 			String proj="π"+this.listProjections;
-			Node head= new Node(proj);
+			Node head= new Node(proj,Node.P);
 			head.setLeft(this.firstTree);
 			this.firstTree=head;
 		}
@@ -95,7 +95,7 @@ public class Translator {
 	private void mergSubTrees(){
 
 		if(this.listConditions.isEmpty()&& this.listJoins.isEmpty() ){
-			this.firstTree=new Node(listTables.get(0));
+			this.firstTree=new Node(listTables.get(0),Node.T);
 			return;
 		}
 
@@ -105,7 +105,7 @@ public class Translator {
 		}
 
 		for(String join: this.listJoins){
-			Node joinNode =new Node("⋈"+join);
+			Node joinNode =new Node("⋈"+join,Node.J);
 			Pattern p=Pattern.compile("\\w+");
 			Matcher matcher = p.matcher(join);
 			String tab1="",tab2="";
@@ -166,13 +166,13 @@ public class Translator {
 		for(String str: tabConditions){
 			if(!str.equals("AND")) tabTree=addSubTreeNode(tabTree,str);
 		}
-		if(tabTree==null) return new Node(tabName);
+		if(tabTree==null) return new Node(tabName,Node.T);
 		return addTables(tabTree,tabName);
 	}
 
 	private Node addSubTreeNode(Node root, String token){
 		Node nv;
-		nv= new Node(token);
+		nv= new Node(token,Node.S);
 		if(root==null) return nv;
 		if(!isOperator(token))
 		{// si la racine n'as pas de fils droit
@@ -190,6 +190,7 @@ public class Translator {
 			}
 		}else
 		{   // if root is OR
+			nv.setType("O");
 			nv.setLeft(root);
 			root=nv;
 		}
@@ -202,7 +203,7 @@ public class Translator {
 
 	private Node addTables(Node root, String tabName){
 		Node nv;
-		nv= new Node(tabName);
+		nv= new Node(tabName,Node.T);
 		if(root==null) return null;//arbre vide
 		if(root.getRight()!=null) root.setRight(addTables(root.getRight(),tabName));
 		if (root.getLeft()!=null) root.setLeft(addTables(root.getLeft(),tabName));

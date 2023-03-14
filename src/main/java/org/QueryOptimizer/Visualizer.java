@@ -66,7 +66,7 @@ public class Visualizer extends JPanel {
 
 
 
-    static int drawListOfTrees(Set<Node> trees, Estimator estimator, JFrame frame) {
+    static int drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -158,7 +158,8 @@ public class Visualizer extends JPanel {
                     costArea.setVisible(false);
                     showCosts.setText("Show costs");
                 } else {
-                    createWindowWithPanels(trees);
+
+                    createWindowWithPanels(op.physiquesArbre(tree));
                     showCosts.setText("Hide costs");
 
                 }

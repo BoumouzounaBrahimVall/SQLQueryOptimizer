@@ -19,20 +19,20 @@ public class Optimizer {
         Node Ar = Node.cloneTree(arbre);
         treeSet.add(Ar);
         //jointure
-        change(Ar, "BIB").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "BII").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "JH").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "PJ").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar,  "JTF").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "BIB",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "BII",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "JH",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "PJ",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar,  "JTF",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
         removeGarbage(treeSet);
         return treeSet;
     }
 
     private void selectPhysicalVars(Set<Node> treeSet, Node n1) {
-        treeSet.addAll(change(n1, FULL_SCAN));
-        treeSet.addAll(change(n1,  INDEX_SC));
-        treeSet.addAll(change(n1, INDEX_PR));
-        treeSet.addAll(change(n1,  HASH));
+        treeSet.addAll(change(n1, FULL_SCAN,1));
+        treeSet.addAll(change(n1,  INDEX_SC,1));
+        treeSet.addAll(change(n1, INDEX_PR,1));
+        treeSet.addAll(change(n1,  HASH,1));
     }
 
     private void removeGarbage(Set<Node> treeSet) {
@@ -49,24 +49,19 @@ public class Optimizer {
     }
 
 
-    private Set<Node> change(Node arbre, String nouveau) {
+    private Set<Node> change(Node arbre, String nouveau,int type) {
         Set<Node> treeSet = new HashSet<>();
-        Node tmp = change1(Node.cloneTree(arbre), nouveau);
+        Node tmp;
+        if(type==1)  tmp = change1(Node.cloneTree(arbre), nouveau);
+        else   tmp = change2(Node.cloneTree(arbre), nouveau);
         treeSet.add(tmp);
         return treeSet;
     }
-
     private Node change1(Node a, String nouveau) {
         if (a == null) {
             return null;
         }
-        if (a.getData().contains("⋈")) {
-            String oldCnt = a.getData();
-            String aff = oldCnt.replaceAll("\\([^)]*\\)", "") + " (" + nouveau + ")";
-            System.out.println("aff: " + aff);
-            a.setData("(" + nouveau + ")");
-        }
-        else  if(a.getData().contains("σ")){
+        if(a.getType().equals(Node.S)){
 
             String match="";
             String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
@@ -75,21 +70,40 @@ public class Optimizer {
             String oldCnt=a.getData();
 
             if (m.find()) match = m.group(); // Extract the matched substring
+            System.out.println(a.getData()+ "matcher: "+match);
             String table=match.split("\\.")[0].trim();
             String col=match.split("\\.")[1].trim();
-                if(nouveau.contains(HASH)){
-                    if(!es.getParser().isUnique(table,col)) nouveau=FULL_SCAN;
+            if(nouveau.contains(HASH)){
+                if(!es.getParser().isUnique(table,col)) nouveau=FULL_SCAN;
 
-                }else if(nouveau.contains(INDEX_PR)){
-                    if(!es.getParser().isPrimaryKey(table,col))  nouveau=FULL_SCAN;
-                }else if(nouveau.contains(INDEX_SC)){
-                    if(!es.getParser().isIndexed(table,col))  nouveau=FULL_SCAN;
-                }
-
-                a.setData( oldCnt.replaceAll("\\([^)]*\\)", "")+"("+nouveau+")" );
+            }else if(nouveau.contains(INDEX_PR)){
+                if(!es.getParser().isPrimaryKey(table,col))  nouveau=FULL_SCAN;
+            }else if(nouveau.contains(INDEX_SC)){
+                if(!es.getParser().isIndexed(table,col))  nouveau=FULL_SCAN;
             }
+
+            a.setData("("+nouveau+")" );// oldCnt.replaceAll("\\([^)]*\\)", "")+
+        }
         if (a.getRight() != null) change1(a.getRight(), nouveau);
         if (a.getLeft() != null) change1(a.getLeft(), nouveau);
+        return a;
+
+    }
+    private Node change2(Node a, String nouveau) {
+        if (a == null) {
+            return null;
+        }
+       // if (a.getData().contains("⋈")) {
+        if (a.getType().equals(Node.J)) {
+            String oldCnt = a.getData();
+            String aff =  "(" + nouveau + ")";//oldCnt.replaceAll("\\([^)]*\\)", "") +
+          //  System.out.println("aff: " + aff);
+            a.setType(Node.J);
+            a.setData("(" + nouveau + ")");
+        }
+        //else  if(a.getData().contains("σ")){
+        if (a.getRight() != null) change2(a.getRight(), nouveau);
+        if (a.getLeft() != null) change2(a.getLeft(), nouveau);
         return a;
 
     }
@@ -179,7 +193,7 @@ public class Optimizer {
             Transformer tr = new Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
 
-            int h = Visualizer.drawListOfTrees(optimizer.physiquesArbre(t.getFirstTree()), estimator, frame);
+            int h = Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame);
             frame.setSize(new Dimension(frame.getWidth(), h));
 
             frame.pack();

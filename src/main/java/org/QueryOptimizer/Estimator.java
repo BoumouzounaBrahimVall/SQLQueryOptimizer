@@ -125,6 +125,7 @@ public class Estimator {
             costs.add(BIB(attrs.get(0),attrs.get(2)));
             costs.add(JTF(attrs.get(0),attrs.get(2)));
             costs.add(PJ(attrs.get(0),attrs.get(2)));
+        System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
             costs.add(JH(attrs.get(0),attrs.get(2)));
         return costs;
     }

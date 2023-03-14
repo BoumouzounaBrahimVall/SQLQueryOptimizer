@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public final class Transformer {
@@ -152,6 +154,11 @@ public final class Transformer {
 				Node tmp=a.getLeft();
 				a.setLeft(a.getRight());
 				a.setRight(tmp);
+				List<String> attrs=new ArrayList<>();
+				Pattern p=Pattern.compile("\\w+");
+				Matcher matcher = p.matcher(a.getData());
+				while (matcher.find()) attrs.add(matcher.group());
+				a.setData("⋈"+attrs.get(2)+"."+attrs.get(3)+"="+attrs.get(0)+"."+attrs.get(1));
 			}
 			counter++;
 		}

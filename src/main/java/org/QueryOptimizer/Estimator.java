@@ -123,8 +123,11 @@ public class Estimator {
             Matcher matcher = p.matcher(join);
             while (matcher.find()) attrs.add(matcher.group());
             costs.add(BIB(attrs.get(0),attrs.get(2)));
+        System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
             costs.add(JTF(attrs.get(0),attrs.get(2)));
-            costs.add(PJ(attrs.get(0),attrs.get(2)));
+        System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
+        costs.add(PJ(attrs.get(0),attrs.get(2)));
+        System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
         System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
             costs.add(JH(attrs.get(0),attrs.get(2)));
         return costs;
@@ -246,6 +249,7 @@ public class Estimator {
  */
 
     }
+
 
 
 }

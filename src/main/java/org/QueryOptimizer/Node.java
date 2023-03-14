@@ -1,6 +1,8 @@
 
 package org.QueryOptimizer;
 
+import java.util.Objects;
+
 public class Node {
 
 	private String data;
@@ -70,7 +72,33 @@ public class Node {
 	}
 
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Node node = (Node) o;
+		return isEqual(this, node);
+	}
 
+	private boolean isEqual(Node node1, Node node2) {
+		if (node1 == null && node2 == null) {
+			return true;
+		}
+		if (node1 == null || node2 == null) {
+			return false;
+		}
+		if (!Objects.equals(node1.getData(), node2.getData())) {
+			return false;
+		}
+		return isEqual(node1.getLeft(), node2.getLeft()) &&
+				isEqual(node1.getRight(), node2.getRight());
+	}
+
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(data, left, right);
+	}
 
 
 

@@ -81,8 +81,6 @@ public class Translator {
 		}
 
 	}
-
-
 	public  void addProjections() {
 		mergSubTrees();
 
@@ -93,9 +91,6 @@ public class Translator {
 			this.firstTree.setRoot(head);
 		}
 	}
-
-
-
 
 	private void mergSubTrees(){
 
@@ -138,7 +133,6 @@ public class Translator {
 
 		}
 	}
-
 	private   Map<String, Node> createAllSubTrees(){
 
 		Map<String, Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a listTables trees

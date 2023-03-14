@@ -121,7 +121,7 @@
         {
           "columnName":"J",
           "Pk":"0",
-          "index":"1",
+          "index":"0",
           "unique":"1",
           "cardinality":"13",
           "minVal":"1",

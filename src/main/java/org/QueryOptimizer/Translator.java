@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class Translator {
 	private static final String CONDITION_PATTERN="\\w+\\s*\\.\\s*\\w+\\s*[=><]\\s*'[^']*'";
 	private static final String JOIN_PATTERN="\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
-	private final Tree firstTree;
+	private Node firstTree;
 	private final String query;
 	private final List<String> listProjections;
 	private final List<String> listConditions; // condition selections only
@@ -24,7 +24,7 @@ public class Translator {
 
 	public Translator(String txt) {
 
-		firstTree =new Tree();
+		//firstTree =new Node();
 		this.listProjections=new ArrayList<>();
 		this.listTables= new ArrayList<>();
 		this.listJoins=new ArrayList<>();
@@ -81,32 +81,27 @@ public class Translator {
 		}
 
 	}
-
-
 	public  void addProjections() {
 		mergSubTrees();
 
 		if(!this.listProjections.isEmpty()){
 			String proj="π"+this.listProjections;
 			Node head= new Node(proj);
-			head.setLeft(this.firstTree.getRoot());
-			this.firstTree.setRoot(head);
+			head.setLeft(this.firstTree);
+			this.firstTree=head;
 		}
 	}
-
-
-
 
 	private void mergSubTrees(){
 
 		if(this.listConditions.isEmpty()&& this.listJoins.isEmpty() ){
-			this.firstTree.setRoot(new Node(listTables.get(0)));
+			this.firstTree=new Node(listTables.get(0));
 			return;
 		}
 
 		Map<String, Node>subtrees=createAllSubTrees(); // use to store subTrees a.k.a listTables trees
 		if (listJoins.isEmpty()){ // one table
-			this.firstTree.setRoot(subtrees.get(listTables.get(0)));
+			this.firstTree=subtrees.get(listTables.get(0));
 		}
 
 		for(String join: this.listJoins){
@@ -125,7 +120,7 @@ public class Translator {
 				subtrees.remove(tab2);//same here
 
 			}else { // means that one of the listTables has already been used in a join and added
-				joinNode.setLeft(this.firstTree.getRoot());
+				joinNode.setLeft(this.firstTree);
 				if(subtrees.containsKey(tab1)){ // if tab 1 not added yet
 					joinNode.setRight(subtrees.get(tab1));
 					subtrees.remove(tab1);
@@ -134,11 +129,10 @@ public class Translator {
 					subtrees.remove(tab2);
 				}
 			}
-			this.firstTree.setRoot(joinNode); // always keep the join node as the root cause we're building from down to up
+			this.firstTree=joinNode; // always keep the join node as the root cause we're building from down to up
 
 		}
 	}
-
 	private   Map<String, Node> createAllSubTrees(){
 
 		Map<String, Node>subtrees=new HashMap<>(); // use to store subTrees a.k.a listTables trees
@@ -217,7 +211,7 @@ public class Translator {
 
 	}
 
-	public Tree getFirstTree() {
+	public Node getFirstTree() {
 		return firstTree;
 	}
 

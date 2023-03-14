@@ -1,32 +1,38 @@
 package org.QueryOptimizer;
+import org.QueryOptimizer.dictionnary.DictionaryReader;
+
 import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 public class Optimizer {
-
-
+    private static final Estimator es=new Estimator();
+    private static final String INDEX_PR="2nd index";
+    private static final String INDEX_SC="1st index";
+    private static final String HASH="2nd index";
+    private static final String FULL_SCAN="balayage";
     public Set<Node> physiquesArbre(Node arbre) {
         Set<Node> treeSet = new HashSet<>();
         treeSet.add(arbre);
         Node Ar = Node.cloneTree(arbre);
         treeSet.add(Ar);
         //jointure
-        change(Ar, "⋈", "BIB").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "⋈", "BII").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "⋈", "JH").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "⋈", "PJ").forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "⋈", "JTF").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "BIB").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "BII").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "JH").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar, "PJ").forEach(n1->{selectPhysicalVars(treeSet,n1);});
+        change(Ar,  "JTF").forEach(n1->{selectPhysicalVars(treeSet,n1);});
         removeGarbage(treeSet);
         return treeSet;
     }
 
     private void selectPhysicalVars(Set<Node> treeSet, Node n1) {
-        treeSet.addAll(change(n1, "σ", "balayage"));
-        treeSet.addAll(change(n1, "σ", "pk"));
-        treeSet.addAll(change(n1, "σ", "2nd index"));
-        treeSet.addAll(change(n1, "σ", "1st index "));
-        treeSet.addAll(change(n1, "σ", "hachage"));
+        treeSet.addAll(change(n1, FULL_SCAN));
+        treeSet.addAll(change(n1,  INDEX_SC));
+        treeSet.addAll(change(n1, INDEX_PR));
+        treeSet.addAll(change(n1,  HASH));
     }
 
     private void removeGarbage(Set<Node> treeSet) {
@@ -43,39 +49,86 @@ public class Optimizer {
     }
 
 
-    private Set<Node> change(Node arbre, String test, String nouveau) {
+    private Set<Node> change(Node arbre, String nouveau) {
         Set<Node> treeSet = new HashSet<>();
-        Node tmp = change1(Node.cloneTree(arbre),  test, nouveau);
+        Node tmp = change1(Node.cloneTree(arbre), nouveau);
         treeSet.add(tmp);
         return treeSet;
     }
 
-    private Node change1(Node a, String test, String nouveau) {
+    private Node change1(Node a, String nouveau) {
         if (a == null) {
             return null;
         }
-        if (a.getData().contains(test)) {
+        if (a.getData().contains("⋈")) {
             String oldCnt = a.getData();
             String aff = oldCnt.replaceAll("\\([^)]*\\)", "") + " (" + nouveau + ")";
             System.out.println("aff: " + aff);
             a.setData("(" + nouveau + ")");
-
         }
-        if (a.getRight() != null) change1(a.getRight(), test, nouveau);
-        if (a.getLeft() != null) change1(a.getLeft(), test, nouveau);
+        else  if(a.getData().contains("σ")){
+
+            String match="";
+            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(a.getData());
+            String oldCnt=a.getData();
+
+            if (m.find()) match = m.group(); // Extract the matched substring
+            String table=match.split("\\.")[0].trim();
+            String col=match.split("\\.")[1].trim();
+                if(nouveau.contains(HASH)){
+                    if(!es.getParser().isUnique(table,col)) nouveau=FULL_SCAN;
+
+                }else if(nouveau.contains(INDEX_PR)){
+                    if(!es.getParser().isPrimaryKey(table,col))  nouveau=FULL_SCAN;
+                }else if(nouveau.contains(INDEX_SC)){
+                    if(!es.getParser().isIndexed(table,col))  nouveau=FULL_SCAN;
+                }
+
+                a.setData( oldCnt.replaceAll("\\([^)]*\\)", "")+"("+nouveau+")" );
+            }
+        if (a.getRight() != null) change1(a.getRight(), nouveau);
+        if (a.getLeft() != null) change1(a.getLeft(), nouveau);
         return a;
 
     }
 
+    /*
+    private Node changeSel(Node a ,int initial,int[] counter,int maxCount,String nouveau){
+        if (a == null) {
+            return null;
+        }
+        if(a.getData().contains("σ")){
+            if(counter[0]>=initial) {
+                String match="";
+                String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
+                Pattern r = Pattern.compile(pattern);
+                Matcher m = r.matcher(a.getData());
+                String oldCnt=a.getData();
+                String aff="";
+                if (m.find()) match = m.group(); // Extract the matched substring
+                String table=match.split("\\.")[0].trim();
+                String col=match.split("\\.")[1].trim();
+                if(nouveau.contains("hashage")){
+                    if(!es.getParser().isUnique(table,col)) nouveau="balayage";
 
-    boolean Existtables(String a) {
-        ///   for(String e:tables)
-        //  if(a.equals(e)){
-        return true;
-        //   }
-        //return false;
+                }else if(nouveau.contains("1st index")){
+                        if(!es.getParser().isPrimaryKey(table,col))  nouveau="balayage";
+                }else if(nouveau.contains("2sd index")){
+                    if(!es.getParser().isIndexed(table,col))  nouveau="balayage";
+                }
+                aff=oldCnt.replaceAll("\\([^)]*\\)", "")+"("+nouveau+")";
+                a.setData(aff);
+            }
+            counter[0]++;
+        }
+        if(counter[0]==maxCount) return a;
+        if(a.getLeft()!=null) changeSel(a.getLeft(),initial,counter, maxCount,nouveau);
+        if (a.getRight() !=null) changeSel(a.getRight(),initial,counter, maxCount,nouveau);
+        return a;
     }
-
+*/
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());

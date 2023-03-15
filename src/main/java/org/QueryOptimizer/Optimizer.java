@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 public class Optimizer {
     private static final Estimator es=new Estimator();
-    private static final String INDEX_PR="2nd index";
-    private static final String INDEX_SC="1st index";
-    private static final String HASH="2nd index";
-    private static final String FULL_SCAN="balayage";
+    public static final String INDEX_PR="2nd index";
+    public static final String INDEX_SC="1st index";
+    public static final String HASH="hashage";
+    public static final String FULL_SCAN="balayage";
     public Set<Node> physiquesArbre(Node arbre) {
         Set<Node> treeSet = new HashSet<>();
         treeSet.add(arbre);
@@ -206,10 +206,7 @@ public class Optimizer {
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         p.add(script, BorderLayout.CENTER);
-        JPanel pp = new JPanel();
-        pp.add(execute);
-
-        p.add(pp, BorderLayout.EAST);
+        p.add(execute, BorderLayout.EAST);
         frame.add(p, BorderLayout.NORTH);
 
         frame.setLocationRelativeTo(null);

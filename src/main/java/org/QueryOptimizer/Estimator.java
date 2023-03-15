@@ -116,22 +116,7 @@ public class Estimator {
         if(root.getLeft()!=null) inputConsumers(root.getLeft(),joinInputs,selInputs);
         if(root.getRight()!=null) inputConsumers(root.getRight(),joinInputs,selInputs);
     }
-    public  ArrayList<Double> joinCostVariants(String join){
-            List<String> attrs=new ArrayList<>();
-            ArrayList<Double> costs=new ArrayList<>();
-            Pattern p=Pattern.compile("\\w+");
-            Matcher matcher = p.matcher(join);
-            while (matcher.find()) attrs.add(matcher.group());
-            costs.add(BIB(attrs.get(0),attrs.get(2)));
-      //  System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
-            costs.add(JTF(attrs.get(0),attrs.get(2)));
-       // System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
-        costs.add(PJ(attrs.get(0),attrs.get(2)));
-       // System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
-      //  System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
-            costs.add(JH(attrs.get(0),attrs.get(2)));
-        return costs;
-    }
+
     public ArrayList<Double> selectionCostVariants(String sel){
         ArrayList<Double> costs=new ArrayList<>();
         String table=sel.split("\\.")[0].trim();
@@ -191,9 +176,7 @@ public class Estimator {
         }
         return sums;
     }
-// select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.k>'89' OR C.e='45' OR C.j='35' AND B.b=C.b
-
-
+// select A.a, B.b from A,B,C where A.a=B.a AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.k>'89' OR C.e='45' OR C.j='35' AND B.b=C.b
     public static  void main(String [] args)
     {
 
@@ -248,6 +231,104 @@ public class Estimator {
 
     }
 
+    private double selctionCal(Node root,String sel){
+        System.out.println("sel: "+sel);
+        String table=sel.split("\\.")[0].trim();
+        String col=sel.split("\\.")[1].trim();
+        System.out.println("here "+root.getData());
+        switch (root.getData()){
+            case "("+Optimizer.INDEX_PR+")" -> {
+                return indexScanePri(table,col);
+            }
+            case "("+Optimizer.INDEX_SC+")" -> {
+                return indexScaneSec(table,col);
+            }
+            case "("+Optimizer.HASH+")" -> {
+                return hachageScane(table);
+            }
+            case "("+Optimizer.FULL_SCAN+")" -> {
+                return fullTableScane(table);
+            }
+        }
+        return 0;
+    }
+    public  ArrayList<Double> joinCostVariants(String join){
+        List<String> attrs=new ArrayList<>();
+        ArrayList<Double> costs=new ArrayList<>();
+        Pattern p=Pattern.compile("\\w+");
+        Matcher matcher = p.matcher(join);
+        while (matcher.find()) attrs.add(matcher.group());
+        costs.add(BIB(attrs.get(0),attrs.get(2)));
+        //  System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
+        costs.add(JTF(attrs.get(0),attrs.get(2)));
+        // System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
+        costs.add(PJ(attrs.get(0),attrs.get(2)));
+        // System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
+        //  System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
+        costs.add(JH(attrs.get(0),attrs.get(2)));
+        return costs;
+    }
+    private double joinCalc(Node root, String join) {
+        List<String> attrs=new ArrayList<>();
+        Pattern p=Pattern.compile("\\w+");
+        Matcher matcher = p.matcher(join);
+        while (matcher.find()) attrs.add(matcher.group());
+        switch (root.getData()){
+            case "(BIB)" -> {
+               // System.out.println(BIB(attrs.get(0),attrs.get(2)));
+                return BIB(attrs.get(0),attrs.get(2));
+            }
+//            case "(BII)" -> {
+//                return indexScaneSec(table,col);
+//            }
+            case "(JTF)" -> {
+                return JTF(attrs.get(0),attrs.get(2));
+            }
+            case "(PJ)"-> {
+                return PJ(attrs.get(0),attrs.get(2));
+            }
+            case "(JH)"-> {
+                return JH(attrs.get(0),attrs.get(2));
+            }
+        }
+        return 0.0;
+    }
+    private Double treeCalc(Node root,Node mother, Double d){
+        if(root==null) return d ;
+
+        if(root.getType().equals(Node.S)&& root.getLeft().getLeft()==null){ // left is the table and table left is null
+            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(mother.getData());
+            String match="";
+            if (m.find())  match = m.group(); // Extract the matched substring
+            System.out.println("selies "+selctionCal(root,match));
+            d=selctionCal(root,match);
+        }
+        else if(root.getType().equals(Node.J)&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
+            String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(mother.getData());
+            String match="";
+            if (m.find()) {
+                 match = m.group(); // Extract the matched substring
+            }
+            d=joinCalc(root,match);
+        }
+        return d+ treeCalc(root.getLeft(),mother.getLeft(),d)+treeCalc(root.getRight(),mother.getRight(),d);
+    }
+
+    public List<Double> costs(Set<Node>phy,Node mother){
+        List<Double> costs=new ArrayList<>();
+        Double d;
+        for(Node n: phy){
+            d=0.0;
+            d=treeCalc(n,mother,d);
+            costs.add(d);
+        }
+        costs.forEach(System.out::println);
+        return costs;
+    }
 
 
 }

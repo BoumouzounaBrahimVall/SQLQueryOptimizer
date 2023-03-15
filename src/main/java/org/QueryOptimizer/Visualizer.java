@@ -49,7 +49,7 @@ public class Visualizer extends JPanel {
             y=i;
         }else if(str.contains("OR")&&str.length()>2){
             String[] strs=str.split("OR");
-            g.drawString(strs[0]+"OR", x-20, y + 12);
+            g.drawString(strs[0], x-20, y + 12);
             g.drawString("OR", x-12, y + 24);
             int i=y+24;
             for (int j=1;j<strs.length-1;j++) {
@@ -144,9 +144,9 @@ public class Visualizer extends JPanel {
             Visualizer subPanel = new Visualizer(tree);
 
             // Calculate costs
-            HashSet<Double> ls = estimator.calculateCosts(tree);
-            double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
-            double maxCost = ls.stream().max(Double::compare).orElse(Double.NaN);
+            //HashSet<Double> ls = estimator.calculateCosts(tree);
+         //   double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
+        //    double maxCost = ls.stream().max(Double::compare).orElse(Double.NaN);
 
             // Create labels
             JLabel treeLabel = new JLabel("Tree " + (i + 1));i++;
@@ -160,7 +160,7 @@ public class Visualizer extends JPanel {
             ruleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             ruleLabel.setForeground(new Color(102, 102, 102));
 
-            JLabel costLabel = new JLabel("Physical costs: minCost: " + minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
+            JLabel costLabel = new JLabel("Physical costs: minCost: " );//+ minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
             costLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             costLabel.setForeground(new Color(102, 102, 102));
 
@@ -171,6 +171,9 @@ public class Visualizer extends JPanel {
             costArea.setFont(new Font("Arial", Font.PLAIN, 14));
             costArea.setForeground(new Color(102, 102, 102));
             JButton showCosts   = new JButton("Show costs");
+            showCosts.setFont(new Font("Arial", Font.PLAIN, 14));
+            showCosts.setBackground(new Color(115, 112, 234));
+            showCosts.setForeground(Color.WHITE);
             JScrollPane scrollPane = new JScrollPane(showCosts);
             scrollPane.add(costArea);
 
@@ -179,9 +182,7 @@ public class Visualizer extends JPanel {
 
 
             StringBuilder s = new StringBuilder("Costs: [");
-            for (Double cost : ls) {
-                s.append(cost).append("ms, ");
-            }
+          //  for (Double cost : ls) {s.append(cost).append("ms, ");}
             String costs = String.valueOf(s).substring(0, s.length() - 2) + "]";
             costArea.setText(costs);
             showCosts.addActionListener(e -> {
@@ -189,8 +190,9 @@ public class Visualizer extends JPanel {
                     costArea.setVisible(false);
                     showCosts.setText("Show costs");
                 } else {
-
-                    createWindowWithPanels(op.physiquesArbre(tree));
+                    Set<Node> list=op.physiquesArbre(tree);
+                    estimator.costs(list,tree);
+                    createWindowWithPanels(list);
                     showCosts.setText("Hide costs");
 
                 }

@@ -192,8 +192,8 @@ public class Optimizer {
             Translator t = new Translator(script.getText());
             Transformer tr = new Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
-
-            int h = Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame);
+            System.out.println(tr.reglenames.size());
+            int h = Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame,tr.reglenames);
             frame.setSize(new Dimension(frame.getWidth(), h));
 
             frame.pack();

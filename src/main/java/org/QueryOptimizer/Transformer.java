@@ -18,8 +18,8 @@ public final class Transformer {
 	private final Node firstTree;
 	private Set<Node> allVariants;
 	private List<Node> switchJoinSelection;
+	public static final Map<Node,String> reglenames=new HashMap<Node,String>();
 
-	int i=0;
 	public Transformer(Node tree)
 	{
 		this.firstTree=tree;
@@ -47,60 +47,111 @@ public final class Transformer {
 
 		for(Node n1: joinRule){
 			//  selection of join variants
-			tousTrees.addAll(selectionConjonctive(n1));
+			Set<Node> tmp=selectionConjonctive(n1);
+			tousTrees.addAll(tmp);
+			for (Node node : tmp) {
+				reglenames.put(node, "jointureCommutativite+selectionConjonctive ");
+			}
+
 			//  OR selection of joins
-			tousTrees.addAll(onlyOrSelectionVariants(n1));
+			tmp=onlyOrSelectionVariants(n1);
+			tousTrees.addAll(tmp);
+			for (Node node : tmp) {
+				reglenames.put(node, "jointureCommutativite+onlyOrSelectionVariants ");
+			}
 			// commutativiteSelection
-			tousTrees.addAll(commutativiteSelection(n1));
+			tmp=commutativiteSelection(n1);
+			tousTrees.addAll(tmp);
+			for (Node node : tmp) {
+				reglenames.put(node, "jointureCommutativite+commutativiteSelection ");
+			}
 
 			//association jointure
-			tousTrees.addAll(joinAssociativite(n1));
+			tmp=joinAssociativite(n1);
+			tousTrees.addAll(tmp);
+			for (Node node : tmp) {
+				reglenames.put(node, "jointureCommutativite+joinAssociativite " );
+			}
 		}
 
 		for(Node n1: selectionRule){
 			//  OR selection variant of sel variants
-			tousTrees.addAll(onlyOrSelectionVariants(n1));
-			joinCumitVars(tousTrees, n1);
+			Set<Node> tmp;
+			tmp=onlyOrSelectionVariants(n1);
+			tousTrees.addAll(tmp);
+			for(Node n2: tmp)
+				reglenames.put(n2, "selectionConjonctive+onlyOrSelectionVariants " );
+			joinCumitVars(tousTrees, n1,"selectionConjonctive");
 		}
 
 		for(Node n1: orSelectionRule){
 			//   selection variant
-			tousTrees.addAll(selectionConjonctive(n1));
-			joinCumitVars(tousTrees, n1);
+			Set<Node> tmp;
+			tmp=selectionConjonctive(n1);
+			tousTrees.addAll(tmp);
+			for(Node n2: tmp)
+				reglenames.put(n2, "onlyOrSelectionVariants+selectionConjonctive " );
+			joinCumitVars(tousTrees, n1,"onlyOrSelectionVariants");
 		}
 
 
 		for(Node n1: regleCommutSelection){
-			assoSelVars(tousTrees, n1,"commutativiteSelection  "+i++);
+			assoSelVars(tousTrees, n1,"commutativiteSelection  " );
 			//association jointure
 			tousTrees.addAll(joinAssociativite(n1));
+			for(Node n2: joinAssociativite(n1))
+				reglenames.put(n2, "commutativiteSelection+joinAssociativite " );
+			for(Node n2: joinAssociativite(n1))
+				reglenames.put(n2, "commutativiteSelection+joinAssociativite " );
 		}
 
 		for(Node n1: assocJoinRule){
-			assoSelVars(tousTrees, n1,"joinAssociativite"+i++);
+			assoSelVars(tousTrees, n1,"joinAssociativite" );
 			// commutativiteSelection
 			tousTrees.addAll(commutativiteSelection(n1));
+			for(Node n2: commutativiteSelection(n1))
+				reglenames.put(n2, "joinAssociativite+commutativiteSelection " );
 
 		}
 		this.allVariants= tousTrees;
 	}
 
-	private void joinCumitVars(Set<Node> tousTrees, Node n1) {
+	private void joinCumitVars(Set<Node> tousTrees, Node n1,String request) {
 		//  jointure
-		tousTrees.addAll(jointureCommutativite(n1));
+		Set<Node> tmp;
+		tmp=jointureCommutativite(n1);
+		tousTrees.addAll(tmp);
+		for(Node n2: tmp)
+			reglenames.put(n2, request+"+jointureCommutativite " );
 		// commutativiteSelection
-		tousTrees.addAll(commutativiteSelection(n1));
+		tmp=commutativiteSelection(n1);
+		tousTrees.addAll(tmp);
+		for(Node n2: tmp)
+			reglenames.put(n2, request+"+commutativiteSelection " );
 		//association jointure
-		tousTrees.addAll(joinAssociativite(n1));
+		tmp=joinAssociativite(n1);
+		tousTrees.addAll(tmp);
+		for(Node n2: tmp)
+			reglenames.put(n2, request+"+joinAssociativite " );
 	}
 
 	private void assoSelVars(Set<Node> tousTrees, Node n1,String request) {
 		//  selection variant
-		tousTrees.addAll(selectionConjonctive(n1));
+		Set<Node> tmp;
+		tmp=selectionConjonctive(n1);
+		tousTrees.addAll(tmp);
+		for(Node n2: tmp)
+			reglenames.put(n2, request+"+selectionConjonctive " );
 		//  jointure
-		tousTrees.addAll(jointureCommutativite(n1));
+		tmp=jointureCommutativite(n1);
+		tousTrees.addAll(tmp);
+		for(Node n2: tmp)
+			reglenames.put(n2, request+"+jointureCommutativite " );
 		//Or selection
-		tousTrees.addAll(onlyOrSelectionVariants(n1));
+		tmp=onlyOrSelectionVariants(n1);
+		tousTrees.addAll(tmp);
+for(Node n2: tmp)
+			reglenames.put(n2, request+"+onlyOrSelectionVariants " );
 
 	}
 
@@ -131,6 +182,7 @@ public final class Transformer {
 		return true;
 	}
 */
+
 
 	private Node joinCommutateur(Node a, int initial, int counter, int maxCount){
 		if (a == null) {

@@ -330,6 +330,12 @@ public class Estimator {
         return costs;
     }
 
+    public Double uniCosts(Node phy,Node mother){
+        Double d;
+        d=0.0;
+        d=treeCalc(phy,mother,d);
+        return Math.abs(roundFlout(d));
+    }
 
 }
 

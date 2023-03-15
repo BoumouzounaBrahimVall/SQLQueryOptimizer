@@ -192,7 +192,7 @@ public class Visualizer extends JPanel {
                 } else {
                     Set<Node> list=op.physiquesArbre(tree);
                     estimator.costs(list,tree);
-                    createWindowWithPanels(list);
+                    createWindowWithPanels(list,tree,estimator);
                     showCosts.setText("Hide costs");
 
                 }
@@ -224,7 +224,7 @@ public class Visualizer extends JPanel {
     }
 
 
-    public static void createWindowWithPanels(Set<Node> trees) {
+    public static void createWindowWithPanels(Set<Node> trees,Node tr,Estimator es) {
         // Création de la fenêtre principale
         JFrame frame = new JFrame("Ma fenêtre avec plusieurs panneaux");
 
@@ -238,7 +238,7 @@ public class Visualizer extends JPanel {
         int i = 1;
         for (Node tree :trees){
         // Création des panneaux avec titre et champ de saisie
-        JPanel panel1 = createPanelWithTitleAndInput("Physical Tree " + i,tree,i);
+        JPanel panel1 = createPanelWithTitleAndInput(""+(es.uniCosts(tree,tr)/10000.0),tree,i);
         i++;
 
         // Ajout des panneaux au panneau principal
@@ -258,14 +258,14 @@ public class Visualizer extends JPanel {
 
     /**
      * Crée un panneau avec un titre et un champ de saisie.
-     * @param title Le titre du panneau.
+     * @param cost Le titre du panneau.
      * @return Le panneau créé.
      */
-    private static JPanel createPanelWithTitleAndInput(String title,Node tree,int i) {
+    private static JPanel createPanelWithTitleAndInput(String cost,Node tree,int i) {
         // Création du panneau avec un titre et un champ de saisie
         Visualizer subPanel = new Visualizer(tree);
 
-        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1));
+        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1)+" cost: "+cost+"ms");
         treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
         treeLabel.setForeground(Color.WHITE);
         treeLabel.setOpaque(true);

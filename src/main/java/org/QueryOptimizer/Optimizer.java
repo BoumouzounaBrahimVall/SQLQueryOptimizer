@@ -9,10 +9,10 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 public class Optimizer {
     private static final Estimator es=new Estimator();
-    private static final String INDEX_PR="2nd index";
-    private static final String INDEX_SC="1st index";
-    private static final String HASH="2nd index";
-    private static final String FULL_SCAN="balayage";
+    public static final String INDEX_PR="2nd index";
+    public static final String INDEX_SC="1st index";
+    public static final String HASH="hashage";
+    public static final String FULL_SCAN="balayage";
     public Set<Node> physiquesArbre(Node arbre) {
         Set<Node> treeSet = new HashSet<>();
         treeSet.add(arbre);
@@ -176,7 +176,7 @@ public class Optimizer {
         JFrame frame = new JFrame("Optimizer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-
+        final JScrollPane[] pan = new JScrollPane[1];
         Optimizer optimizer = new Optimizer();
 
         JTextField script = new JTextField(50);
@@ -192,12 +192,18 @@ public class Optimizer {
             Translator t = new Translator(script.getText());
             Transformer tr = new Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
-            System.out.println(tr.reglenames.size());
-            int h = Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame,tr.reglenames);
-            frame.setSize(new Dimension(frame.getWidth(), h));
+
+            if (frame.getContentPane().getComponents().length > 1) {
+                frame.remove(pan[0]);
+            }
+            pan[0] =Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame,tr.reglenames);
+            frame.add(pan[0], BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
 
             frame.pack();
         });
+
 
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

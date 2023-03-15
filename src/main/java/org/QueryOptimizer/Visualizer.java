@@ -33,25 +33,56 @@ public class Visualizer extends JPanel {
 
     }
 
-    private void drawNode(Node Node, int x, int y, Graphics g) {
-        g.drawString(Node.getData(), x - 12, y + 12);
+    private void drawNode(Node node, int x, int y, Graphics g) {
+        String str= node.getData();
+        if(str.contains("&&")){
+            String[] strs=str.split("&&");
+            g.drawString(strs[0], x-20, y + 12);
+            g.drawString("&&", x-12, y + 24);
+            int i=y+24;
+            for (int j=1;j<strs.length-1;j++) {
+                g.drawString(strs[j], x - 20, i += 12);
+                g.drawString("&&", x - 12, i += 12);
 
+            }
+            g.drawString(strs[strs.length-1], x - 20, i += 12);
+            y=i;
+        }else if(str.contains("OR")&&str.length()>2){
+            String[] strs=str.split("OR");
+            g.drawString(strs[0], x-20, y + 12);
+            g.drawString("OR", x-12, y + 24);
+            int i=y+24;
+            for (int j=1;j<strs.length-1;j++) {
+                g.drawString(strs[j], x - 20, i += 12);
+                g.drawString("OR", x - 12, i += 12);
+            }
+            g.drawString(strs[strs.length-1], x - 20, i += 12);
+            y=i;
+        }
 
-        if (Node.getLeft() != null) {
+        else if(node.getType().equals(Node.T)){
+            g.drawString(node.getData(), x-9, y + 12);
+        }
+        else g.drawString(node.getData(), x-20, y + 12);//x - 30
+        //
+
+        if (node.getLeft() != null) {
             int x1 = x - 15;
             int y1 = y + 15;
-            int x2 = (int) (x1 - Math.pow(2, getHeight(Node.getRight())) * 10 + 0.5);
+
+            int x2 = (int) (x1 - Math.pow(2, getHeight(node.getLeft())) * 8 + 0.5);
+            if(node.getType().equals(org.QueryOptimizer.Node.S)) x2=x1=x;
             int y2 = y + 40;
             g.drawLine(x1, y1, x2, y2);
-            drawNode(Node.getLeft(), x2, y2, g);
+            drawNode(node.getLeft(), x2, y2, g);
         }
-        if (Node.getRight() != null) {
+        if (node.getRight() != null) {
             int x1 = x + 15;
             int y1 = y + 15;
-            int x2 = (int) (x1 + Math.pow(2, getHeight(Node.getRight())) * 10 + 0.5);
+            int x2 = (int) (x1 + Math.pow(2, getHeight(node.getRight())) * 8 + 0.5);
             int y2 = y + 40;
             g.drawLine(x1, y1, x2, y2);
-            drawNode(Node.getRight(), x2, y2, g);
+            drawNode(node.getRight(), x2, y2, g);
         }
     }
 
@@ -66,7 +97,9 @@ public class Visualizer extends JPanel {
 
 
 
-    static int drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame,Map<Node,String> regles) {
+
+    static JScrollPane drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame,Map<Node,String> regles) {
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -113,9 +146,9 @@ public class Visualizer extends JPanel {
             Visualizer subPanel = new Visualizer(tree);
 
             // Calculate costs
-            HashSet<Double> ls = estimator.calculateCosts(tree);
-            double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
-            double maxCost = ls.stream().max(Double::compare).orElse(Double.NaN);
+            //HashSet<Double> ls = estimator.calculateCosts(tree);
+         //   double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
+        //    double maxCost = ls.stream().max(Double::compare).orElse(Double.NaN);
 
             // Create labels
             JLabel treeLabel = new JLabel("Tree " + (i + 1));i++;
@@ -129,7 +162,7 @@ public class Visualizer extends JPanel {
             ruleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             ruleLabel.setForeground(new Color(102, 102, 102));
 
-            JLabel costLabel = new JLabel("Physical costs: minCost: " + minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
+            JLabel costLabel = new JLabel("Physical costs: minCost: " );//+ minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
             costLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             costLabel.setForeground(new Color(102, 102, 102));
 
@@ -140,6 +173,9 @@ public class Visualizer extends JPanel {
             costArea.setFont(new Font("Arial", Font.PLAIN, 14));
             costArea.setForeground(new Color(102, 102, 102));
             JButton showCosts   = new JButton("Show costs");
+            showCosts.setFont(new Font("Arial", Font.PLAIN, 14));
+            showCosts.setBackground(new Color(115, 112, 234));
+            showCosts.setForeground(Color.WHITE);
             JScrollPane scrollPane = new JScrollPane(showCosts);
             scrollPane.add(costArea);
 
@@ -148,9 +184,7 @@ public class Visualizer extends JPanel {
 
 
             StringBuilder s = new StringBuilder("Costs: [");
-            for (Double cost : ls) {
-                s.append(cost).append("ms, ");
-            }
+          //  for (Double cost : ls) {s.append(cost).append("ms, ");}
             String costs = String.valueOf(s).substring(0, s.length() - 2) + "]";
             costArea.setText(costs);
             showCosts.addActionListener(e -> {
@@ -158,8 +192,9 @@ public class Visualizer extends JPanel {
                     costArea.setVisible(false);
                     showCosts.setText("Show costs");
                 } else {
-
-                    createWindowWithPanels(op.physiquesArbre(tree));
+                    Set<Node> list=op.physiquesArbre(tree);
+                    estimator.costs(list,tree);
+                    createWindowWithPanels(list,tree,estimator);
                     showCosts.setText("Hide costs");
 
                 }
@@ -187,13 +222,11 @@ public class Visualizer extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(40);
-        frame.add(scrollPane, BorderLayout.CENTER);
-
-        return panel.getPreferredSize().height;
+        return scrollPane;
     }
 
 
-    public static void createWindowWithPanels(Set<Node> trees) {
+    public static void createWindowWithPanels(Set<Node> trees,Node tr,Estimator es) {
         // Création de la fenêtre principale
         JFrame frame = new JFrame("Physical trees   ");
 
@@ -207,7 +240,7 @@ public class Visualizer extends JPanel {
         int i = 1;
         for (Node tree :trees){
         // Création des panneaux avec titre et champ de saisie
-        JPanel panel1 = createPanelWithTitleAndInput("Physical Tree " + i,tree,i);
+        JPanel panel1 = createPanelWithTitleAndInput(""+(es.uniCosts(tree,tr)/10000.0),tree,i);
         i++;
 
         // Ajout des panneaux au panneau principal
@@ -227,14 +260,14 @@ public class Visualizer extends JPanel {
 
     /**
      * Crée un panneau avec un titre et un champ de saisie.
-     * @param title Le titre du panneau.
+     * @param cost Le titre du panneau.
      * @return Le panneau créé.
      */
-    private static JPanel createPanelWithTitleAndInput(String title,Node tree,int i) {
+    private static JPanel createPanelWithTitleAndInput(String cost,Node tree,int i) {
         // Création du panneau avec un titre et un champ de saisie
         Visualizer subPanel = new Visualizer(tree);
 
-        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1));
+        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1)+" cost: "+cost+"ms");
         treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
         treeLabel.setForeground(Color.WHITE);
         treeLabel.setOpaque(true);

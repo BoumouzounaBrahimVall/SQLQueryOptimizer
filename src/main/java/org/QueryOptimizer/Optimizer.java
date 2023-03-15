@@ -176,7 +176,7 @@ public class Optimizer {
         JFrame frame = new JFrame("Optimizer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
-
+        final JScrollPane[] pan = new JScrollPane[1];
         Optimizer optimizer = new Optimizer();
 
         JTextField script = new JTextField(50);
@@ -192,17 +192,24 @@ public class Optimizer {
             Translator t = new Translator(script.getText());
             Transformer tr = new Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
-
-            int h = Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame);
-            frame.setSize(new Dimension(frame.getWidth(), h));
-
+            if (frame.getContentPane().getComponents().length > 1) {
+                frame.remove(pan[0]);
+            }
+            pan[0] =Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame);
+            frame.add(pan[0], BorderLayout.CENTER);
+            frame.revalidate();
+            frame.repaint();
             frame.pack();
         });
+
 
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         p.add(script, BorderLayout.CENTER);
-        p.add(execute, BorderLayout.EAST);
+        JPanel pp = new JPanel();
+        pp.add(execute);
+
+        p.add(pp, BorderLayout.EAST);
         frame.add(p, BorderLayout.NORTH);
 
         frame.setLocationRelativeTo(null);

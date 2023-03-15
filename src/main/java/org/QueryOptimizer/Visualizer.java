@@ -33,25 +33,56 @@ public class Visualizer extends JPanel {
 
     }
 
-    private void drawNode(Node Node, int x, int y, Graphics g) {
-        g.drawString(Node.getData(), x - 12, y + 12);
+    private void drawNode(Node node, int x, int y, Graphics g) {
+        String str= node.getData();
+        if(str.contains("&&")){
+            String[] strs=str.split("&&");
+            g.drawString(strs[0], x-20, y + 12);
+            g.drawString("&&", x-12, y + 24);
+            int i=y+24;
+            for (int j=1;j<strs.length-1;j++) {
+                g.drawString(strs[j], x - 20, i += 12);
+                g.drawString("&&", x - 12, i += 12);
 
+            }
+            g.drawString(strs[strs.length-1], x - 20, i += 12);
+            y=i;
+        }else if(str.contains("OR")&&str.length()>2){
+            String[] strs=str.split("OR");
+            g.drawString(strs[0]+"OR", x-20, y + 12);
+            g.drawString("OR", x-12, y + 24);
+            int i=y+24;
+            for (int j=1;j<strs.length-1;j++) {
+                g.drawString(strs[j], x - 20, i += 12);
+                g.drawString("OR", x - 12, i += 12);
+            }
+            g.drawString(strs[strs.length-1], x - 20, i += 12);
+            y=i;
+        }
 
-        if (Node.getLeft() != null) {
+        else if(node.getType().equals(Node.T)){
+            g.drawString(node.getData(), x-9, y + 12);
+        }
+        else g.drawString(node.getData(), x-20, y + 12);//x - 30
+        //
+
+        if (node.getLeft() != null) {
             int x1 = x - 15;
             int y1 = y + 15;
-            int x2 = (int) (x1 - Math.pow(2, getHeight(Node.getRight())) * 10 + 0.5);
+
+            int x2 = (int) (x1 - Math.pow(2, getHeight(node.getLeft())) * 8 + 0.5);
+            if(node.getType().equals(org.QueryOptimizer.Node.S)) x2=x1=x;
             int y2 = y + 40;
             g.drawLine(x1, y1, x2, y2);
-            drawNode(Node.getLeft(), x2, y2, g);
+            drawNode(node.getLeft(), x2, y2, g);
         }
-        if (Node.getRight() != null) {
+        if (node.getRight() != null) {
             int x1 = x + 15;
             int y1 = y + 15;
-            int x2 = (int) (x1 + Math.pow(2, getHeight(Node.getRight())) * 10 + 0.5);
+            int x2 = (int) (x1 + Math.pow(2, getHeight(node.getRight())) * 8 + 0.5);
             int y2 = y + 40;
             g.drawLine(x1, y1, x2, y2);
-            drawNode(Node.getRight(), x2, y2, g);
+            drawNode(node.getRight(), x2, y2, g);
         }
     }
 
@@ -66,7 +97,7 @@ public class Visualizer extends JPanel {
 
 
 
-    static int drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame) {
+    static JScrollPane drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -187,9 +218,7 @@ public class Visualizer extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(panel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(40);
-        frame.add(scrollPane, BorderLayout.CENTER);
-
-        return panel.getPreferredSize().height;
+        return scrollPane;
     }
 
 

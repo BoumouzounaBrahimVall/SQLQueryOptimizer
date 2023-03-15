@@ -97,7 +97,9 @@ public class Visualizer extends JPanel {
 
 
 
-    static JScrollPane drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame) {
+
+    static JScrollPane drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame,Map<Node,String> regles) {
+
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -156,7 +158,7 @@ public class Visualizer extends JPanel {
             treeLabel.setBackground(Color.lightGray);
             treeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-            JLabel ruleLabel = new JLabel("Rule applied: " );
+            JLabel ruleLabel = new JLabel("Rule applied: "+regles.get(tree) );
             ruleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             ruleLabel.setForeground(new Color(102, 102, 102));
 
@@ -226,7 +228,7 @@ public class Visualizer extends JPanel {
 
     public static void createWindowWithPanels(Set<Node> trees,Node tr,Estimator es) {
         // Création de la fenêtre principale
-        JFrame frame = new JFrame("Ma fenêtre avec plusieurs panneaux");
+        JFrame frame = new JFrame("Physical trees   ");
 
         // Définition de la taille et de la position de la fenêtre
         frame.setSize(800, 600);

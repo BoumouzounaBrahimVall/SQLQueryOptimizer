@@ -192,13 +192,15 @@ public class Optimizer {
             Translator t = new Translator(script.getText());
             Transformer tr = new Transformer(t.getFirstTree());
             Estimator estimator = new Estimator();
+
             if (frame.getContentPane().getComponents().length > 1) {
                 frame.remove(pan[0]);
             }
-            pan[0] =Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame);
+            pan[0] =Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame,tr.reglenames);
             frame.add(pan[0], BorderLayout.CENTER);
             frame.revalidate();
             frame.repaint();
+
             frame.pack();
         });
 

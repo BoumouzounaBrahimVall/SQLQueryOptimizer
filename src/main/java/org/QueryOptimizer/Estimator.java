@@ -47,8 +47,6 @@ public class Estimator {
     public  double hachageScane(String table)  {
         double v1=parser.getTH(table)*parser.getFB(table);
         double tes=parser.getTransTime()+parser.getTpd();
-        System.out.println("tes:    "+tes+" v1 "+v1);
-        System.out.println("hashagiiiii:    "+roundFlout((parser.getLineCount(table)/v1)*tes));
         return  roundFlout((parser.getLineCount(table)/v1)*tes);
     }
 

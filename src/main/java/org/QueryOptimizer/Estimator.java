@@ -44,9 +44,11 @@ public class Estimator {
         return roundFlout(parser.getHauteur(table,index)*(parser.getTransTime()+parser.getTpd()));
     }
 
-    public  Double hachageScane(String table)  {
-        Double v1=parser.getTH(table)*parser.getFB(table);
-        Double tes=parser.getTransTime()+parser.getTpd();
+    public  double hachageScane(String table)  {
+        double v1=parser.getTH(table)*parser.getFB(table);
+        double tes=parser.getTransTime()+parser.getTpd();
+        System.out.println("tes:    "+tes+" v1 "+v1);
+        System.out.println("hashagiiiii:    "+roundFlout((parser.getLineCount(table)/v1)*tes));
         return  roundFlout((parser.getLineCount(table)/v1)*tes);
     }
 
@@ -334,7 +336,7 @@ public class Estimator {
         Double d;
         d=0.0;
         d=treeCalc(phy,mother,d);
-        return Math.abs(roundFlout(d));
+        return roundFlout(d);//Math.abs(roundFlout(d));
     }
 
 }

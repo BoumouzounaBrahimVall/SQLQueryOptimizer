@@ -3,8 +3,8 @@
   "nbrPos":"500",
   "tpd":"1.0",
   "M":"50" ,
-  "blocSize": "16",
-  "tailleDescripteurBloc": "50",
+  "blocSize": "50",
+  "tailleDescripteurBloc": "16",
   "tables":[
     {
       "lineSize":"56",

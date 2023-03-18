@@ -202,12 +202,15 @@ public class Translator {
 	}
 
 	private Node addTables(Node root, String tabName){
-		Node nv;
-		nv= new Node(tabName,Node.T);
+
 		if(root==null) return null;//arbre vide
 		if(root.getRight()!=null) root.setRight(addTables(root.getRight(),tabName));
 		if (root.getLeft()!=null) root.setLeft(addTables(root.getLeft(),tabName));
-		else root.setLeft(nv);
+		else{
+			Node nv;
+			nv= new Node(tabName,Node.T);
+			root.setLeft(nv);
+		}
 		return root;
 
 	}

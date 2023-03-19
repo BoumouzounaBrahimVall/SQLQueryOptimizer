@@ -86,7 +86,12 @@ public class Estimator {
     public  Double PJ(String R, String S) {
         return roundFlout(fullTableScane(R)+fullTableScane(S));
     }
-
+    public  Double BII(String R,String S){
+        double br=parser.getNbrBloc(R);
+        double bs=parser.getNbrBloc(S);
+        double tmps=parser.getTransTime()+parser.getTpd();
+        return roundFlout(br*(tmps + bs*parser.getTransTime() +parser.getTpd()) );
+    }
     private void inputConsumers(Node root, List<String>joinInputs, List<String>selInputs){
         if(root==null) return ;
         if(root.getData().contains("σ")&& root.getLeft().getLeft()==null){ // left is the table and table left is null
@@ -278,9 +283,9 @@ public class Estimator {
                // System.out.println(BIB(attrs.get(0),attrs.get(2)));
                 return BIB(attrs.get(0),attrs.get(2));
             }
-//            case "(BII)" -> {
-//                return indexScaneSec(table,col);
-//            }
+            case "(BII)" -> {
+                return BII(attrs.get(0),attrs.get(2));
+            }
             case "(JTF)" -> {
                 return JTF(attrs.get(0),attrs.get(2));
             }
@@ -293,7 +298,7 @@ public class Estimator {
         }
         return 0.0;
     }
-    private Double treeCalc(Node root,Node mother){
+    private Double treeCalcMater(Node root, Node mother){
        double d=0.0;
         if(root==null) return d ;
 
@@ -304,7 +309,7 @@ public class Estimator {
             String match="";
             if (m.find())  match = m.group(); // Extract the matched substring
             System.out.println("selies "+selctionCal(root,match));
-            d=selctionCal(root,match);
+            d=selctionCal(root,match)+1.1;
         }
         else if(root.getType().equals(Node.J)){ // left or right is the table and table left is null
             String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
@@ -314,9 +319,9 @@ public class Estimator {
             if (m.find()) {
                  match = m.group(); // Extract the matched substring
             }
-            d=joinCalc(root,match);
+            d=joinCalc(root,match)+1.1;
         }
-        return d+ treeCalc(root.getLeft(),mother.getLeft())+treeCalc(root.getRight(),mother.getRight());
+        return d+ treeCalcMater(root.getLeft(),mother.getLeft())+ treeCalcMater(root.getRight(),mother.getRight());
     }
 
     private void treeCalcPipline(Node root,Node mother, Set<Double> d){
@@ -338,10 +343,9 @@ public class Estimator {
 
     public List<Double> costs(Set<Node>phy,Node mother){
         List<Double> costs=new ArrayList<>();
-        Double d;
+        double d;
         for(Node n: phy){
-            d=0.0;
-            d=treeCalc(n,mother);
+            d= treeCalcMater(n,mother);
             costs.add(d);
         }
         costs.forEach(System.out::println);
@@ -353,11 +357,24 @@ public class Estimator {
         Set<Double>s=new HashSet<>();
         treeCalcPipline(phy,mother,s);
         pipe=s.stream().max(Double::compare).orElse(Double.NaN);
-        mater=treeCalc(phy,mother);
+        mater= treeCalcMater(phy,mother);
         pipe=roundFlout(pipe/1000.0);
         String pip=(pipe==0)?"---":pipe+"ms";
         return " Pipeline: "+pip+" Materialisation: "+roundFlout(mater/1000.0)+"ms";
     }
-
+    public ArrayList<Double> uniCostOneList(Node phy,Node mother){
+        double pipe,mater;
+        Set<Double>s=new HashSet<>();
+        treeCalcPipline(phy,mother,s);
+        pipe=s.stream().max(Double::compare).orElse(Double.NaN);
+        mater= treeCalcMater(phy,mother);
+        ArrayList<Double> values=new ArrayList<>();
+        values.add(pipe);
+        values.add(mater);
+       // pipe=roundFlout(pipe/1000.0);
+      //  String pip=(pipe==0)?"---":pipe+"ms";
+       // return " Pipeline: "+pip+" Materialisation: "+roundFlout(mater/1000.0)+"ms";
+        return values;
+    }
 }
 

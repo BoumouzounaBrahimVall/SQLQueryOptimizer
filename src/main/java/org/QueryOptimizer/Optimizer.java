@@ -2,8 +2,8 @@ package org.QueryOptimizer;
 import org.QueryOptimizer.dictionnary.DictionaryReader;
 
 import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
@@ -13,11 +13,11 @@ public class Optimizer {
     public static final String INDEX_SC="1st index";
     public static final String HASH="hashage";
     public static final String FULL_SCAN="balayage";
-    public Set<Node> physiquesArbre(Node arbre) {
+    public Map<Node,ArrayList<Double>> physiquesArbre(Node arbre) {
+        Map<Node,ArrayList<Double>> treeMap=new HashMap<>();
         Set<Node> treeSet = new HashSet<>();
         treeSet.add(arbre);
         Node Ar = Node.cloneTree(arbre);
-        treeSet.add(Ar);
         //jointure
         change(Ar, "BIB",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
         change(Ar, "BII",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
@@ -25,7 +25,8 @@ public class Optimizer {
         change(Ar, "PJ",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
         change(Ar,  "JTF",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
         removeGarbage(treeSet);
-        return treeSet;
+        treeSet.forEach(s->treeMap.put(s,es.uniCostOneList(s,arbre)));
+        return treeMap;
     }
 
     private void selectPhysicalVars(Set<Node> treeSet, Node n1) {

@@ -240,7 +240,7 @@ public class Visualizer extends JPanel {
         int i = 1;
         for (Node tree :trees){
         // Création des panneaux avec titre et champ de saisie
-        JPanel panel1 = createPanelWithTitleAndInput(""+(es.uniCosts(tree,tr)/10000.0),tree,i);
+        JPanel panel1 = createPanelWithTitleAndInput(es.uniCosts(tree,tr),tree,i);
         i++;
 
         // Ajout des panneaux au panneau principal
@@ -267,7 +267,7 @@ public class Visualizer extends JPanel {
         // Création du panneau avec un titre et un champ de saisie
         Visualizer subPanel = new Visualizer(tree);
 
-        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1)+" cost: "+cost+"ms");
+        JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1)+cost);
         treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
         treeLabel.setForeground(Color.WHITE);
         treeLabel.setOpaque(true);

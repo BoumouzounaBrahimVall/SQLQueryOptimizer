@@ -293,10 +293,11 @@ public class Estimator {
         }
         return 0.0;
     }
-    private Double treeCalc(Node root,Node mother, Double d){
+    private Double treeCalc(Node root,Node mother){
+       double d=0.0;
         if(root==null) return d ;
 
-        if(root.getType().equals(Node.S)&& root.getLeft().getLeft()==null){ // left is the table and table left is null
+        if(root.getType().equals(Node.S)){ // left is the table and table left is null
             String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(mother.getData());
@@ -305,7 +306,7 @@ public class Estimator {
             System.out.println("selies "+selctionCal(root,match));
             d=selctionCal(root,match);
         }
-        else if(root.getType().equals(Node.J)&& (root.getLeft().getLeft()==null || root.getRight().getLeft()==null)){ // left or right is the table and table left is null
+        else if(root.getType().equals(Node.J)){ // left or right is the table and table left is null
             String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(mother.getData());
@@ -315,7 +316,7 @@ public class Estimator {
             }
             d=joinCalc(root,match);
         }
-        return d+ treeCalc(root.getLeft(),mother.getLeft(),d)+treeCalc(root.getRight(),mother.getRight(),d);
+        return d+ treeCalc(root.getLeft(),mother.getLeft())+treeCalc(root.getRight(),mother.getRight());
     }
 
     private void treeCalcPipline(Node root,Node mother, Set<Double> d){
@@ -340,21 +341,22 @@ public class Estimator {
         Double d;
         for(Node n: phy){
             d=0.0;
-            d=treeCalc(n,mother,d);
+            d=treeCalc(n,mother);
             costs.add(d);
         }
         costs.forEach(System.out::println);
         return costs;
     }
 
-    public Double uniCosts(Node phy,Node mother){
-        double d;
+    public String uniCosts(Node phy,Node mother){
+        double pipe,mater;
         Set<Double>s=new HashSet<>();
-        d=0.0;
         treeCalcPipline(phy,mother,s);
-        d=s.stream().max(Double::compare).orElse(Double.NaN);
-       // d=treeCalc(phy,mother,d);
-        return roundFlout(d);//Math.abs(roundFlout(d));
+        pipe=s.stream().max(Double::compare).orElse(Double.NaN);
+        mater=treeCalc(phy,mother);
+        pipe=roundFlout(pipe/1000.0);
+        String pip=(pipe==0)?"---":pipe+"ms";
+        return " Pipeline: "+pip+" Materialisation: "+roundFlout(mater/1000.0)+"ms";
     }
 
 }

@@ -8,13 +8,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.*;
 public class Optimizer {
-    private static final Estimator es=new Estimator();
+    private final Estimator estimator;
+    private final Translator t;
+
+    public Estimator getEstimator() {
+        return estimator;
+    }
+
+    public Translator getT() {
+        return t;
+    }
+
+    public Transformer getTr() {
+        return tr;
+    }
+
+    private final Transformer tr;
+     public Optimizer(String script){
+          t = new Translator(script);
+          tr = new Transformer(t.getFirstTree());
+          estimator = new Estimator();
+     }
     public static final String INDEX_PR="2nd index";
     public static final String INDEX_SC="1st index";
     public static final String HASH="hashage";
     public static final String FULL_SCAN="balayage";
     public Set<Node> physiquesArbre(Node arbre) {
-        Set<Node> treeSet = new HashSet();
+        Set<Node> treeSet = new HashSet<>();
         treeSet.add(arbre);
         Node Ar = Node.cloneTree(arbre);
         treeSet.add(Ar);
@@ -36,7 +56,23 @@ public class Optimizer {
         this.removeGarbage(treeSet);
         return treeSet;
     }
-
+    public Map<Node, Set<Node>> allPhysicalTrees(Set<Node>logicals){
+        Map<Node, Set<Node>> mapie=new HashMap<>();
+       logicals.forEach(l->mapie.put(l,physiquesArbre(l)));
+       return mapie;
+    }
+    public Node optimalTree(Map<Node,Set<Node>> allVariants){
+        double min =Double.MAX_VALUE;
+        Node optimal=null;
+        for(Node n:allVariants.keySet()){
+            double calculated=estimator.minCostsOneLogTree(allVariants.get(n),n);
+            if(min>calculated){
+                min=calculated;
+                optimal=n;
+            }
+        }
+        return optimal;
+    }
     private void selectPhysicalVars(Set<Node> treeSet, Node n1) {
         treeSet.addAll(change(n1, FULL_SCAN,1));
         treeSet.addAll(change(n1,  INDEX_SC,1));
@@ -83,15 +119,15 @@ public class Optimizer {
             String table=match.split("\\.")[0].trim();
             String col=match.split("\\.")[1].trim();
             if(nouveau.contains(HASH)){
-                if(!es.getParser().isUnique(table,col)) nouveau=FULL_SCAN;
+                if(!estimator.getParser().isUnique(table,col)) nouveau=FULL_SCAN;
 
             }else if(nouveau.contains(INDEX_PR)){
-                if(!es.getParser().isPrimaryKey(table,col))  nouveau=FULL_SCAN;
+                if(!estimator.getParser().isPrimaryKey(table,col))  nouveau=FULL_SCAN;
             }else if(nouveau.contains(INDEX_SC)){
-                if(!es.getParser().isIndexed(table,col))  nouveau=FULL_SCAN;
+                if(!estimator.getParser().isIndexed(table,col))  nouveau=FULL_SCAN;
             }
 
-            a.setData("("+nouveau+")" );// oldCnt.replaceAll("\\([^)]*\\)", "")+
+            a.setData("("+nouveau+")" );
         }
         if (a.getRight() != null) change1(a.getRight(), nouveau);
         if (a.getLeft() != null) change1(a.getLeft(), nouveau);
@@ -117,76 +153,12 @@ public class Optimizer {
 
     }
 
-    /*
-    private Node changeSel(Node a ,int initial,int[] counter,int maxCount,String nouveau){
-        if (a == null) {
-            return null;
-        }
-        if(a.getData().contains("σ")){
-            if(counter[0]>=initial) {
-                String match="";
-                String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
-                Pattern r = Pattern.compile(pattern);
-                Matcher m = r.matcher(a.getData());
-                String oldCnt=a.getData();
-                String aff="";
-                if (m.find()) match = m.group(); // Extract the matched substring
-                String table=match.split("\\.")[0].trim();
-                String col=match.split("\\.")[1].trim();
-                if(nouveau.contains("hashage")){
-                    if(!es.getParser().isUnique(table,col)) nouveau="balayage";
-
-                }else if(nouveau.contains("1st index")){
-                        if(!es.getParser().isPrimaryKey(table,col))  nouveau="balayage";
-                }else if(nouveau.contains("2sd index")){
-                    if(!es.getParser().isIndexed(table,col))  nouveau="balayage";
-                }
-                aff=oldCnt.replaceAll("\\([^)]*\\)", "")+"("+nouveau+")";
-                a.setData(aff);
-            }
-            counter[0]++;
-        }
-        if(counter[0]==maxCount) return a;
-        if(a.getLeft()!=null) changeSel(a.getLeft(),initial,counter, maxCount,nouveau);
-        if (a.getRight() !=null) changeSel(a.getRight(),initial,counter, maxCount,nouveau);
-        return a;
-    }
-*/
     public static void main(String[] args) {
-        /*JFrame frame = new JFrame();
-        frame.setLayout(new BorderLayout());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Optimizer op = new Optimizer();
-        JTextField script = new JTextField(100);
-        JButton execute = new JButton("Execute");
-        execute.addActionListener(evt -> {
-            Translator t = new Translator(script.getText());
-            Transformer tr = new Transformer(t.getFirstTree());
-            Estimator estimator = new Estimator();
-            int h = Visualizer.drawListOfTrees(op.physiquesArbre(t.getFirstTree()), estimator, frame);//
-            frame.setSize(new Dimension(frame.getWidth(), 3));//tr.getAllVariants()
-            frame.pack();
-            frame.setVisible(true);
-        });
-        JPanel p = new JPanel();
-        p.add(script);
-        p.add(execute);
-        frame.add(p, BorderLayout.NORTH);
-
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);*/
-        // Translator t=  new Translator("
-        // select * from client,achat, produit where client.idc=achat.idc and client.idc='12' and  client.nom='ahmed' and produit.titre='sth' or client.nom='salim' or produit.prix='100'  and achat.idp=produit.idp
-        // select A.a, B.b from A,B,C where A.a=B.a AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b
-        //Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
-        //  Transformer tr=new  Transformer(t.getFirstTree());
-        //SELECT nom,age,prenom FROM Client,Voiture,Location WHERE Client.id_client=Location.id_client AND Voiture.id_voiture=Location.id_voiture AND Client.age='40' AND Voiture.km='1000' AND Voiture.marque='Mercedes'
-        JFrame frame = new JFrame("Optimizer");
+//select A.a, B.b from A,B,C where A.a=B.a AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b
+       JFrame frame = new JFrame("Optimizer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         final JScrollPane[] pan = new JScrollPane[1];
-        Optimizer optimizer = new Optimizer();
 
         JTextField script = new JTextField(50);
         script.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -198,14 +170,12 @@ public class Optimizer {
         execute.setForeground(Color.WHITE);
         execute.setPreferredSize(new Dimension(100, 30));
         execute.addActionListener(evt -> {
-            Translator t = new Translator(script.getText());
-            Transformer tr = new Transformer(t.getFirstTree());
-            Estimator estimator = new Estimator();
 
+            Optimizer optimizer = new Optimizer(script.getText());
             if (frame.getContentPane().getComponents().length > 1) {
                 frame.remove(pan[0]);
             }
-            pan[0] =Visualizer.drawListOfTrees(tr.getAllVariants(), estimator,optimizer, frame,tr.reglenames);
+            pan[0] =Visualizer.drawListOfTrees(optimizer,frame);
             frame.add(pan[0], BorderLayout.CENTER);
             frame.revalidate();
             frame.repaint();

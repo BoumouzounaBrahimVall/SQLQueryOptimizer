@@ -9,10 +9,10 @@ import javax.swing.*;
 public class Visualizer extends JPanel {
     private final Node tree;
 
-    public Visualizer(Node tr) {
+    public Visualizer(Node tr,Color col) {
         this.tree = tr;
         setPreferredSize(new Dimension(1000, 400));
-        this.setBackground(Color.DARK_GRAY);
+        this.setBackground(col);
     }
 
     @Override
@@ -98,59 +98,23 @@ public class Visualizer extends JPanel {
 
 
 
-    static JScrollPane drawListOfTrees(Set<Node> trees, Estimator estimator,Optimizer op, JFrame frame,Map<Node,String> regles) {
+    static JScrollPane drawListOfTrees(Optimizer op, JFrame frame) {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-/////
 
-        Node maintree =  trees.iterator().next();
-        Visualizer mainsubPanel = new Visualizer(maintree);
+        Set<Node> variants=op.getTr().getAllVariants();
 
-        // Calculate costs
+        panel.add(drawnTree(op.getT().getFirstTree(),0,"main Tree ",new Color(14, 28, 162)));
+        Node optimal=op.optimalTree(op.allPhysicalTrees(variants));
+        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),"optimal Tree",new Color(13, 122, 18)));
 
-
-        // Create labels
-        JLabel maintreeLabel = new JLabel("Main Tree ");
-        JTextArea maindescrArea = new JTextArea();
-        maindescrArea.setEditable(false);
-        maindescrArea.setLineWrap(true);
-        maindescrArea.setWrapStyleWord(true);
-        maindescrArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        maindescrArea.setForeground(new Color(102, 102, 102));
-        String text="yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy";
-        maindescrArea.setText(text);
-
-        maintreeLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        maintreeLabel.setForeground(Color.red);
-        maintreeLabel.setOpaque(true);
-        maintreeLabel.setBackground(Color.white);
-        maintreeLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-
-        JPanel maintopPanel = new JPanel(new BorderLayout());
-        maintopPanel.add(maintreeLabel, BorderLayout.NORTH);
-        maintopPanel.add(maindescrArea, BorderLayout.SOUTH);
-
-
-        JPanel maintreePanel = new JPanel(new BorderLayout());
-        maintreePanel.setBorder(BorderFactory.createLineBorder(new Color(102, 102, 102), 1));
-        maintreePanel.add(maintopPanel, BorderLayout.NORTH);
-        maintreePanel.add(mainsubPanel, BorderLayout.CENTER);
-
-        panel.add(maintreePanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 10)));////
+        panel.add(Box.createRigidArea(new Dimension(0, 10)));
         int i=0;
-        for (Node tree : trees) {
+        for (Node tree : variants) {
 
-            Visualizer subPanel = new Visualizer(tree);
-
-            // Calculate costs
-            //HashSet<Double> ls = estimator.calculateCosts(tree);
-         //   double minCost = ls.stream().min(Double::compare).orElse(Double.NaN);
-        //    double maxCost = ls.stream().max(Double::compare).orElse(Double.NaN);
-
-            // Create labels
+            Visualizer subPanel = new Visualizer(tree,Color.DARK_GRAY);
             JLabel treeLabel = new JLabel("Tree " + (i + 1));i++;
             treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
             treeLabel.setForeground(Color.WHITE);
@@ -158,7 +122,7 @@ public class Visualizer extends JPanel {
             treeLabel.setBackground(Color.lightGray);
             treeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-            JLabel ruleLabel = new JLabel("Rule applied: "+regles.get(tree) );
+            JLabel ruleLabel = new JLabel("Rule applied: "+ op.getTr().reglenames.get(tree) );
             ruleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             ruleLabel.setForeground(new Color(102, 102, 102));
 
@@ -180,24 +144,13 @@ public class Visualizer extends JPanel {
             scrollPane.add(costArea);
 
 
-
-
-
             StringBuilder s = new StringBuilder("Costs: [");
-          //  for (Double cost : ls) {s.append(cost).append("ms, ");}
             String costs = String.valueOf(s).substring(0, s.length() - 2) + "]";
             costArea.setText(costs);
             showCosts.addActionListener(e -> {
-                if (costArea.isShowing()) {
-                    costArea.setVisible(false);
-                    showCosts.setText("Show costs");
-                } else {
-                    Set<Node>  treeCosts=op.physiquesArbre(tree);
-                   // estimator.costs(list,tree);
-                    createWindowWithPanels(treeCosts,tree,estimator);
-                    showCosts.setText("Hide costs");
 
-                }
+                    Set<Node>  treeCosts=op.physiquesArbre(tree);
+                    createWindowWithPanels(treeCosts,tree,op.getEstimator());
             });
             JPanel labelPanel = new JPanel(new GridLayout(2, 1, 0, 5));
             labelPanel.add(ruleLabel);
@@ -258,14 +211,10 @@ public class Visualizer extends JPanel {
         frame.setVisible(true);
     }
 
-    /**
-     * Crée un panneau avec un titre et un champ de saisie.
-     * @param cost Le titre du panneau.
-     * @return Le panneau créé.
-     */
+
     private static JPanel createPanelWithTitleAndInput(String cost,Node tree,int i) {
         // Création du panneau avec un titre et un champ de saisie
-        Visualizer subPanel = new Visualizer(tree);
+        Visualizer subPanel = new Visualizer(tree,Color.DARK_GRAY);
 
         JLabel treeLabel = new JLabel(" Physical Tree " + (i + 1)+cost);
         treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -300,7 +249,38 @@ public class Visualizer extends JPanel {
         treePanel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
     }
+    private static JPanel drawnTree(Node node,double cost,String title,Color col){
+
+        Visualizer mainsubPanel = new Visualizer(node,col);
+        JPanel maintopPanel = new JPanel(new BorderLayout());
+
+        // Create labels
+        JLabel maintreeLabel = new JLabel(title);
+        JTextArea maindescrArea = new JTextArea();
+        maindescrArea.setEditable(false);
+        maindescrArea.setLineWrap(true);
+        maindescrArea.setWrapStyleWord(true);
+        maindescrArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        maindescrArea.setForeground(col);
+        String text=cost>0?"Cost: "+cost+"ms":"";
+        maindescrArea.setText(text);
+
+        maintreeLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        maintreeLabel.setForeground(col);
+        maintreeLabel.setOpaque(true);
+        maintreeLabel.setBackground(Color.white);
+        maintreeLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
 
+        maintopPanel.add(maintreeLabel, BorderLayout.NORTH);
+        maintopPanel.add(maindescrArea, BorderLayout.SOUTH);
 
-        }
+
+        JPanel maintreePanel = new JPanel(new BorderLayout());
+        maintreePanel.setBorder(BorderFactory.createLineBorder(col, 1));
+        maintreePanel.add(maintopPanel, BorderLayout.NORTH);
+        maintreePanel.add(mainsubPanel, BorderLayout.CENTER);
+        return maintreePanel;
+    }
+
+}

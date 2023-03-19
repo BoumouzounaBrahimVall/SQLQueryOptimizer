@@ -18,10 +18,11 @@ public final class Transformer {
 	private final Node firstTree;
 	private Set<Node> allVariants;
 	private List<Node> switchJoinSelection;
-	public static final Map<Node,String> reglenames=new HashMap<Node,String>();
+	public   Map<Node,String> reglenames;
 
 	public Transformer(Node tree)
 	{
+		reglenames=new HashMap<>();
 		this.firstTree=tree;
 		joinRule =jointureCommutativite(firstTree);
 		selectionRule =selectionConjonctive(firstTree);

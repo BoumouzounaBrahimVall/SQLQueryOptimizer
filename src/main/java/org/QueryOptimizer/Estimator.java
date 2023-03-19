@@ -379,20 +379,10 @@ public class Estimator {
             costs=costs(phys,mother,1);
         }else costs=costs(phys,mother,2);
 
-       return costs.stream().min(Double::compare).orElse(Double.NaN);
+       return roundFlout(costs.stream().min(Double::compare).orElse(Double.NaN)/1000.0);
     }
-    public Node optimalTree(Map<Node,Set<Node>> allVariants){
-        double min =Double.MAX_VALUE;
-        Node optimal=null;
-        for(Node n:allVariants.keySet()){
-            double calculated=minCostsOneLogTree(allVariants.get(n),n);
-            if(min>calculated){
-                min=calculated;
-                optimal=n;
-            }
-        }
-        return optimal;
-    }
+    // map with keys as logical trees and values as physical trees
+
 
 }
 

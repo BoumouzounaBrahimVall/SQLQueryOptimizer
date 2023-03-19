@@ -264,12 +264,8 @@ public class Estimator {
         Matcher matcher = p.matcher(join);
         while (matcher.find()) attrs.add(matcher.group());
         costs.add(BIB(attrs.get(0),attrs.get(2)));
-        //  System.out.println("BIB ("+attrs.get(2)+" " +attrs.get(0)+") :"+BIB(attrs.get(0),attrs.get(2)));
         costs.add(JTF(attrs.get(0),attrs.get(2)));
-        // System.out.println("JTF ("+attrs.get(2)+" " +attrs.get(0)+") :"+JTF(attrs.get(0),attrs.get(2)));
         costs.add(PJ(attrs.get(0),attrs.get(2)));
-        // System.out.println("JP ("+attrs.get(2)+" " +attrs.get(0)+") :"+PJ(attrs.get(0),attrs.get(2)));
-        //  System.out.println("JH ("+attrs.get(2)+" " +attrs.get(0)+") :"+JH(attrs.get(0),attrs.get(2)));
         costs.add(JH(attrs.get(0),attrs.get(2)));
         return costs;
     }
@@ -280,7 +276,6 @@ public class Estimator {
         while (matcher.find()) attrs.add(matcher.group());
         switch (root.getData()){
             case "(BIB)" -> {
-               // System.out.println(BIB(attrs.get(0),attrs.get(2)));
                 return BIB(attrs.get(0),attrs.get(2));
             }
             case "(BII)" -> {
@@ -341,16 +336,7 @@ public class Estimator {
         treeCalcPipline(root.getRight(),mother.getRight(),d);
     }
 
-    public List<Double> costs(Set<Node>phy,Node mother){
-        List<Double> costs=new ArrayList<>();
-        double d;
-        for(Node n: phy){
-            d= treeCalcMater(n,mother);
-            costs.add(d);
-        }
-        costs.forEach(System.out::println);
-        return costs;
-    }
+
 
     public String uniCosts(Node phy,Node mother){
         double pipe,mater;
@@ -362,19 +348,51 @@ public class Estimator {
         String pip=(pipe==0)?"---":pipe+"ms";
         return " Pipeline: "+pip+" Materialisation: "+roundFlout(mater/1000.0)+"ms";
     }
-    public ArrayList<Double> uniCostOneList(Node phy,Node mother){
-        double pipe,mater;
+    public double treeCalcPipeline(Node phy,Node mother){
         Set<Double>s=new HashSet<>();
         treeCalcPipline(phy,mother,s);
-        pipe=s.stream().max(Double::compare).orElse(Double.NaN);
+        return s.stream().max(Double::compare).orElse(Double.NaN);
+    }
+    public ArrayList<Double> uniCostOneList(Node phy,Node mother){
+        double pipe,mater;
+        pipe=treeCalcPipeline(phy, mother);
         mater= treeCalcMater(phy,mother);
         ArrayList<Double> values=new ArrayList<>();
         values.add(pipe);
         values.add(mater);
-       // pipe=roundFlout(pipe/1000.0);
-      //  String pip=(pipe==0)?"---":pipe+"ms";
-       // return " Pipeline: "+pip+" Materialisation: "+roundFlout(mater/1000.0)+"ms";
         return values;
     }
+    public Set<Double> costs(Set<Node>phy,Node mother,int type){
+        Set<Double> costs=new HashSet<>();
+
+        double d;
+        for(Node n: phy){
+            d=(type==1)?treeCalcPipeline(n,mother): treeCalcMater(n,mother);
+            costs.add(d);
+        }
+        costs.forEach(System.out::println);
+        return costs;
+    }
+    public double minCostsOneLogTree(Set<Node> phys,Node mother){
+        Set<Double> costs;
+        if(Node.joinCount(mother)>0){// pipline
+            costs=costs(phys,mother,1);
+        }else costs=costs(phys,mother,2);
+
+       return costs.stream().min(Double::compare).orElse(Double.NaN);
+    }
+    public Node optimalTree(Map<Node,Set<Node>> allVariants){
+        double min =Double.MAX_VALUE;
+        Node optimal=null;
+        for(Node n:allVariants.keySet()){
+            double calculated=minCostsOneLogTree(allVariants.get(n),n);
+            if(min>calculated){
+                min=calculated;
+                optimal=n;
+            }
+        }
+        return optimal;
+    }
+
 }
 

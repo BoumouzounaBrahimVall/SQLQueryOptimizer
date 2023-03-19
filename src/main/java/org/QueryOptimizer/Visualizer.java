@@ -192,7 +192,7 @@ public class Visualizer extends JPanel {
                     costArea.setVisible(false);
                     showCosts.setText("Show costs");
                 } else {
-                    Map<Node,ArrayList<Double>>  treeCosts=op.physiquesArbre(tree);
+                    Set<Node>  treeCosts=op.physiquesArbre(tree);
                    // estimator.costs(list,tree);
                     createWindowWithPanels(treeCosts,tree,estimator);
                     showCosts.setText("Hide costs");
@@ -226,7 +226,7 @@ public class Visualizer extends JPanel {
     }
 
 
-    public static void createWindowWithPanels(Map<Node,ArrayList<Double>>  trees,Node tr,Estimator es) {
+    public static void createWindowWithPanels(Set<Node>  trees,Node tr,Estimator es) {
         // Création de la fenêtre principale
         JFrame frame = new JFrame("Physical trees   ");
 
@@ -238,7 +238,7 @@ public class Visualizer extends JPanel {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(0, 1));
         int i = 1;
-        for (Node tree :trees.keySet()){
+        for (Node tree :trees){
         // Création des panneaux avec titre et champ de saisie
         JPanel panel1 = createPanelWithTitleAndInput(es.uniCosts(tree,tr),tree,i);
         i++;

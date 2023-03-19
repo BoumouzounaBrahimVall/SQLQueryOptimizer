@@ -13,20 +13,28 @@ public class Optimizer {
     public static final String INDEX_SC="1st index";
     public static final String HASH="hashage";
     public static final String FULL_SCAN="balayage";
-    public Map<Node,ArrayList<Double>> physiquesArbre(Node arbre) {
-        Map<Node,ArrayList<Double>> treeMap=new HashMap<>();
-        Set<Node> treeSet = new HashSet<>();
+    public Set<Node> physiquesArbre(Node arbre) {
+        Set<Node> treeSet = new HashSet();
         treeSet.add(arbre);
         Node Ar = Node.cloneTree(arbre);
-        //jointure
-        change(Ar, "BIB",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "BII",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "JH",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar, "PJ",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        change(Ar,  "JTF",2).forEach(n1->{selectPhysicalVars(treeSet,n1);});
-        removeGarbage(treeSet);
-        treeSet.forEach(s->treeMap.put(s,es.uniCostOneList(s,arbre)));
-        return treeMap;
+        treeSet.add(Ar);
+        this.change(Ar, "BIB", 2).forEach((n1) -> {
+            this.selectPhysicalVars(treeSet, n1);
+        });
+        this.change(Ar, "BII", 2).forEach((n1) -> {
+            this.selectPhysicalVars(treeSet, n1);
+        });
+        this.change(Ar, "JH", 2).forEach((n1) -> {
+            this.selectPhysicalVars(treeSet, n1);
+        });
+        this.change(Ar, "PJ", 2).forEach((n1) -> {
+            this.selectPhysicalVars(treeSet, n1);
+        });
+        this.change(Ar, "JTF", 2).forEach((n1) -> {
+            this.selectPhysicalVars(treeSet, n1);
+        });
+        this.removeGarbage(treeSet);
+        return treeSet;
     }
 
     private void selectPhysicalVars(Set<Node> treeSet, Node n1) {

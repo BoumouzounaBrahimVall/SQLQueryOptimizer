@@ -318,6 +318,23 @@ public class Estimator {
         return d+ treeCalc(root.getLeft(),mother.getLeft(),d)+treeCalc(root.getRight(),mother.getRight(),d);
     }
 
+    private void treeCalcPipline(Node root,Node mother, Set<Double> d){
+        if(root==null) return ;
+
+        if(root.getType().equals(Node.J)){ // left or right is the table and table left is null
+            String pattern = "\\w+\\.\\w+\\s*=\\s*\\w+\\.\\w+";
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(mother.getData());
+            String match="";
+            if (m.find()) {
+                match = m.group(); // Extract the matched substring
+            }
+            d.add(joinCalc(root,match));
+        }
+        treeCalcPipline(root.getLeft(),mother.getLeft(),d);
+        treeCalcPipline(root.getRight(),mother.getRight(),d);
+    }
+
     public List<Double> costs(Set<Node>phy,Node mother){
         List<Double> costs=new ArrayList<>();
         Double d;
@@ -331,9 +348,12 @@ public class Estimator {
     }
 
     public Double uniCosts(Node phy,Node mother){
-        Double d;
+        double d;
+        Set<Double>s=new HashSet<>();
         d=0.0;
-        d=treeCalc(phy,mother,d);
+        treeCalcPipline(phy,mother,s);
+        d=s.stream().max(Double::compare).orElse(Double.NaN);
+       // d=treeCalc(phy,mother,d);
         return roundFlout(d);//Math.abs(roundFlout(d));
     }
 

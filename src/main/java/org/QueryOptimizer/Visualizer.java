@@ -1,6 +1,8 @@
 package org.QueryOptimizer;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.*;
 import java.util.List;
 
@@ -111,11 +113,11 @@ public class Visualizer extends JPanel {
         panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18)));
 
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
-        int i=0;
+        int i=1;
         for (Node tree : variants) {
 
             Visualizer subPanel = new Visualizer(tree,Color.DARK_GRAY);
-            JLabel treeLabel = new JLabel("Tree " + (i + 1));i++;
+            JLabel treeLabel = new JLabel("Tree " + (i++));
             treeLabel.setFont(new Font("Arial", Font.BOLD, 16));
             treeLabel.setForeground(Color.WHITE);
             treeLabel.setOpaque(true);
@@ -123,7 +125,6 @@ public class Visualizer extends JPanel {
             treeLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
             JLabel ruleLabel = new JLabel("Rule applied: "+ op.getTr().reglenames.get(tree) );
-            ruleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             ruleLabel.setForeground(new Color(102, 102, 102));
 
             JLabel costLabel = new JLabel("Physical costs: minCost: " );//+ minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
@@ -136,7 +137,7 @@ public class Visualizer extends JPanel {
             costArea.setWrapStyleWord(true);
             costArea.setFont(new Font("Arial", Font.PLAIN, 14));
             costArea.setForeground(new Color(102, 102, 102));
-            JButton showCosts   = new JButton("Show costs");
+            JButton showCosts   = new JButton("Show Physical Trees");
             showCosts.setFont(new Font("Arial", Font.PLAIN, 14));
             showCosts.setBackground(new Color(115, 112, 234));
             showCosts.setForeground(Color.WHITE);
@@ -249,23 +250,27 @@ public class Visualizer extends JPanel {
         treePanel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
     }
-    private static JPanel drawnTree(Node node,double cost,String script,Color col){
 
-        Visualizer mainsubPanel = new Visualizer(node,col);
-        JPanel maintopPanel = new JPanel(new BorderLayout());
-        String titre=script.equals("Main Tree")?script:"Optimal Tree";
+    private static JPanel drawnTree(Node node, double cost, String script, Color col) {
+
+        Visualizer mainsubPanel = new Visualizer(node, col);
+        JPanel maintopPanel = new JPanel();
+        maintopPanel.setLayout(new BoxLayout(maintopPanel, BoxLayout.Y_AXIS));
+
+        String titre = script.equals("Main Tree") ? script : "Optimal Tree";
         // Create labels
         JLabel maintreeLabel = new JLabel(titre);
         JTextArea maindescrArea = new JTextArea();
         maindescrArea.setEditable(false);
         maindescrArea.setLineWrap(true);
         maindescrArea.setWrapStyleWord(true);
-        maindescrArea.setFont(new Font("Arial", Font.PLAIN, 14));
         maindescrArea.setForeground(col);
-        String text=cost>0?"( Cost: "+cost+"ms ) ":"";
-        if(!script.equals("Main Tree")){
-            String optimal_script=Node.extractScript(Node.cloneTree(node.getLeft()));
-            text+=script.toUpperCase().split("WHERE")[0]+" WHERE "+optimal_script;
+        String text = cost > 0 ? "- Cost: " + cost + "ms  \n" : "";
+        if (!script.equals("Main Tree")) {
+            String optimal_script = Node.extractScript(Node.cloneTree(node.getLeft()));
+            optimal_script=script.toUpperCase().split("WHERE")[0] + " WHERE " + optimal_script + " }";
+            optimal_script= optimal_script.replaceAll("\n","");
+            text += "- tip: It would be better if you write the Query this way :\n  { " + optimal_script;
         }
         maindescrArea.setText(text);
 
@@ -275,10 +280,17 @@ public class Visualizer extends JPanel {
         maintreeLabel.setBackground(Color.white);
         maintreeLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
+        maintopPanel.add(maintreeLabel);
+        maintopPanel.add(maindescrArea);
 
-        maintopPanel.add(maintreeLabel, BorderLayout.NORTH);
-        maintopPanel.add(maindescrArea, BorderLayout.SOUTH);
-
+        // Set the width of the JTextArea to match the width of the returned panel
+        maintopPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int width = maintopPanel.getWidth();
+                maindescrArea.setPreferredSize(new Dimension(width, maindescrArea.getPreferredSize().height));
+            }
+        });
 
         JPanel maintreePanel = new JPanel(new BorderLayout());
         maintreePanel.setBorder(BorderFactory.createLineBorder(col, 1));

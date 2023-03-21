@@ -17,7 +17,7 @@ public class Node {
 		if(node.getType().equals(Node.T)) return "";
 		if(node.getType().equals(Node.J)) {
 
-			node.setData( node.getData().replaceFirst("⋈","AND "));
+			node.setData( node.getData().replaceFirst("⋈"," AND "));
 			if(!node.getRight().getType().equals(Node.T)&& !node.getRight().getType().equals(Node.J)){
 				node.setData(node.getData()+" AND ");
 			}

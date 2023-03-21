@@ -175,7 +175,7 @@ public class Optimizer {
             if (frame.getContentPane().getComponents().length > 1) {
                 frame.remove(pan[0]);
             }
-            pan[0] =Visualizer.drawListOfTrees(optimizer);
+            pan[0] =Visualizer.drawListOfTrees(optimizer,script.getText());
             frame.add(pan[0], BorderLayout.CENTER);
             frame.revalidate();
             frame.repaint();

@@ -12,6 +12,27 @@ public class Node {
 	private String data;
 	private String type;// T, J, S, P
 
+	public static String extractScript(Node node) {
+		if(node==null) return "";
+		if(node.getType().equals(Node.T)) return "";
+		if(node.getType().equals(Node.J)) {
+
+			node.setData( node.getData().replaceFirst("⋈","AND "));
+			if(!node.getRight().getType().equals(Node.T)&& !node.getRight().getType().equals(Node.J)){
+				node.setData(node.getData()+" AND ");
+			}
+		}
+		if(node.getType().equals(Node.S)){
+			node.setData( node.getData().replaceAll("&&"," AND "));
+			node.setData( node.getData().replaceAll("σ"," "));
+			if(node.getLeft().getType().equals(Node.S)) node.setData(" AND "+ node.getData());
+		}
+
+
+
+		return extractScript(node.getLeft())+" "+node.getData()+extractScript(node.getRight());
+	}
+
 	public String getType() {
 		return type;
 	}

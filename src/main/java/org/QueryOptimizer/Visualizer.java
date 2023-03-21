@@ -98,7 +98,7 @@ public class Visualizer extends JPanel {
 
 
 
-    static JScrollPane drawListOfTrees(Optimizer op) {
+    static JScrollPane drawListOfTrees(Optimizer op,String script) {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -106,9 +106,9 @@ public class Visualizer extends JPanel {
 
         Set<Node> variants=op.getTr().getAllVariants();
 
-        panel.add(drawnTree(op.getT().getFirstTree(),0,"main Tree ",new Color(14, 28, 162)));
+        panel.add(drawnTree(op.getT().getFirstTree(),0,"Main Tree",new Color(14, 28, 162)));
         Node optimal=op.optimalTree(op.allPhysicalTrees(variants));
-        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),"optimal Tree",new Color(13, 122, 18)));
+        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18)));
 
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         int i=0;
@@ -249,20 +249,24 @@ public class Visualizer extends JPanel {
         treePanel.add(bottomPanel, BorderLayout.SOUTH);
         return panel;
     }
-    private static JPanel drawnTree(Node node,double cost,String title,Color col){
+    private static JPanel drawnTree(Node node,double cost,String script,Color col){
 
         Visualizer mainsubPanel = new Visualizer(node,col);
         JPanel maintopPanel = new JPanel(new BorderLayout());
-
+        String titre=script.equals("Main Tree")?script:"Optimal Tree";
         // Create labels
-        JLabel maintreeLabel = new JLabel(title);
+        JLabel maintreeLabel = new JLabel(titre);
         JTextArea maindescrArea = new JTextArea();
         maindescrArea.setEditable(false);
         maindescrArea.setLineWrap(true);
         maindescrArea.setWrapStyleWord(true);
         maindescrArea.setFont(new Font("Arial", Font.PLAIN, 14));
         maindescrArea.setForeground(col);
-        String text=cost>0?"Cost: "+cost+"ms":"";
+        String text=cost>0?"( Cost: "+cost+"ms ) ":"";
+        if(!script.equals("Main Tree")){
+            String optimal_script=Node.extractScript(Node.cloneTree(node.getLeft()));
+            text+=script.toUpperCase().split("WHERE")[0]+" WHERE "+optimal_script;
+        }
         maindescrArea.setText(text);
 
         maintreeLabel.setFont(new Font("Arial", Font.BOLD, 16));

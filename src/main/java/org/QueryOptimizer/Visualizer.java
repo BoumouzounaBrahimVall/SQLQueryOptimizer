@@ -98,7 +98,7 @@ public class Visualizer extends JPanel {
 
 
 
-    static JScrollPane drawListOfTrees(Optimizer op, JFrame frame) {
+    static JScrollPane drawListOfTrees(Optimizer op) {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));

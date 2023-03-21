@@ -127,7 +127,7 @@ public class Visualizer extends JPanel {
             JLabel ruleLabel = new JLabel("Rule applied: "+ op.getTr().reglenames.get(tree) );
             ruleLabel.setForeground(new Color(102, 102, 102));
 
-            JLabel costLabel = new JLabel("Physical costs: minCost: " );//+ minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
+            JLabel costLabel = new JLabel(" " );//+ minCost + "ms, maxCost: " + maxCost + "ms, count physical tree: " + ls.size());
             costLabel.setFont(new Font("Arial", Font.PLAIN, 14));
             costLabel.setForeground(new Color(102, 102, 102));
 

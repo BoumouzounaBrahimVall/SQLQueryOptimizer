@@ -108,7 +108,7 @@ public class Visualizer extends JPanel {
 
         Set<Node> variants=op.getTr().getAllVariants();
 
-        panel.add(drawnTree(op.getT().getFirstTree(),0,"Main Tree",new Color(14, 28, 162)));
+        panel.add(drawnTree(op.getT().getFirstTree(),-1*variants.size(),"Main Tree",new Color(14, 28, 162)));
         Node optimal=op.optimalTree(op.allPhysicalTrees(variants));
         panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18)));
 
@@ -265,12 +265,15 @@ public class Visualizer extends JPanel {
         maindescrArea.setLineWrap(true);
         maindescrArea.setWrapStyleWord(true);
         maindescrArea.setForeground(col);
-        String text = cost > 0 ? "- Cost: " + cost + "ms  \n" : "";
+        maindescrArea.setFont(new Font("", Font.BOLD, 13));
+        String text = cost > 0 ? "\n- Cost: " + cost + "ms  \n" : "";
         if (!script.equals("Main Tree")) {
             String optimal_script = Node.extractScript(Node.cloneTree(node.getLeft()));
             optimal_script=script.toUpperCase().split("WHERE")[0] + " WHERE " + optimal_script + " }";
             optimal_script= optimal_script.replaceAll("\n","");
-            text += "- tip: It would be better if you write the Query this way :\n  { " + optimal_script;
+            text += "- tip: It would be better if you write the Query this way :\n  { " + optimal_script+"\n";
+        }else{
+            text="\n- logical trees count : "+((int)-cost)+"\n";
         }
         maindescrArea.setText(text);
 

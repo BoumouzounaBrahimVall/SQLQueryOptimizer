@@ -183,12 +183,18 @@ public class Optimizer {
             frame.pack();
         });
 
-
+        ImageIcon icon = new ImageIcon("src/main/java/org/QueryOptimizer/dictionnary/result.gif");
+        JLabel label = new JLabel(icon);
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         p.add(script, BorderLayout.CENTER);
         p.add(execute, BorderLayout.EAST);
         frame.add(p, BorderLayout.NORTH);
+        JPanel panel=new JPanel(new BorderLayout());
+        panel.add(label,BorderLayout.CENTER);
+        pan[0]=new JScrollPane(panel);
+        panel.setBackground(Color.WHITE);
+        frame.add(pan[0],BorderLayout.CENTER);
 
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

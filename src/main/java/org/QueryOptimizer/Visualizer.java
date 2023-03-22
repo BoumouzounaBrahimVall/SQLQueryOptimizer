@@ -108,9 +108,9 @@ public class Visualizer extends JPanel {
 
         Set<Node> variants=op.getTr().getAllVariants();
 
-        panel.add(drawnTree(op.getT().getFirstTree(),-1*variants.size(),"Main Tree",new Color(14, 28, 162)));
+        panel.add(drawnTree(op.getT().getFirstTree(),-1*variants.size(),"Main Tree",new Color(14, 28, 162),op));
         Node optimal=op.optimalTree(op.allPhysicalTrees(variants));
-        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18)));
+        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18),op));
 
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         int i=1;
@@ -251,7 +251,7 @@ public class Visualizer extends JPanel {
         return panel;
     }
 
-    private static JPanel drawnTree(Node node, double cost, String script, Color col) {
+    private static JPanel drawnTree(Node node, double cost, String script, Color col,Optimizer op) {
 
         Visualizer mainsubPanel = new Visualizer(node, col);
         JPanel maintopPanel = new JPanel();
@@ -275,6 +275,7 @@ public class Visualizer extends JPanel {
         }else{
             text="\n- logical trees count : "+((int)-cost)+"\n";
         }
+
         maindescrArea.setText(text);
 
         maintreeLabel.setFont(new Font("Arial", Font.BOLD, 16));
@@ -295,10 +296,31 @@ public class Visualizer extends JPanel {
             }
         });
 
+        JTextArea costArea = new JTextArea();
+        costArea.setEditable(false);
+        costArea.setLineWrap(true);
+        costArea.setWrapStyleWord(true);
+        costArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        costArea.setForeground(new Color(102, 102, 102));
+        JButton showCosts   = new JButton("Show Physical Trees");
+        showCosts.setFont(new Font("Arial", Font.PLAIN, 14));
+        showCosts.setBackground(new Color(115, 112, 234));
+        showCosts.setForeground(Color.WHITE);
+        JScrollPane scrollPane = new JScrollPane(showCosts);
+        scrollPane.add(costArea);
+        showCosts.addActionListener(e -> {
+
+            Set<Node>  treeCosts=op.physiquesArbre(node);
+            createWindowWithPanels(treeCosts,node,op.getEstimator());
+        });
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(scrollPane, BorderLayout.CENTER);
         JPanel maintreePanel = new JPanel(new BorderLayout());
         maintreePanel.setBorder(BorderFactory.createLineBorder(col, 1));
         maintreePanel.add(maintopPanel, BorderLayout.NORTH);
         maintreePanel.add(mainsubPanel, BorderLayout.CENTER);
+        if (!script.equals("Main Tree")) {
+        maintreePanel.add(bottomPanel, BorderLayout.SOUTH);}
         return maintreePanel;
     }
 

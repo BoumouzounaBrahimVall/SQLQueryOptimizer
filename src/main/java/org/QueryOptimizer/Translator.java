@@ -1,6 +1,7 @@
 
 package org.QueryOptimizer;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class Translator {
 
 		Matcher selectMatcher = SELECT_Pattern.matcher(query);
 		if (!selectMatcher.find()) {
-			throw new IllegalArgumentException("Wrong Query : " + query);
+			JOptionPane.showMessageDialog(null, "requete incorrect.");
 		}
 		String projections = selectMatcher.group(1);
 		String tablesAndSelections = selectMatcher.group(2);

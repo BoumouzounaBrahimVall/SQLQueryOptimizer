@@ -110,7 +110,7 @@ public class Visualizer extends JPanel {
 
         panel.add(drawnTree(op.getT().getFirstTree(),-1*variants.size(),"Main Tree",new Color(14, 28, 162),op));
         Node optimal=op.optimalTree(op.allPhysicalTrees(variants));
-        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesArbre(optimal),optimal),script,new Color(13, 122, 18),op));
+        panel.add(drawnTree(optimal, op.getEstimator().minCostsOneLogTree(op.physiquesTree(optimal),optimal),script,new Color(13, 122, 18),op));
 
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         int i=1;
@@ -150,7 +150,7 @@ public class Visualizer extends JPanel {
             costArea.setText(costs);
             showCosts.addActionListener(e -> {
 
-                    Set<Node>  treeCosts=op.physiquesArbre(tree);
+                    Set<Node>  treeCosts=op.physiquesTree(tree);
                     createWindowWithPanels(treeCosts,tree,op.getEstimator());
             });
             JPanel labelPanel = new JPanel(new GridLayout(2, 1, 0, 5));
@@ -233,7 +233,7 @@ public class Visualizer extends JPanel {
         scrollPane.add(costArea);
         showCosts.addActionListener(e -> {
 
-            Set<Node>  treeCosts=op.physiquesArbre(node);
+            Set<Node>  treeCosts=op.physiquesTree(node);
             createWindowWithPanels(treeCosts,node,op.getEstimator());
         });
         JPanel bottomPanel = new JPanel(new BorderLayout());

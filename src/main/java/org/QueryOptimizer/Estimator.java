@@ -1,5 +1,5 @@
 package org.QueryOptimizer;
-import org.QueryOptimizer.dictionnary.DictionaryReader;
+import org.QueryOptimizer.dictionary.DictionaryReader;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,7 +12,7 @@ public class Estimator {
 
     public Estimator()
     {
-        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
+        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionary/dictionary.json");
     }
 
     public DictionaryReader getParser() {return parser;}

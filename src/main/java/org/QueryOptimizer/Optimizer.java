@@ -1,8 +1,6 @@
 package org.QueryOptimizer;
-import org.QueryOptimizer.dictionnary.DictionaryReader;
 
 import java.awt.*;
-import java.awt.List;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +8,12 @@ import javax.swing.*;
 public class Optimizer {
     private final Estimator estimator;
     private final Translator t;
-
+    private final Transformer tr;
+    public Optimizer(String script){
+        t = new Translator(script);
+        tr = new Transformer(t.getFirstTree());
+        estimator = new Estimator();
+    }
     public Estimator getEstimator() {
         return estimator;
     }
@@ -23,43 +26,28 @@ public class Optimizer {
         return tr;
     }
 
-    private final Transformer tr;
-     public Optimizer(String script){
-          t = new Translator(script);
-          tr = new Transformer(t.getFirstTree());
-          estimator = new Estimator();
-     }
+
     public static final String INDEX_PR="2nd index";
     public static final String INDEX_SC="1st index";
-    public static final String HASH="hashage";
-    public static final String FULL_SCAN="balayage";
-    public Set<Node> physiquesArbre(Node arbre) {
+    public static final String HASH="hash";
+    public static final String FULL_SCAN="F-scan";
+    public Set<Node> physiquesTree(Node tree) {
         Set<Node> treeSet = new HashSet<>();
-        treeSet.add(arbre);
-        Node Ar = Node.cloneTree(arbre);
+        treeSet.add(tree);
+        Node Ar = Node.cloneTree(tree);
         treeSet.add(Ar);
-        this.change(Ar, "BIB", 2).forEach((n1) -> {
-            this.selectPhysicalVars(treeSet, n1);
-        });
-        this.change(Ar, "BII", 2).forEach((n1) -> {
-            this.selectPhysicalVars(treeSet, n1);
-        });
-        this.change(Ar, "JH", 2).forEach((n1) -> {
-            this.selectPhysicalVars(treeSet, n1);
-        });
-        this.change(Ar, "PJ", 2).forEach((n1) -> {
-            this.selectPhysicalVars(treeSet, n1);
-        });
-        this.change(Ar, "JTF", 2).forEach((n1) -> {
-            this.selectPhysicalVars(treeSet, n1);
-        });
+        this.change(Ar, "BIB", 2).forEach((n1) -> this.selectPhysicalVars(treeSet, n1));
+        this.change(Ar, "BII", 2).forEach((n1) -> this.selectPhysicalVars(treeSet, n1));
+        this.change(Ar, "JH", 2).forEach((n1) -> this.selectPhysicalVars(treeSet, n1));
+        this.change(Ar, "PJ", 2).forEach((n1) -> this.selectPhysicalVars(treeSet, n1));
+        this.change(Ar, "JTF", 2).forEach((n1) -> this.selectPhysicalVars(treeSet, n1));
         this.removeGarbage(treeSet);
         return treeSet;
     }
-    public Map<Node, Set<Node>> allPhysicalTrees(Set<Node>logicals){
-        Map<Node, Set<Node>> mapie=new HashMap<>();
-       logicals.forEach(l->mapie.put(l,physiquesArbre(l)));
-       return mapie;
+    public Map<Node, Set<Node>> allPhysicalTrees(Set<Node>logical){
+        Map<Node, Set<Node>> map=new HashMap<>();
+       logical.forEach(l->map.put(l, physiquesTree(l)));
+       return map;
     }
     public Node optimalTree(Map<Node,Set<Node>> allVariants){
         double min =Double.MAX_VALUE;
@@ -94,11 +82,11 @@ public class Optimizer {
     }
 
 
-    private Set<Node> change(Node arbre, String nouveau,int type) {
+    private Set<Node> change(Node tree, String nouveau,int type) {
         Set<Node> treeSet = new HashSet<>();
         Node tmp;
-        if(type==1)  tmp = change1(Node.cloneTree(arbre), nouveau);
-        else   tmp = change2(Node.cloneTree(arbre), nouveau);
+        if(type==1)  tmp = change1(Node.cloneTree(tree), nouveau);
+        else   tmp = change2(Node.cloneTree(tree), nouveau);
         treeSet.add(tmp);
         return treeSet;
     }
@@ -109,10 +97,9 @@ public class Optimizer {
         if(a.getType().equals(Node.S)){
 
             String match="";
-            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";//[=><]\s*'[^']*' todo will be treated later
+            String pattern = "\\w+\\s*\\.\\s*\\w+\\s*";
             Pattern r = Pattern.compile(pattern);
             Matcher m = r.matcher(a.getData());
-            String oldCnt=a.getData();
 
             if (m.find()) match = m.group(); // Extract the matched substring
             System.out.println(a.getData()+ "matcher: "+match);
@@ -138,15 +125,10 @@ public class Optimizer {
         if (a == null) {
             return null;
         }
-       // if (a.getData().contains("⋈")) {
         if (a.getType().equals(Node.J)) {
-            String oldCnt = a.getData();
-            String aff =  "(" + nouveau + ")";//oldCnt.replaceAll("\\([^)]*\\)", "") +
-          //  System.out.println("aff: " + aff);
             a.setType(Node.J);
             a.setData("(" + nouveau + ")");
         }
-        //else  if(a.getData().contains("σ")){
         if (a.getRight() != null) change2(a.getRight(), nouveau);
         if (a.getLeft() != null) change2(a.getLeft(), nouveau);
         return a;
@@ -183,7 +165,7 @@ public class Optimizer {
             frame.pack();
         });
 
-        ImageIcon icon = new ImageIcon("src/main/java/org/QueryOptimizer/dictionnary/result.gif");
+        ImageIcon icon = new ImageIcon("src/main/java/org/QueryOptimizer/dictionary/result.gif");
         JLabel label = new JLabel(icon);
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

@@ -3,7 +3,6 @@ package org.QueryOptimizer;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,6 @@ public class Translator {
 
 		this.parseQuery();
 		this.addProjections();
-		//this.firstTree.DrawTree();
 
 	}
 
@@ -42,7 +40,7 @@ public class Translator {
 
 		Matcher selectMatcher = SELECT_Pattern.matcher(query);
 		if (!selectMatcher.find()) {
-			JOptionPane.showMessageDialog(null, "requete incorrect.");
+			JOptionPane.showMessageDialog(null, " incorrect query");
 		}
 		String projections = selectMatcher.group(1);
 		String tablesAndSelections = selectMatcher.group(2);
@@ -83,7 +81,7 @@ public class Translator {
 
 	}
 	public  void addProjections() {
-		mergSubTrees();
+		mergeSubTrees();
 
 		if(!this.listProjections.isEmpty()){
 			String proj="π"+this.listProjections;
@@ -93,7 +91,7 @@ public class Translator {
 		}
 	}
 
-	private void mergSubTrees(){
+	private void mergeSubTrees(){
 
 		if(this.listConditions.isEmpty()&& this.listJoins.isEmpty() ){
 			this.firstTree=new Node(listTables.get(0),Node.T);
@@ -145,10 +143,10 @@ public class Translator {
 					tmp.add("σ"+this.listConditions.get(0));// so we add it only without its prev operator
 				}
 				for (int i = 1; i < this.listConditions.size(); i++) {// for the rest of tokens its guarantied that it have a prev operator,so we store it and its prev operator
-					String privOper = this.listConditions.get(i - 1);
+					String previousOp = this.listConditions.get(i - 1);
 					String token = this.listConditions.get(i);
 					if (token.matches(CONDITION_PATTERN) && token.split("\\.")[0].matches(tab)) { // if the token belongs to the table (ex: table.atr='sth')
-						tmp.add(privOper);
+						tmp.add(previousOp);
 						tmp.add("σ"+token);
 					}
 				}
@@ -176,10 +174,10 @@ public class Translator {
 		nv= new Node(token,Node.S);
 		if(root==null) return nv;
 		if(!isOperator(token))
-		{// si la racine n'as pas de fils droit
+		{
 			if(root.getData().equals("OR")){
-				if(root.getRight()==null) root.setRight(nv); // nv devient fils dt
-				else //sinon il est inserer etant le fils le plus a droite
+				if(root.getRight()==null) root.setRight(nv); // nv becomes right child
+				else //else insert in the  right child
 				{
 					root.setRight(addSubTreeNode(root.getRight(),token));
 				}
@@ -204,7 +202,7 @@ public class Translator {
 
 	private Node addTables(Node root, String tabName){
 
-		if(root==null) return null;//arbre vide
+		if(root==null) return null;// empty tree
 		if(root.getRight()!=null) root.setRight(addTables(root.getRight(),tabName));
 		if (root.getLeft()!=null) root.setLeft(addTables(root.getLeft(),tabName));
 		else{

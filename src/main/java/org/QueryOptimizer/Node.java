@@ -44,11 +44,7 @@ public class Node {
 	private Node left;
 	private Node right;
 
-	public Node(String data) {
-		this.data = data;
-		left =null;
-		right =null;
-	}
+
 
 	public Node(String data, String type) {
 		this.data = data;
@@ -59,9 +55,6 @@ public class Node {
 		this.data = data;
 	}
 
-	public boolean isLeaf(){
-		return this.left==null && this.right==null;
-	}
 
 
 
@@ -154,14 +147,5 @@ public class Node {
 		newNode.setRight(cloneTree(root.getRight()) );
 		return newNode;
 	}
-
-	public static int nbrNodes(Node n){
-		if(n==null) return 0;
-		return 1+nbrNodes(n.getLeft()) + nbrNodes(n.getRight());
-	}
-
-
-
-
 
 }

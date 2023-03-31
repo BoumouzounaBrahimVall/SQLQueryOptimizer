@@ -70,6 +70,7 @@ public class DictionaryReader {
         }
         return value;
     }
+
     /// database properties
     public  Double getTailleBloc()   {return getDBProperty("blocSize");}
     public double getTransTime()  {return getDBProperty("transTime");}
@@ -103,10 +104,11 @@ public class DictionaryReader {
     // calculated column properties
     public  int getNbrLignesSelected(String tableName,String col)  {return (int) (getLineCount(tableName)/getCardinality(tableName,col));}
     public int getNbrLignesSelected(String tableName,String col,Double v1, Double v2)  {return (int) (getFS(tableName,col,v1,v2)*getLineCount(tableName));}
-    public  Double getFS(String tableName,String col) {return (double) (1/getCardinality(tableName,col))*100;}
+    public  Double getFS(String tableName,String col) {return  (1/getCardinality(tableName,col))*100;}
     public Double getFS(String tableName,String col, Double v1, Double v2) {return ((v2-v1)/ (getMaxVal(tableName,col)-getMinVal(tableName,col)));}
     public Double getHauteur(String table, String index) {return (Math.log(getLineCount(table)) / Math.log(getOrderMoy(table,index)));}
-    public Double getTH(String table)  {Double fb=0.8*getFbm(table) ;return getLineCount(table)/fb;}
+    public Double getTH(String table)  {
+        double fb=0.8*getFbm(table) ;return getLineCount(table)/fb;}
 
 
 }

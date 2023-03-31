@@ -1,7 +1,5 @@
 package org.QueryOptimizer;
 
-import javax.swing.*;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -11,13 +9,12 @@ import java.util.regex.Pattern;
 public final class Transformer {
 
 	public Set<Node> joinRule; // Commutativity the joins (JC)
-	public Set<Node> selectionRule; // Eclatement d'une sélection conjonctive (SE)
+	public Set<Node> selectionRule; // Emplacement of (SE)
 	public Set<Node> orSelectionRule; //
 	public Set<Node> regleCommutSelection;//commutativiteSelection
 	public Set<Node> assocJoinRule; //association jointure
 	private final Node firstTree;
 	private Set<Node> allVariants;
-	private List<Node> switchJoinSelection;
 	public   Map<Node,String> reglenames;
 	String jointureCommutativite="T1 ⋈ T2 = T2 ⋈ T1";
 	String selectionConjonctive="σ e1 ET e2 (T) = σ e1 (σ e2 (T))";
@@ -29,7 +26,7 @@ public final class Transformer {
 		reglenames=new HashMap<>();
 		this.firstTree=tree;
 		joinRule =jointureCommutativite(firstTree);
-		selectionRule =selectionConjonctive(firstTree);
+		selectionRule = selectionConjunctive(firstTree);
 		orSelectionRule =onlyOrSelectionVariants(firstTree);
 		regleCommutSelection=commutativiteSelection(firstTree);
 		assocJoinRule =joinAssociativite(firstTree);
@@ -52,7 +49,7 @@ public final class Transformer {
 
 		for(Node n1: joinRule){
 			//  selection of join variants
-			Set<Node> tmp=selectionConjonctive(n1);
+			Set<Node> tmp= selectionConjunctive(n1);
 			tousTrees.addAll(tmp);
 			for (Node node : tmp) {
 				reglenames.put(node, jointureCommutativite+" -- "+selectionConjonctive );
@@ -64,14 +61,14 @@ public final class Transformer {
 			for (Node node : tmp) {
 				reglenames.put(node, jointureCommutativite+" -- "+onlyOrSelectionVariants );
 			}
-			// commutativiteSelection
+			// commutativitySelection
 			tmp=commutativiteSelection(n1);
 			tousTrees.addAll(tmp);
 			for (Node node : tmp) {
 				reglenames.put(node, jointureCommutativite+" -- "+commutativiteSelection );
 			}
 
-			//association jointure
+			//association jointures
 			tmp=joinAssociativite(n1);
 			tousTrees.addAll(tmp);
 			for (Node node : tmp) {
@@ -92,7 +89,7 @@ public final class Transformer {
 		for(Node n1: orSelectionRule){
 			//   selection variant
 			Set<Node> tmp;
-			tmp=selectionConjonctive(n1);
+			tmp= selectionConjunctive(n1);
 			tousTrees.addAll(tmp);
 			for(Node n2: tmp)
 				reglenames.put(n2, onlyOrSelectionVariants+" -- "+selectionConjonctive  );
@@ -102,7 +99,7 @@ public final class Transformer {
 
 		for(Node n1: regleCommutSelection){
 			assoSelVars(tousTrees, n1,commutativiteSelection   );
-			//association jointure
+			//association jointures
 			tousTrees.addAll(joinAssociativite(n1));
 			for(Node n2: joinAssociativite(n1))
 				reglenames.put(n2, commutativiteSelection+" -- "+joinAssociativite );
@@ -112,7 +109,7 @@ public final class Transformer {
 
 		for(Node n1: assocJoinRule){
 			assoSelVars(tousTrees, n1,joinAssociativite );
-			// commutativiteSelection
+			// commutativitySelection
 			tousTrees.addAll(commutativiteSelection(n1));
 			for(Node n2: commutativiteSelection(n1))
 				reglenames.put(n2, joinAssociativite+" -- "+commutativiteSelection  );
@@ -122,18 +119,18 @@ public final class Transformer {
 	}
 
 	private void joinCumitVars(Set<Node> tousTrees, Node n1,String request) {
-		//  jointure
+		//  jointures
 		Set<Node> tmp;
 		tmp=jointureCommutativite(n1);
 		tousTrees.addAll(tmp);
 		for(Node n2: tmp)
 			reglenames.put(n2, request+" -- "+jointureCommutativite  );
-		// commutativiteSelection
+		// commutativitySelection
 		tmp=commutativiteSelection(n1);
 		tousTrees.addAll(tmp);
 		for(Node n2: tmp)
 			reglenames.put(n2, request+" -- "+commutativiteSelection );
-		//association jointure
+		//association jointures
 		tmp=joinAssociativite(n1);
 		tousTrees.addAll(tmp);
 		for(Node n2: tmp)
@@ -143,11 +140,11 @@ public final class Transformer {
 	private void assoSelVars(Set<Node> tousTrees, Node n1,String request) {
 		//  selection variant
 		Set<Node> tmp;
-		tmp=selectionConjonctive(n1);
+		tmp= selectionConjunctive(n1);
 		tousTrees.addAll(tmp);
 		for(Node n2: tmp)
 			reglenames.put(n2, request+" -- "+selectionConjonctive  );
-		//  jointure
+		//  join
 		tmp=jointureCommutativite(n1);
 		tousTrees.addAll(tmp);
 		for(Node n2: tmp)
@@ -161,15 +158,14 @@ for(Node n2: tmp)
 	}
 
 
-	//// -------------------------  Jointurr --------------------------------------------------
+	////   Join
 	private  Set<Node> jointureCommutativite(Node tree){
 		Set<Node> join1stVariantList=new HashSet<>();
 		join1stVariantList.add(tree);
 		int count= Node.joinCount(tree);
-		//System.out.println("nbr join ::::::::::::: "+count);
 		for(int i=0;i<count;i++)
 			for (int j=1;j<=count;j++){
-				Node tmp=joinCommutateur(Node.cloneTree(tree),i,0,j);
+				Node tmp= joinCommutator(Node.cloneTree(tree),i,0,j);
 				join1stVariantList.add(tmp);
 			}
 
@@ -177,19 +173,8 @@ for(Node n2: tmp)
 	}
 
 
-/*
-	public static boolean notAlreadyAdded(Collection<Node> L, Node n){
-		for (Node t : L) {
-			if (Node.isEqual(t, n)) {
-				return false;
-			}
-		}
-		return true;
-	}
-*/
 
-
-	private Node joinCommutateur(Node a, int initial, int counter, int maxCount){
+	private Node joinCommutator(Node a, int initial, int counter, int maxCount){
 		if (a == null) {
 			return null;
 		}
@@ -207,18 +192,18 @@ for(Node n2: tmp)
 			counter++;
 		}
 		if(counter==maxCount) return a;
-		if(a.getLeft()!=null) joinCommutateur(a.getLeft(),initial,counter, maxCount);
-		if (a.getRight()!=null) joinCommutateur(a.getRight(),initial,counter, maxCount);
+		if(a.getLeft()!=null) joinCommutator(a.getLeft(),initial,counter, maxCount);
+		if (a.getRight()!=null) joinCommutator(a.getRight(),initial,counter, maxCount);
 		return a;
 	}
 
 
 
 
-/// ------------------------------- Selection --------------------------------------------------
+///  Selection
 
 
-	private Set<Node> selectionConjonctive(Node tree){
+	private Set<Node> selectionConjunctive(Node tree){
 		Set<Node> onlySelectionVariantsList=new HashSet<>();
 		onlySelectionVariantsList.add(tree);
 		for(int i=0;i<2;i++){
@@ -264,7 +249,7 @@ for(Node n2: tmp)
 
 	}
 
-/// -------------------------------------- Or selection ------------------------------
+///  Or selection
 
 	private Set<Node> onlyOrSelectionVariants(Node tree){
 		Set<Node> onlyOrSelectionVariantsList=new HashSet<>();
@@ -330,7 +315,7 @@ for(Node n2: tmp)
 	}
 
 
-///-------------------------------------- Commutativité de la sélection ----------------------------------------------------------
+///Commutativité de la sélection
 
 
 	private Set<Node> commutativiteSelection(Node tree){
@@ -360,7 +345,6 @@ for(Node n2: tmp)
 			if(counter[0]>=initial) {
 				Node tmp = a.getLeft().getLeft();
 				String aux=a.getData();
-				//System.out.println("1111111111"+aux);
 				a.setData(a.getLeft().getData());
 				a.getLeft().setData(aux);
 				a.getLeft().setLeft(tmp);
@@ -383,7 +367,6 @@ for(Node n2: tmp)
 			if(counter[0]>=initial) {
 				Node tmp = a.getLeft().getLeft();
 				String aux=a.getData();
-			///	System.out.println("222222222"+aux);
 				a.setData(a.getLeft().getData());
 				a.getLeft().setData(aux);
 				a.getLeft().setLeft(tmp);
@@ -397,13 +380,12 @@ for(Node n2: tmp)
 		return a;
 	}
 
-///------------------------------------------- Associativité de la jointure (JA)-----------------------------
+/// Associativité de la jointure
 
 	private  Set<Node> joinAssociativite(Node tree){
 		Set<Node> joinAssocitivite=new HashSet<>();
 		joinAssocitivite.add(tree);
 		int count= Node.joinCount(tree);
-		//System.out.println("nbr join ::::::::::::: "+count);
 		for(int i=0;i<count;i++)
 			for (int j=1;j<=count;j++){
 				Node tmp=joinAssoc(Node.cloneTree(tree),i,0,j);
@@ -441,52 +423,7 @@ for(Node n2: tmp)
 		A.setRight(aux);
 		return A;
 	}
-	public static Node switchjoinselection(Node a){
-		if (a == null) {
-			return null;
-		}
 
 
-
-
-		if(a.getLeft()!=null) switchjoinselection(a.getLeft());
-		if (a.getRight()!=null) switchjoinselection(a.getRight());
-		return a;
-	}
-
-	public static void main(String[] args) {
-
-	/*JFrame frame = new JFrame();frame.setLayout(new BorderLayout());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		JTextField script =new JTextField(100);
-		JButton execute=new JButton("Execute");
-		execute.addActionListener(evt -> {
-			Translator t=new Translator(script.getText());
-			Transformer tr=new  Transformer(t.getFirstTree());
-			int h=Visualizer.drawListOfTrees(tr.getAllVariants(),frame);
-			frame.setSize(new Dimension(frame.getWidth(),h));
-			frame.pack();
-			frame.setVisible(true);
-		});
-		JPanel p=new JPanel();
-		p.add(script);
-		p.add(execute);
-		frame.add(p,BorderLayout.NORTH);
-		// Translator t=  new Translator("select A.a, B.b from A,B,C where A.a=B.b AND A.a='2' AND A.z='3' and C.c='3' OR A.a<'7' AND A.a>'89' OR C.e='45' OR C.j='35' AND B.b=C.b");
-		//Translator t=new Translator("Select t.t From T1,T2,T3 where T1.a=T2.a AND T2.b=T3.b");
-		//  Transformer tr=new  Transformer(t.getFirstTree());
-		//SELECT nom,age,prenom FROM Client,Voiture,Location WHERE Client.id_client=Location.id_client AND Voiture.id_voiture=Location.id_voiture AND Client.age='40' AND Voiture.km='1000' AND Voiture.marque='Mercedes'
-		frame.pack();
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);*/
-		//Node a=Transformer.switchjoinselection();
-		Translator tr=new Translator("SELECT CLIENT.ID,CLIENT.NOM,PROJET.TITRE FROM CLIENT,PROJET WHERE CLIENT.ID=PROJET.ID AND PROJET.TITRE='VAL'");
-		//tr.getFirstTree().showTree();
-		System.out.println("\n\n________________________==================__________________");
-		Node tmp=Transformer.switchjoinselection(tr.getFirstTree());
-	//todo tmp.showTree();
-
-	}
 }
 

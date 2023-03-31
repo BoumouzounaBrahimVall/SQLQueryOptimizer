@@ -2,28 +2,28 @@
   "transTime":"0.1",
   "nbrPos":"500",
   "tpd":"1.0",
-  "M":"13" ,
-  "blocSize": "16",
-  "tailleDescripteurBloc": "50",
+  "M":"50" ,
+  "blocSize": "50",
+  "tailleDescripteurBloc": "16",
   "tables":[
     {
       "lineSize":"56",
       "lineCount":"100000",
       "FB":"45",
-      "tableName":"CLIENT",
+      "tableName":"A",
       "columns":[
         {
-          "columnName":"IDC",
+          "columnName":"A",
           "Pk":"1",
           "index":"1",
           "unique":"1",
-          "cardinality":"13",
+          "cardinality":"100000",
           "minVal":"1",
-          "maxVal":"20",
-          "orderMoy":"44"
+          "maxVal":"100000",
+          "orderMoy":"66"
         },
         {
-          "columnName":"NOM",
+          "columnName":"Z",
           "Pk":"0",
           "index":"1",
           "unique":"0",
@@ -33,45 +33,45 @@
           "orderMoy":"66"
         },
         {
-          "columnName":"PRENOM",
+          "columnName":"K",
           "Pk":"0",
-          "index":"1",
+          "index":"0",
           "unique":"0",
-          "cardinality":"13",
+          "cardinality":"2500",
           "minVal":"1",
-          "maxVal":"40",
+          "maxVal":"7000",
           "orderMoy":"70"
         }
       ]
     },
     {
       "lineSize":"76",
-      "lineCount":"100000",
-      "FB":"45",
-      "tableName":"PRODUIT",
+      "lineCount":"30000",
+      "FB":"150",
+      "tableName":"B",
       "columns":[
         {
-          "columnName":"IDP",
+          "columnName":"B",
           "Pk":"1",
           "index":"1",
           "unique":"1",
-          "cardinality":"13",
+          "cardinality":"30000",
           "minVal":"1",
-          "maxVal":"20",
+          "maxVal":"30000",
           "orderMoy":"50"
         },
         {
-          "columnName":"TITRE",
+          "columnName":"A",
           "Pk":"0",
           "index":"1",
           "unique":"0",
-          "cardinality":"13",
-          "minVal":"1",
-          "maxVal":"30",
+          "cardinality":"1000",
+          "minVal":"4",
+          "maxVal":"10000",
           "orderMoy":"50"
         },
         {
-          "columnName":"PRIX",
+          "columnName":"M",
           "Pk":"0",
           "index":"0",
           "unique":"0",
@@ -86,32 +86,42 @@
       "lineSize":"40",
       "lineCount":"1000",
       "FB":"45",
-      "tableName":"ACHAT",
+      "tableName":"C",
       "columns":[
         {
-          "columnName":"IDP",
+          "columnName":"C",
           "Pk":"1",
           "index":"1",
           "unique":"1",
+          "cardinality":"13",
+          "minVal":"1",
+          "maxVal":"1000",
+          "orderMoy":"55"
+        },
+        {
+          "columnName":"E",
+          "Pk":"0",
+          "index":"0",
+          "unique":"0",
+          "cardinality":"4000",
+          "minVal":"1",
+          "maxVal":"60",
+          "orderMoy":"50"
+        },
+        {
+          "columnName":"B",
+          "Pk":"0",
+          "index":"1",
+          "unique":"0",
           "cardinality":"13",
           "minVal":"1",
           "maxVal":"20",
           "orderMoy":"50"
         },
         {
-          "columnName":"IDC",
-          "Pk":"1",
-          "index":"1",
-          "unique":"1",
-          "cardinality":"13",
-          "minVal":"1",
-          "maxVal":"20",
-          "orderMoy":"50"
-        },
-        {
-          "columnName":"DATEA",
-          "Pk":"1",
-          "index":"1",
+          "columnName":"J",
+          "Pk":"0",
+          "index":"0",
           "unique":"1",
           "cardinality":"13",
           "minVal":"1",

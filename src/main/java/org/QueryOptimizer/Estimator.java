@@ -12,7 +12,7 @@ public class Estimator {
 
     public Estimator()
     {
-        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary2.json");
+        parser=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
     }
 
     public DictionaryReader getParser() {return parser;}

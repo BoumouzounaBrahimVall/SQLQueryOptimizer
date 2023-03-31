@@ -111,10 +111,5 @@ public class DictionaryReader {
     public Double getHauteur(String table, String index) {return (Math.log(getLineCount(table)) / Math.log(getOrderMoy(table,index)));}
     public Double getTH(String table)  {Double fb=0.8*getFbm(table) ;return getLineCount(table)/fb;}
 
-/*
-    public static void main(String[] args){
-        DictionaryReader d=new DictionaryReader("src/main/java/org/QueryOptimizer/dictionnary/dictionary.json");
-        System.out.println(d.getOrderMoy("tab1","name1"));
 
-    }*/
 }
